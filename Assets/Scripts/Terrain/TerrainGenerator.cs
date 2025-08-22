@@ -51,13 +51,14 @@ public class TerrainGenerator : MonoBehaviour
 	public int rockCount = 150;
 	public float minTreeHeight = 0.25f;
 	public float maxTreeHeight = 0.7f;
-	public float maxTreeSlopeDeg = 20f;
+	public float maxTreeSlopeDeg = 25f;
 	public float minRockHeight = 0.35f;
-	public float maxRockSlopeDeg = 45f;
+	public float maxRockSlopeDeg = 35f;
 	public Vector2 treeScaleRange = new Vector2(0.85f, 1.2f);
-	public Vector2 rockScaleRange = new Vector2(0.9f, 1.6f);
+	public Vector2 rockScaleRange = new Vector2(0.6f, 1.1f);
 	public float minTreeSpacing = 3f; // 월드 단위 간격
-	public float minRockSpacing = 4f; // 월드 단위 간격
+	public float minRockSpacing = 7f; // 월드 단위 간격
+    public float rockScaleMultiplier = 0.25f; // 바위 전체 스케일 배수
 	public bool alignToNormal = true;
 	public bool useDeterministicSeed = false;
 	public int randomSeed = 12345;
@@ -70,6 +71,7 @@ public class TerrainGenerator : MonoBehaviour
 	public int grassLayerIndex = 0;
 	public bool forcePlaceIfZero = true; // 0개일 때 소량 강제 배치로 원인 분리
 	public bool autoSaveAfterEditPlacement = true; // 에디트 모드 배치 후 자동 저장
+	public bool skipSpawnIfExists = true; // 이미 배치되어 있으면 플레이 시 재배치 생략
 	
 	// 마지막으로 생성한 높이맵 보관(텍스처 페인팅에 사용)
 	float[,] lastHeights;
@@ -94,7 +96,14 @@ public class TerrainGenerator : MonoBehaviour
 		
 		// 잔디/오브젝트 배치
 		AddGrassDetails(terrainData);
-		ScatterTreesAndRocks(GetComponent<Terrain>());
+		if (!skipSpawnIfExists || !HasExistingProps())
+		{
+			ScatterTreesAndRocks(GetComponent<Terrain>());
+		}
+		else
+		{
+			Debug.Log("[TerrainGenerator] 기존 Props_Trees_Rocks 가 존재하여 배치를 생략합니다.");
+		}
 		return terrainData;
 	}
 
@@ -222,6 +231,12 @@ public class TerrainGenerator : MonoBehaviour
 		
 		// 최종 정규화
 		return Mathf.Clamp01(terrain);
+	}
+
+	bool HasExistingProps()
+	{
+		Transform parent = transform.Find("Props_Trees_Rocks");
+		return parent != null && parent.childCount > 0;
 	}
 
 	// 에디트 모드에서 한 번에 생성/배치/저장
@@ -454,7 +469,7 @@ public class TerrainGenerator : MonoBehaviour
 							Vector3 n = td.GetInterpolatedNormal(u, v);
 							rot = Quaternion.FromToRotation(Vector3.up, n) * Quaternion.Euler(0f, yaw, 0f);
 						}
-						float s = Random.Range(Mathf.Min(rockScaleRange.x, rockScaleRange.y), Mathf.Max(rockScaleRange.x, rockScaleRange.y));
+						float s = Random.Range(Mathf.Min(rockScaleRange.x, rockScaleRange.y), Mathf.Max(rockScaleRange.x, rockScaleRange.y)) * rockScaleMultiplier;
 						var go = Instantiate(prefab, pos, rot, parent);
 						go.transform.localScale = Vector3.one * s;
 						rockPositions.Add(pos);

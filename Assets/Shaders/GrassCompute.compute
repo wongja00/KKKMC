@@ -1,0 +1,49 @@
+#pragma kernel UpdateGrass
+
+struct GrassData
+{
+    float3 position;
+    float3 normal;
+    float height;
+    float width;
+    float rotation;
+    float windOffset;
+    float health;
+};
+
+RWStructuredBuffer<GrassData> GrassData;
+RWStructuredBuffer<GrassData> CulledGrass;
+
+float WindTime;
+float WindStrength;
+float2 WindDirection;
+float CullDistance;
+float3 CameraPosition;
+int GrassCount;
+
+[numthreads(64,1,1)]
+void UpdateGrass(uint3 id : SV_DispatchThreadID)
+{
+    if (id.x >= GrassCount)
+        return;
+    
+    GrassData grass = GrassData[id.x];
+    
+    // Skip if grass is dead
+    if (grass.health <= 0.0)
+        return;
+    
+    // Simple distance culling
+    float distanceToCamera = length(grass.position - CameraPosition);
+    if (distanceToCamera > CullDistance)
+        return;
+    
+    // Simple wind effect
+    float windEffect = sin(WindTime + grass.windOffset) * WindStrength;
+    
+    // Update rotation based on wind
+    grass.rotation += windEffect * 0.5;
+    
+    // Write to culled buffer
+    CulledGrass[id.x] = grass;
+}
