@@ -6,10 +6,12 @@ public class MobileFortress : MonoBehaviour
     [SerializeField] private VehiclePhysics vehiclePhysics;
     [SerializeField] private VehicleInput vehicleInput;
     [SerializeField] private VehicleAudio vehicleAudio;
+
+    [SerializeField] private VehicleSeatSystem vehicleSeatSystem;
     
     [Header("차량 상태")]
     [SerializeField] private bool isEngineRunning = false;
-    [SerializeField] private bool isPlayerControlling = true;
+    [SerializeField] private bool isPlayerControlling = false;
     [SerializeField] private float currentHealth = 100f;
     [SerializeField] private float maxHealth = 100f;
     
@@ -34,7 +36,9 @@ public class MobileFortress : MonoBehaviour
     {
         InitializeComponents();
         SetupEventListeners();
-        StartEngine();
+        
+        //일단 초기에는 플레이어 조작 불가능
+        SetPlayerControl(false);
     }
     
     private void Update()
@@ -57,6 +61,9 @@ public class MobileFortress : MonoBehaviour
         
         if (vehicleRigidbody == null)
             vehicleRigidbody = GetComponent<Rigidbody>();
+
+        if (vehicleSeatSystem == null)
+            vehicleSeatSystem = GetComponent<VehicleSeatSystem>();
         
         // 필수 컴포넌트 체크
         if (vehiclePhysics == null)
@@ -198,6 +205,7 @@ public class MobileFortress : MonoBehaviour
         if (vehicleInput != null)
         {
             vehicleInput.SetInputEnabled(enabled);
+            vehicleInput.SetIsPlayerControlling(enabled);
         }
         
         if (!enabled)
@@ -257,19 +265,20 @@ public class MobileFortress : MonoBehaviour
     public float GetCurrentSpeed() => vehiclePhysics != null ? vehiclePhysics.GetCurrentSpeed() : 0f;
     public bool IsEngineRunning() => isEngineRunning;
     public bool IsPlayerControlling() => isPlayerControlling;
-    
+
+    public VehicleSeatSystem GetVehicleSeatSystem() => vehicleSeatSystem;
     // 디버그 정보
-    private void OnGUI()
-    {
-        if (Application.isEditor)
-        {
-            GUILayout.BeginArea(new Rect(10, 10, 300, 200));
-            GUILayout.Label($"Mobile Fortress Status");
-            GUILayout.Label($"Health: {currentHealth:F1}/{maxHealth:F1}");
-            GUILayout.Label($"Speed: {GetCurrentSpeed():F1} m/s");
-            GUILayout.Label($"Engine: {(isEngineRunning ? "Running" : "Stopped")}");
-            GUILayout.Label($"Player Control: {(isPlayerControlling ? "Yes" : "No")}");
-            GUILayout.EndArea();
-        }
-    }
+    //private void OnGUI()
+    //{
+    //    if (Application.isEditor)
+    //    {
+    //        GUILayout.BeginArea(new Rect(10, 10, 300, 200));
+    //        GUILayout.Label($"Mobile Fortress Status");
+    //        GUILayout.Label($"Health: {currentHealth:F1}/{maxHealth:F1}");
+    //        GUILayout.Label($"Speed: {GetCurrentSpeed():F1} m/s");
+    //        GUILayout.Label($"Engine: {(isEngineRunning ? "Running" : "Stopped")}");
+    //        GUILayout.Label($"Player Control: {(isPlayerControlling ? "Yes" : "No")}");
+    //        GUILayout.EndArea();
+    //    }
+    //}
 }

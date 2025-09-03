@@ -7,6 +7,7 @@ public class VehicleInput : MonoBehaviour
     [SerializeField] private float inputSensitivity = 1f;
     [SerializeField] private float deadZone = 0.1f;
     
+    
     [Header("입력 매핑")]
     [SerializeField] private KeyCode accelerateKey = KeyCode.W;
     [SerializeField] private KeyCode backKey = KeyCode.S;
@@ -26,6 +27,8 @@ public class VehicleInput : MonoBehaviour
     private bool hornInput;
 
     public float throttleValue = 1f;
+
+    private bool isPlayerControlling = false;
     
     // 입력 이벤트
     public System.Action<float> OnThrottleChanged;
@@ -47,8 +50,12 @@ public class VehicleInput : MonoBehaviour
     
     private void Update()
     {
-        HandleInput();
-        ApplyInput();
+        if(isPlayerControlling)
+        {
+            //조작할때만 입력 처리
+            HandleInput();
+            ApplyInput();
+        }
     }
     
     private void HandleInput()
@@ -158,11 +165,17 @@ public class VehicleInput : MonoBehaviour
     public float GetBrakeInput() => brakeInput;
     public float GetSteeringInput() => steeringInput;
     public bool GetHandbrakeInput() => handbrakeInput;
+
+    public bool GetIsPlayerControlling() => isPlayerControlling;
+
+    public void SetIsPlayerControlling(bool enabled)
+    {
+        isPlayerControlling = enabled;
+    }
     
     // 입력 활성화/비활성화
     public void SetInputEnabled(bool enabled)
     {
-        enabled = enabled;
         if (!enabled)
         {
             // 입력을 0으로 리셋

@@ -12,6 +12,8 @@ public class VehicleTestController : MonoBehaviour
     [SerializeField] private GameObject testVehicle;
     [SerializeField] private Transform spawnPoint;
     
+    private bool isRide = false;
+
     private Camera mainCamera;
     private MobileFortress currentVehicle;
     
@@ -37,8 +39,11 @@ public class VehicleTestController : MonoBehaviour
     
     private void Update()
     {
-        HandleInput();
-        UpdateCamera();
+        if(isRide)
+        {
+            HandleInput();
+            UpdateCamera();
+        }
     }
     
     private void HandleInput()
