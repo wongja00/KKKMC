@@ -102,7 +102,7 @@ public class TerrainGenerator : MonoBehaviour
 		}
 		else
 		{
-			Debug.Log("[TerrainGenerator] 기존 Props_Trees_Rocks 가 존재하여 배치를 생략합니다.");
+			////.Log("[TerrainGenerator] 기존 Props_Trees_Rocks 가 존재하여 배치를 생략합니다.");
 		}
 		return terrainData;
 	}
@@ -246,7 +246,7 @@ public class TerrainGenerator : MonoBehaviour
 		Terrain terrain = GetComponent<Terrain>();
 		if (terrain == null)
 		{
-			Debug.LogError("[TerrainGenerator] Terrain 컴포넌트를 찾을 수 없습니다.");
+			//.LogError("[TerrainGenerator] Terrain 컴포넌트를 찾을 수 없습니다.");
 			return;
 		}
 		terrain.terrainData = GenerateTerrain(terrain.terrainData);
@@ -255,7 +255,7 @@ public class TerrainGenerator : MonoBehaviour
 		{
 			EditorSceneManager.MarkSceneDirty(gameObject.scene);
 			EditorSceneManager.SaveOpenScenes();
-			Debug.Log("[TerrainGenerator] Edit Mode 배치 후 씬 저장 완료");
+			//.Log("[TerrainGenerator] Edit Mode 배치 후 씬 저장 완료");
 		}
 		#endif
 	}
@@ -273,7 +273,7 @@ public class TerrainGenerator : MonoBehaviour
 			#else
 			Destroy(oldParent.gameObject);
 			#endif
-			Debug.Log("[TerrainGenerator] Props_Trees_Rocks 정리 완료");
+			//.Log("[TerrainGenerator] Props_Trees_Rocks 정리 완료");
 		}
 	}
 	
@@ -390,11 +390,11 @@ public class TerrainGenerator : MonoBehaviour
 
 		if (treePrefab == null && (treePrefabs == null || treePrefabs.Length == 0))
 		{
-			Debug.LogWarning("[TerrainGenerator] treePrefab이 비어 있습니다. 나무가 배치되지 않습니다.");
+			//.LogWarning("[TerrainGenerator] treePrefab이 비어 있습니다. 나무가 배치되지 않습니다.");
 		}
 		if (rockPrefab == null && (rockPrefabs == null || rockPrefabs.Length == 0))
 		{
-			Debug.LogWarning("[TerrainGenerator] rockPrefab이 비어 있습니다. 바위가 배치되지 않습니다.");
+			//.LogWarning("[TerrainGenerator] rockPrefab이 비어 있습니다. 바위가 배치되지 않습니다.");
 		}
 
 		if (useDeterministicSeed)
@@ -483,7 +483,7 @@ public class TerrainGenerator : MonoBehaviour
 		// 2차 시도: 아무것도 배치되지 않았을 때 임계치 자동 완화
 		if (placedTrees == 0 && (treePrefab != null || (treePrefabs != null && treePrefabs.Length > 0)) && treeCount > 0)
 		{
-			Debug.LogWarning("[TerrainGenerator] Trees 1차 배치 실패 → 조건 완화 후 재시도합니다.");
+			//.LogWarning("[TerrainGenerator] Trees 1차 배치 실패 → 조건 완화 후 재시도합니다.");
 			for (int i = 0; i < treeCount; i++)
 			{
 				int x = Random.Range(0, Mathf.Max(1, width));
@@ -508,7 +508,7 @@ public class TerrainGenerator : MonoBehaviour
 
 		if (placedRocks == 0 && (rockPrefab != null || (rockPrefabs != null && rockPrefabs.Length > 0)) && rockCount > 0)
 		{
-			Debug.LogWarning("[TerrainGenerator] Rocks 1차 배치 실패 → 조건 완화 후 재시도합니다.");
+			//.LogWarning("[TerrainGenerator] Rocks 1차 배치 실패 → 조건 완화 후 재시도합니다.");
 			for (int i = 0; i < rockCount; i++)
 			{
 				int x = Random.Range(0, Mathf.Max(1, width));
@@ -548,7 +548,7 @@ public class TerrainGenerator : MonoBehaviour
 				go.transform.localScale = Vector3.one * Random.Range(0.9f, 1.2f);
 				placedTrees++;
 			}
-			Debug.LogWarning("[TerrainGenerator] Trees 강제 배치 수행(원인 분리용). 조건/프리팹/렌더링 설정 확인 필요.");
+			//.LogWarning("[TerrainGenerator] Trees 강제 배치 수행(원인 분리용). 조건/프리팹/렌더링 설정 확인 필요.");
 		}
 		if (forcePlaceIfZero && placedRocks == 0 && (rockPrefab != null || (rockPrefabs != null && rockPrefabs.Length > 0)))
 		{
@@ -566,10 +566,10 @@ public class TerrainGenerator : MonoBehaviour
 				go.transform.localScale = Vector3.one * Random.Range(0.9f, 1.2f);
 				placedRocks++;
 			}
-			Debug.LogWarning("[TerrainGenerator] Rocks 강제 배치 수행(원인 분리용). 조건/프리팹/렌더링 설정 확인 필요.");
+			//.LogWarning("[TerrainGenerator] Rocks 강제 배치 수행(원인 분리용). 조건/프리팹/렌더링 설정 확인 필요.");
 		}
 
-		Debug.Log($"Placed Trees: {placedTrees}/{treeCount}, Rocks: {placedRocks}/{rockCount}");
+		//.Log($"Placed Trees: {placedTrees}/{treeCount}, Rocks: {placedRocks}/{rockCount}");
 	}
 
 
@@ -578,11 +578,11 @@ void ApplyTextures(TerrainData terrainData)
 {
     if (terrainLayers == null || terrainLayers.Length == 0)
     {
-        Debug.LogError("No terrain layers assigned");
+        //.LogError("No terrain layers assigned");
         return; // 인스펙터에서 레이어를 지정해야 함
     }
     
-    Debug.Log($"Applying {terrainLayers.Length} terrain layers");
+    //.Log($"Applying {terrainLayers.Length} terrain layers");
     terrainData.terrainLayers = terrainLayers;
     
     //텍스처 혼합을 위한 해상도
@@ -597,7 +597,7 @@ void ApplyTextures(TerrainData terrainData)
     
 
     //디버깅 로그
-    Debug.Log($"Alpha resolution: {alphaRes}, Layers count: {layersCount}");
+    //.Log($"Alpha resolution: {alphaRes}, Layers count: {layersCount}");
     
     // 디버깅용 통계
     float totalSand = 0f, totalGrass = 0f, totalRock = 0f;
@@ -632,7 +632,7 @@ void ApplyTextures(TerrainData terrainData)
     if (alphaRes * alphaRes > 0)
     {
         avgHeight /= (alphaRes * alphaRes);
-        Debug.Log($"Height Range: {minHeight:F3} - {maxHeight:F3}, Average: {avgHeight:F3}");
+        //.Log($"Height Range: {minHeight:F3} - {maxHeight:F3}, Average: {avgHeight:F3}");
     }
     
     // 높이 분포에 기반한 백분위수 계산
@@ -657,7 +657,7 @@ void ApplyTextures(TerrainData terrainData)
     float sandThreshold = allHeights[Mathf.RoundToInt(totalPixels * 0.4f)]; // 하위 40%
     float rockThreshold = allHeights[Mathf.RoundToInt(totalPixels * 0.75f)]; // 상위 25%
     
-    Debug.Log($"Percentile Thresholds - Sand: {sandThreshold:F3} (40th percentile), Rock: {rockThreshold:F3} (75th percentile)");
+    //.Log($"Percentile Thresholds - Sand: {sandThreshold:F3} (40th percentile), Rock: {rockThreshold:F3} (75th percentile)");
     
     // 텍스처 적용
     for (int y = 0; y < alphaRes; y++)
@@ -823,11 +823,11 @@ void ApplyTextures(TerrainData terrainData)
     // 디버깅 통계 출력
     if (pixelCount > 0)
     {
-        Debug.Log($"Texture Distribution - Sand: {totalSand/pixelCount*100:F1}%, Grass: {totalGrass/pixelCount*100:F1}%, Rock: {totalRock/pixelCount*100:F1}%");
-        Debug.Log($"Target: Sand: ~30-35%, Grass: ~40-50%, Rock: ~20-25%");
+        //.Log($"Texture Distribution - Sand: {totalSand/pixelCount*100:F1}%, Grass: {totalGrass/pixelCount*100:F1}%, Rock: {totalRock/pixelCount*100:F1}%");
+        //.Log($"Target: Sand: ~30-35%, Grass: ~40-50%, Rock: ~20-25%");
     }
     
     terrainData.SetAlphamaps(0, 0, splatmaps);
-    Debug.Log("Textures applied successfully");
+    //.Log("Textures applied successfully");
 }
 }

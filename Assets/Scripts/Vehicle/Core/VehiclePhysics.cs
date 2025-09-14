@@ -21,7 +21,7 @@ public class VehiclePhysics : MonoBehaviour
     [SerializeField] private Transform rearRightWheelTransform;
     
     [Header("엔진 설정")]
-    [SerializeField] private float maxSpeed = 50f;
+    [SerializeField] private float maxSpeed = 5000f;
     [SerializeField] private AnimationCurve torqueCurve;
     [SerializeField] private float gearRatio = 3.5f;
     
@@ -50,7 +50,7 @@ public class VehiclePhysics : MonoBehaviour
         }
         
         // 휠 콜라이더 상태 확인
-        CheckWheelColliderSetup();
+        //CheckWheelColliderSetup();
     }
     
     private void CheckWheelColliderSetup()
@@ -87,7 +87,7 @@ public class VehiclePhysics : MonoBehaviour
         if (frontLeftWheelCollider == null || frontRightWheelCollider == null || 
             rearLeftWheelCollider == null || rearRightWheelCollider == null)
         {
-            Debug.LogWarning("휠 콜라이더가 설정되지 않았습니다!");
+            //Debug.LogWarning("휠 콜라이더가 설정되지 않았습니다!");
             return;
         }
         
@@ -121,7 +121,7 @@ public class VehiclePhysics : MonoBehaviour
         // 휠 콜라이더 null 체크
         if (frontLeftWheelCollider == null || frontRightWheelCollider == null)
         {
-            Debug.LogWarning("전륜 콜라이더가 설정되지 않았습니다!");
+            //Debug.LogWarning("전륜 콜라이더가 설정되지 않았습니다!");
             return;
         }
         
@@ -179,6 +179,8 @@ public class VehiclePhysics : MonoBehaviour
     public void SetMotorTorque(float torque)
     {
         currentMotorTorque = Mathf.Clamp(torque, -motorForce, motorForce);
+    
+        Debug.Log("토크" + currentMotorTorque);
     }
     
     public void SetSteerAngle(float angle)
@@ -199,5 +201,29 @@ public class VehiclePhysics : MonoBehaviour
     public float GetMaxSpeed()
     {
         return maxSpeed;
+    }
+
+
+    public void SetWheels(WheelCollider wheel, WheelType type)
+    {
+    switch(type)
+    {
+        case WheelType.FrontLeft:
+            frontLeftWheelCollider = wheel;
+            break;
+        case WheelType.FrontRight:
+            frontRightWheelCollider = wheel;
+            break;
+        case WheelType.RearLeft:
+            rearLeftWheelCollider = wheel;
+            break;
+        case WheelType.RearRight:
+            rearRightWheelCollider = wheel;
+            break;
+        default:
+            Debug.LogWarning("알 수 없는 WheelType입니다: " + type);
+            break;
+    }
+
     }
 }

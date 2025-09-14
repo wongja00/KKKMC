@@ -1,16 +1,16 @@
 using UnityEngine;
 
-public class ModuleSlot : MonoBehaviour
+//모듈 인터페이스
+public interface ModuleSlot
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-        
-    }
+    public ModuleType GetModuleType();
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+}
+
+public enum ModuleType
+{
+    None,
+    WheelModule,
+    WeaponModule,
+    DefenseModule
 }

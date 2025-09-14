@@ -7,6 +7,8 @@ public class MobileFortress : MonoBehaviour
     [SerializeField] private VehicleInput vehicleInput;
     [SerializeField] private VehicleAudio vehicleAudio;
 
+    [SerializeField] private WheelModuleParent wheelModuleParent;
+
     [SerializeField] private VehicleSeatSystem vehicleSeatSystem;
     
     [Header("차량 상태")]
@@ -28,7 +30,7 @@ public class MobileFortress : MonoBehaviour
     public System.Action<float> OnHealthChanged;
     public System.Action<bool> OnEngineStateChanged;
     public System.Action<float> OnSpeedChanged;
-    
+
     private Rigidbody vehicleRigidbody;
     private float lastSpeed;
     
@@ -39,6 +41,8 @@ public class MobileFortress : MonoBehaviour
         
         //일단 초기에는 플레이어 조작 불가능
         SetPlayerControl(false);
+
+        wheelModuleParent.OnWheelAttached += SetWheel;
     }
     
     private void Update()
@@ -257,6 +261,11 @@ public class MobileFortress : MonoBehaviour
         // 차량 비활성화
         SetPlayerControl(false);
         enabled = false;
+    }
+
+    public void SetWheel(WheelCollider wheel, WheelType type)
+    {
+        vehiclePhysics.SetWheels(wheel, type);
     }
     
     // 외부에서 호출할 수 있는 메서드들
