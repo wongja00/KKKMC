@@ -1,9 +1,11 @@
+using System;
 using UnityEngine;
 
+[Serializable]
 [CreateAssetMenu(fileName = "New Item", menuName = "Inventory/Item Data")]
 public class ScriptableItemData : ScriptableObject
 {
-    [Header("기본 정보")]
+    [Header("아이템 기본 정보")]
     public string itemId = "0";
     public string itemName = "Unknown Item";
     [TextArea(3, 5)]
@@ -25,6 +27,7 @@ public class ScriptableItemData : ScriptableObject
     public bool isConsumable = false;
     public bool isTradeable = true;
     public bool isQuestItem = false;
+    public bool isAttachable = false;
 
-    public GameObject modulePrefab;
+    public GameObject itemPrefab;
 }

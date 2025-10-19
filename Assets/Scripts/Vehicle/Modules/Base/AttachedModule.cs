@@ -15,9 +15,14 @@ public class AttachedModule : MonoBehaviour, ModuleSlot
 
     public event Action<WheelCollider, WheelType> OnAttach;
 
+    //붙여진 모듈
+    private GameObject childModule;
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        childModule = null;
+
         coll = GetComponent<SphereCollider>();
 
         isAttached = false;
@@ -47,15 +52,41 @@ public class AttachedModule : MonoBehaviour, ModuleSlot
             newModule.transform.localPosition = Vector3.zero;
             newModule.transform.localRotation = Quaternion.identity;
 
+            childModule = newModule;
+
             if(newModule.TryGetComponent<VehicleWheel>(out VehicleWheel coll))
             {
-                Debug.Log("바퀴 장착");
                 OnAttach?.Invoke(coll.GetWheelCollider(), wheelType);
+                coll.SetIsAttached(true);
+                coll.OnDetach += DetachModule;
             }
 
             this.coll.enabled = false;
             isAttached = true;
         }
+    }
+
+    public void DetachModule()
+    {
+        if(childModule == null)
+        {
+            return;
+        }
+
+        // 기존 모듈이 없다면 리턴
+        if (transform.childCount <= 0)
+        {
+            return;
+        }
+
+        if(childModule.TryGetComponent<VehicleWheel>(out VehicleWheel coll))
+        {
+            coll.OnDetach -= DetachModule;
+        }
+        
+        childModule = null;
+        this.coll.enabled = true;
+        isAttached = false;
     }
 
     public ModuleType GetModuleType()
@@ -76,5 +107,10 @@ public class AttachedModule : MonoBehaviour, ModuleSlot
     public bool GetIsAttached()
     {
         return isAttached;
+    } 
+
+    public void SetIsAttached(bool isSet)
+    {
+        isAttached = isSet;
     }
 }

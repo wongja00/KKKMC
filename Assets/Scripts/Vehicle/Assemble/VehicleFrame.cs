@@ -10,11 +10,17 @@ public class VehicleFrame : MonoBehaviour, Item
     [SerializeField] private int maxStackSize = 1;
     [SerializeField] private Sprite icon;
     [SerializeField] private string itemId;
+    private bool isAttached = false;
 
     ScriptableItemData itemData;
     public string GetName()
     {
         return Itemname;
+    }
+
+    public GameObject GetObject()
+    {
+        return gameObject;
     }
     
     public string GetDescription()
@@ -49,6 +55,15 @@ public class VehicleFrame : MonoBehaviour, Item
     public string GetItemId()
     {
         return itemId;
+    }
+
+    public bool IsAttached()
+    {
+        return isAttached;
+    }
+    public void SetIsAttached(bool set)
+    {
+        isAttached = set;
     }
 
     public void SetItemData(ScriptableItemData itemData)

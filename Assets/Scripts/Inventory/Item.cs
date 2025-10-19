@@ -11,6 +11,10 @@ public interface Item
     ItemType GetItemType();
 
     bool IsStackable();
+    
+    bool IsAttached();
+
+    void SetIsAttached(bool set);
 
     int GetMaxStackSize();
     
@@ -21,6 +25,8 @@ public interface Item
     string GetItemId();
 
     void SetItemData(ScriptableItemData itemData);
+
+    GameObject GetObject();
 
     ScriptableItemData GetItemData();
 }
@@ -34,12 +40,14 @@ public enum ItemType
     Material,
     Quest,
     Currency,
+    Node,
+    HarvestTool,
 
 //자동차 부품
     VehicleFrame,
     VehicleWheel,
     VehicleEngine,
-    VehicleChassis
+    VehicleChassis,
 
 }
 

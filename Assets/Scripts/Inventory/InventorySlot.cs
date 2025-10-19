@@ -23,6 +23,8 @@ public class InventorySlot : MonoBehaviour, IPointerClickHandler, IDragHandler, 
 
     public ScriptableItemData itemData;
 
+    [SerializeField] private string itemane;
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -96,6 +98,7 @@ public class InventorySlot : MonoBehaviour, IPointerClickHandler, IDragHandler, 
         slotType = SlotType.ActiveSlot;
 
         itemData = item.GetItemData();
+        itemane = item.GetName();
     }
 
     public void SetEmptySlot()

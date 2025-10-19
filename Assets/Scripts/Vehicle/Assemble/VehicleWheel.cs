@@ -1,4 +1,5 @@
 using UnityEngine;
+using System;
 
 public class VehicleWheel : MonoBehaviour, Item
 {
@@ -14,7 +15,11 @@ public class VehicleWheel : MonoBehaviour, Item
 
     [SerializeField] private WheelCollider wheelCollider;
 
-    ScriptableItemData itemData;
+    [SerializeField] private ScriptableItemData itemData;
+
+    private bool isAttached;
+
+    public event Action OnDetach;
 
     public string GetName()
     {
@@ -52,6 +57,20 @@ public class VehicleWheel : MonoBehaviour, Item
     {
         return itemId;
     }
+
+    public bool IsAttached()
+    {
+        return isAttached;
+    }
+
+    public void SetIsAttached(bool set)
+    {
+        isAttached = set;
+
+        if(set == false)
+        {
+            OnDetach?.Invoke();       }
+    }
     public void SetItemData(ScriptableItemData itemData)
     {
         Itemname = itemData.itemName;
@@ -63,6 +82,10 @@ public class VehicleWheel : MonoBehaviour, Item
         itemId = itemData.itemId;
 
         this.itemData = itemData;
+    }
+    public GameObject GetObject()
+    {
+        return itemData.itemPrefab;
     }
 
     public ScriptableItemData GetItemData()

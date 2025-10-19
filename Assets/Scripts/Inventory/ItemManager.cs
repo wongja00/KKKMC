@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.VisualScripting;
 
 public class ItemManager : MonoBehaviour
 {
@@ -107,5 +108,17 @@ public class ItemManager : MonoBehaviour
     public int GetItemCount()
     {
         return itemDictionary.Count;
+    }
+
+    public GameObject GetItemObject(string ID)
+    {
+        if(HasItem(ID))
+        {
+            return itemDictionary[ID]?.itemPrefab;
+        }
+        else
+        {
+            return null;
+        }
     }
 }

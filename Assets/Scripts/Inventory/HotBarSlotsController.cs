@@ -19,6 +19,9 @@ public class HotBarSlotsController : MonoBehaviour
         KeyCode.Keypad7, KeyCode.Keypad8, KeyCode.Keypad9, KeyCode.Keypad0
     };
 
+    // 마우스 휠로도 슬롯을 선택할 수 있도록 기능 추가
+    private float wheelInputBuffer = 0f;
+    private float wheelInputDelay = 0.1f; // 너무 빠른 입력 방지용 딜레이
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -38,6 +41,35 @@ public class HotBarSlotsController : MonoBehaviour
                 break;
             }
         }
+    }
+    void LateUpdate()
+    {
+        MouseWheelSlotControll();
+    }
+
+    private void MouseWheelSlotControll()
+    {
+        // 마우스 휠 입력 처리
+        wheelInputBuffer -= Time.deltaTime;
+        if (slotCount > 0 && wheelInputBuffer <= 0f)
+        {
+            float scroll = Input.GetAxis("Mouse ScrollWheel");
+            if (scroll > 0f)
+            {
+                // 위로 스크롤: 다음 슬롯
+                int nextSlot = (curSelSlot + 1) % Mathf.Min(slotCount, 10);
+                SelectSlot(nextSlot);
+                wheelInputBuffer = wheelInputDelay;
+            }
+            else if (scroll < 0f)
+            {
+                // 아래로 스크롤: 이전 슬롯
+                int prevSlot = (curSelSlot - 1 + Mathf.Min(slotCount, 10)) % Mathf.Min(slotCount, 10);
+                SelectSlot(prevSlot);
+                wheelInputBuffer = wheelInputDelay;
+            }
+        }
+
     }
 
     private void SelectSlot(int i)

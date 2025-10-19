@@ -9,6 +9,8 @@ public class InventoryItem : Item
 {
     private ScriptableItemData itemData;
     private int count;
+
+    private bool isAttached;
     
     public InventoryItem(ScriptableItemData data, int initialCount = 1)
     {
@@ -93,6 +95,20 @@ public class InventoryItem : Item
     public InventoryItem Clone()
     {
         return new InventoryItem(itemData, count);
+    }
+
+    public bool IsAttached()
+    {
+        return isAttached;
+    }
+    public GameObject GetObject()
+    {
+        return null;
+    }
+
+    public void SetIsAttached(bool set)
+    {
+        isAttached = set;
     }
     
     /// <summary>

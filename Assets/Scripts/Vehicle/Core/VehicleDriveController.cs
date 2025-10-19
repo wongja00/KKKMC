@@ -204,8 +204,7 @@ public class VehicleDriveController : MonoBehaviour
 
             if(mobileFortress == null) return;
 
-           mobileFortressList.Add(mobileFortress);
-            Debug.Log(mobileFortress.gameObject.name);
+            mobileFortressList.Add(mobileFortress);
         }
     }
 
@@ -284,13 +283,15 @@ public class VehicleDriveController : MonoBehaviour
             cameraArmParent.transform.SetParent(targetMobileFortress.transform);
             cameraArmParent.transform.localPosition = Vector3.zero;
             cameraArmParent.transform.localRotation = Quaternion.identity;
+            cameraArmParent.transform.localScale = Vector3.one;
 
             playerCamera.transform.SetParent(cameraArmParent.transform);
             playerCamera.transform.localPosition = Vector3.zero;
             playerCamera.transform.localRotation = Quaternion.identity;
+            playerCamera.transform.localScale = Vector3.one;
             
-            Vector3 targetPosition = cameraArmParent.transform.position + new Vector3(0, cameraFollowHeight, -cameraFollowDistance);
-            playerCamera.transform.position = targetPosition;
+            Vector3 targetPosition = cameraArmParent.transform.localPosition + new Vector3(0, cameraFollowHeight, -cameraFollowDistance);
+            playerCamera.transform.localPosition = targetPosition;
         }
 
     }
@@ -317,6 +318,7 @@ public class VehicleDriveController : MonoBehaviour
             playerCamera.transform.localRotation = Quaternion.identity;
            
             Destroy(cameraArmParent);
+            cameraArmParent = null;
         }
     }
 }

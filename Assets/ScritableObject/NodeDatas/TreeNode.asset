@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f00a8b9d2e6cfb74fb777e1ba37a8fb9, type: 3}
+  m_Name: TreeNode
+  m_EditorClassIdentifier: 
+  NodeID: 1
+  NodeName: "\uB098\uBB34"
+  description: "\uB098\uBB34\uB098\uBB34 \uBA54\uCC60 \uB098\uBB34"
+  nodeType: 1
+  maxAmount: 100
+  coolTime: 10
+  GetItemArray:
+  - {fileID: 4034486512833058113, guid: 7b7bdce10f0be3a4fbaa68b74756e537, type: 3}

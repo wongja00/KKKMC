@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 323a634a51fb1c844b03cc31930b2878, type: 3}
+  m_Name: Axe
+  m_EditorClassIdentifier: 
+  itemId: 5
+  itemName: Axe
+  description: "\uC0B6\uC758 \uB2AA\uC5D0\uC11C \uD6C4\uD68C\uD558\uC9C0 \uC54A\uAC8C"
+  itemType: 8
+  itemIcon: {fileID: 21300000, guid: 4dfa70937097e0d47beb839ea8edc6ca, type: 3}
+  isStackable: 0
+  maxStackSize: 1
+  buyPrice: 1000
+  sellPrice: 100
+  isConsumable: 0
+  isTradeable: 1
+  isQuestItem: 0
+  itemPrefab: {fileID: 6134962127423092062, guid: 60e630d68897ae94fa6033a37f5e953a, type: 3}

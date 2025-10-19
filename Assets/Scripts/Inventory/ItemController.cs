@@ -11,6 +11,8 @@ public class ItemController : MonoBehaviour
 
     public event Action<GameObject> OnAttachItem;
 
+    public event Action<GameObject> OnDetachItem;
+
     public int curSelSlot = 0;
 
     private GameObject curItem;
@@ -23,6 +25,7 @@ public class ItemController : MonoBehaviour
         mask = LayerMask.GetMask("Slot");
 
         OnAttachItem += AttachedModuleItem;
+        OnDetachItem += DetachModule;
     }
 
     // Update is called once per frame
@@ -40,8 +43,6 @@ public class ItemController : MonoBehaviour
         
         if(curItem != null)
         {
-            
-            Debug.Log("템 사용 호출");
             OnAttachItem?.Invoke(curItem);
         }
     }
@@ -56,9 +57,21 @@ public class ItemController : MonoBehaviour
             
             if(AttachItem != null)
             {
-                slot.SetModule(AttachItem);
+                GameObject item = Instantiate(AttachItem);
+                slot.SetModule(item);
+                
                 curItem = null;
             }
+        }
+    }
+
+    public void DetachModule(GameObject DetachItem)
+    {
+        Physics.Raycast(Camera.main.transform.position, Camera.main.transform.forward, out RaycastHit hit, 3f, mask);
+        
+        if(hit.collider != null)
+        {
+            
         }
     }
 
@@ -70,8 +83,6 @@ public class ItemController : MonoBehaviour
     public void SetCurObject(GameObject gameObject)
     {
         curItem = gameObject;
-
-        Debug.Log(gameObject.name);
     }
 
 }

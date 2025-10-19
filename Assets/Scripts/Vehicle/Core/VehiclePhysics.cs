@@ -179,8 +179,6 @@ public class VehiclePhysics : MonoBehaviour
     public void SetMotorTorque(float torque)
     {
         currentMotorTorque = Mathf.Clamp(torque, -motorForce, motorForce);
-    
-        Debug.Log("토크" + currentMotorTorque);
     }
     
     public void SetSteerAngle(float angle)
@@ -210,6 +208,7 @@ public class VehiclePhysics : MonoBehaviour
     {
         case WheelType.FrontLeft:
             frontLeftWheelCollider = wheel;
+            
             break;
         case WheelType.FrontRight:
             frontRightWheelCollider = wheel;
