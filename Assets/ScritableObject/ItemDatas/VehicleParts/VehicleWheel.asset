@@ -16,7 +16,7 @@ MonoBehaviour:
   itemName: "\uC790\uB3D9\uCC28 \uBC14\uD034"
   description: "\uBC14\uD034\uBC14\uD034\uBD80\uB974\uBD80\uB989\uBD80\uB974\uB989"
   itemType: 10
-  itemIcon: {fileID: 10907, guid: 0000000000000000f000000000000000, type: 0}
+  itemIcon: {fileID: 10901, guid: 0000000000000000f000000000000000, type: 0}
   isStackable: 1
   maxStackSize: 99
   buyPrice: 0

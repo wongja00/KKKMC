@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "379606287133",
+    "firebase_url": "https://kkkmc-matchmaking-default-rtdb.firebaseio.com",
+    "project_id": "kkkmc-matchmaking",
+    "storage_bucket": "kkkmc-matchmaking.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:379606287133:android:a83d60d7c137551be257f4",
+        "android_client_info": {
+          "package_name": "com.KKKMC.ProjectMC"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "379606287133-q7jp1nl1eeq2u7drvq2r2kr2evd9qfk5.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCF8Fs80hFLW8NG_aE_cRiXg-4qcbi3F1o"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "379606287133-q7jp1nl1eeq2u7drvq2r2kr2evd9qfk5.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

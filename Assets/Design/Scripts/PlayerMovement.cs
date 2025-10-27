@@ -1,8 +1,11 @@
 using System.Timers;
 using UnityEngine;
+using Mirror;
 using UnityEngine.ProBuilder.Shapes;
+using Unity.VisualScripting;
+using UnityEngine.UIElements;
 
-public class PlayerMovement : MonoBehaviour
+public class PlayerMovement : NetworkBehaviour
 {
     public CharacterController controller;
 
@@ -18,14 +21,28 @@ public class PlayerMovement : MonoBehaviour
     Vector3 velocity;
     bool isGrounded;
 
+    [SyncVar] private Vector3 networkPosition;
+    [SyncVar] private Quaternion networkRotation;
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        if(!isLocalPlayer)
+        {
+            controller.enabled = false;
+        }
         
     }
 
     // Update is called once per frame
     void Update()
+    {
+        if(isLocalPlayer == false) return;
+
+        HandleMovement();
+    }   
+
+    void HandleMovement()
     {
         isGrounded = Physics.CheckSphere(groundCheck.position, groundDistance, groundMask);
         float airDrag;
@@ -54,5 +71,23 @@ public class PlayerMovement : MonoBehaviour
 
         velocity.y -= gravity * Time.deltaTime;
         controller.Move(velocity *Time.deltaTime);
+
+        CmdUpdatePosition(transform.position, transform.rotation);
     }
+
+        [Command]
+        void CmdUpdatePosition(Vector3 pos, Quaternion rot)
+        {
+            networkPosition = pos;
+            networkRotation = rot;
+        }
+
+        void LateUpdate()
+        {
+            if(!isLocalPlayer)
+            {
+                transform.position = Vector3.Lerp(transform.position, networkPosition, Time.deltaTime * 15f);
+                transform.rotation = Quaternion.Lerp(transform.rotation, networkRotation, Time.deltaTime * 15f);
+            }
+        }
 }

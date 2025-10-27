@@ -47,6 +47,39 @@ public class InventorySystem : MonoBehaviour
 
     private int slotMask;
 
+    [SerializeField]private GameObject PlayerUI;
+
+    void Awake()
+    {
+        PlayerUI = GameObject.Find("PlayerUI");
+
+        if (PlayerUI != null)
+        {
+            Transform[] allChildren = PlayerUI.GetComponentsInChildren<Transform>(true);
+            foreach (Transform child in allChildren)
+            {
+                switch (child.name)
+                {
+                    case "GetItem":
+                        pickupItemUI = child.gameObject;
+                        break;
+                    case "AttachUI":
+                        AttachUI = child.gameObject;
+                        break;
+                    case "InvenPanel":
+                        inventoryPanel = child.gameObject;
+                        break;
+                    case "HatBarPanel":
+                        hotBarItemPanel = child;
+                        break;
+                    case "InvenContent":
+                        inventoryItemContainer = child;
+                        break;
+                }
+            }
+        }
+    }
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {

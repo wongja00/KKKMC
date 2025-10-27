@@ -208,11 +208,11 @@ MonoBehaviour:
   Itemname: "\uBC14\uD034"
   description: 
   count: 1
-  itemType: 8
+  itemType: 10
   isStackable: 0
   maxStackSize: 1
   icon: {fileID: 10901, guid: 0000000000000000f000000000000000, type: 0}
-  wheelCollider: {fileID: 0}
+  wheelCollider: {fileID: 8041052739638571559}
   itemData: {fileID: 11400000, guid: f1c5d86f32187b34bb533a296e46048c, type: 2}
 --- !u!65 &1018197089072848876
 BoxCollider:

@@ -1,15 +1,17 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using Mirror;
 
 //플레이어가 차에 타서 조작하기 위한 클래스
 //자동차 상호작용 클래스
-public class VehicleDriveController : MonoBehaviour
+public class VehicleDriveController : NetworkBehaviour
 {
     private List<MobileFortress> mobileFortressList = new List<MobileFortress>();
     private MobileFortress targetMobileFortress;
 
     [SerializeField] private PlayerMovement playerMovement;
+    [SerializeField] private VehicleNetworkSync vehicleNetworkSync;
 
     [Header("카메라 설정")]
     [SerializeField] private Camera playerCamera;
@@ -40,7 +42,7 @@ public class VehicleDriveController : MonoBehaviour
 
     //현재 탑승중인지 여부
     [SerializeField]
-    private bool isDriverInside = false;
+    [SyncVar] private bool isDriverInside = false;
 
     [SerializeField] private LayerMask obstacleLayerMask;
 
@@ -48,7 +50,7 @@ public class VehicleDriveController : MonoBehaviour
     void Start()
     {
         isDriverInside = false;
-
+        
         
         if(playerMovement == null)
         {
@@ -137,12 +139,24 @@ public class VehicleDriveController : MonoBehaviour
     }
 
     //차에 탔을떄
-    void OnDriverEnter()
+    public void OnDriverEnter()
     {
         if(isDriverInside || targetMobileFortress == null) return;
 
-        targetMobileFortress.SetPlayerControl(true);
+        if(vehicleNetworkSync != null)
+        {
+            vehicleNetworkSync.CmdEnterVehicle(NetworkClient.connection.identity);
+        }
+        else
+        {
+            OnDriverEnterLocal();
+        }
+        
+    }
 
+    private void OnDriverEnterLocal()
+    {        
+        targetMobileFortress.SetPlayerControl(true);
         isDriverInside = true;
 
         playerController.enabled = false;
@@ -154,16 +168,28 @@ public class VehicleDriveController : MonoBehaviour
         }
         DisableDriveUI();
         SetFollowVehicleCameraPosition();
-        
+
     }
 
     //차에서 내릴떄
-    void OnDriverExit()
+    public void OnDriverExit()
     {
         if(!isDriverInside || targetMobileFortress == null) return;
 
-        targetMobileFortress.SetPlayerControl(false);
+        if(vehicleNetworkSync !=null)
+        {
+            vehicleNetworkSync.CmdExitVehicle();
+        }
+        else
+        {
+            OnDriverExitLocal();
+        }
 
+    }
+
+    public void OnDriverExitLocal()
+    {
+        targetMobileFortress.SetPlayerControl(false);
         isDriverInside = false;
 
         playerMovement.enabled = true;

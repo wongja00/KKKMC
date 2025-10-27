@@ -27,7 +27,7 @@ Transform:
   m_GameObject: {fileID: 1561830110433918482}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.94, y: -0.666, z: 0.433}
+  m_LocalPosition: {x: -0.94, y: -0.666, z: 0.756}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -130,6 +130,8 @@ GameObject:
   - component: {fileID: 8581376354889099249}
   - component: {fileID: 8643247516993997707}
   - component: {fileID: 7642510526442107402}
+  - component: {fileID: 7832749265449822107}
+  - component: {fileID: 6462114721816005441}
   m_Layer: 0
   m_Name: VehicleFrame
   m_TagString: Vehicle
@@ -202,8 +204,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1.9018192, y: 0.97998124, z: 1.4703664}
-  m_Center: {x: -0.058576398, y: 0.010009378, z: -0.013988009}
+  m_Size: {x: 1.7966306, y: 0.97998124, z: 1.0168133}
+  m_Center: {x: -0.005981773, y: 0.010009378, z: -0.00629563}
 --- !u!114 &3123005415595200508
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -349,6 +351,40 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   driverSeatTransformParent: {fileID: 6672633931164647344}
   seats: []
+--- !u!114 &7832749265449822107
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3199500979136568280}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 470abf9cf77310b428841e1996b1c08f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  syncDirection: 0
+  syncMode: 0
+  syncInterval: 0
+  mobileFortress: {fileID: 8319320183618001820}
+  driveController: {fileID: 0}
+--- !u!114 &6462114721816005441
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3199500979136568280}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9b91ecbcc199f4492b9a91e820070131, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  sceneId: 0
+  _assetId: 3608089671
+  serverOnly: 0
+  visibility: 0
+  hasSpawned: 0
 --- !u!1 &4362594874726347618
 GameObject:
   m_ObjectHideFlags: 0
@@ -376,7 +412,7 @@ Transform:
   m_GameObject: {fileID: 4362594874726347618}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.93000007, y: -0.666, z: -0.44699997}
+  m_LocalPosition: {x: 0.93000007, y: -0.666, z: -0.75899994}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -552,7 +588,7 @@ Transform:
   m_GameObject: {fileID: 5556991346195260136}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.94000006, y: -0.666, z: -0.447}
+  m_LocalPosition: {x: -0.94000006, y: -0.666, z: -0.759}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -693,8 +729,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1.7949547, y: 0.75544083, z: 1.0045906}
-  m_Center: {x: -0.00615352, y: 0.122279584, z: 0.00005731583}
+  m_Size: {x: 1.7949547, y: 0.3446635, z: 1.0045906}
+  m_Center: {x: -0.00615352, y: -0.22162598, z: 0.00005728855}
 --- !u!1 &8059395103313800998
 GameObject:
   m_ObjectHideFlags: 0
@@ -754,7 +790,7 @@ Transform:
   m_GameObject: {fileID: 8347249314362105783}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.93, y: -0.666, z: 0.43299994}
+  m_LocalPosition: {x: 0.93, y: -0.666, z: 0.756}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

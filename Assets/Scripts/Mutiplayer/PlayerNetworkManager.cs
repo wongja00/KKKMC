@@ -1,0 +1,41 @@
+using UnityEngine;
+using Mirror;
+
+public class PlayerNetworkManager : NetworkBehaviour
+{
+   [Header("플레이어 컴포넌트")]
+    [SerializeField] private PlayerMovement playerMovement;
+    [SerializeField] private CharacterController characterController;
+    [SerializeField] private Camera playerCamera;
+    [SerializeField] private MouseLook mouseLook;
+
+    [Header("네트워크 동기화")]
+    [SyncVar] public string playerName = "Player";
+    [SyncVar] public Color playerColor = Color.white;
+
+    //네트워크 연결시 실행
+    public override void OnStartAuthority()
+    {
+        //로컬 플레이어만 실행
+        playerCamera.enabled = true;
+        playerMovement.enabled = true;
+        mouseLook.enabled = true;
+
+        SetupLocalPlayerUI();
+    }
+
+    public override void OnStartClient()
+    {
+        if(!isLocalPlayer)
+        {
+            playerCamera.enabled = false;
+            playerMovement.enabled = false;
+            mouseLook.enabled = false;
+        }
+    }
+
+    private void SetupLocalPlayerUI()
+    {
+        Debug.Log($"로컬 플레이어 설정:: {playerName}");
+    }
+}
