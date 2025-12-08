@@ -8,6 +8,8 @@ TagManager:
   - Item
   - Node
   - UI
+  - SceneCamera
+  - Enemy
   layers:
   - Default
   - TransparentFX
@@ -23,8 +25,8 @@ TagManager:
   - Wheel
   - Slot
   - Node
-  - 
-  - 
+  - DetectColl
+  - Item
   - 
   - 
   - 

@@ -1,4 +1,5 @@
 using UnityEngine;
+using Unity.Cinemachine;
 
 public class MouseLook : MonoBehaviour
 {
@@ -8,6 +9,12 @@ public class MouseLook : MonoBehaviour
     public Transform playerBody;
 
     float xRotation = 0f;
+    
+    [SerializeField]
+    private CinemachineCamera playerCamera;
+
+    [SerializeField]
+    private Transform cameraTarget;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -24,7 +31,7 @@ public class MouseLook : MonoBehaviour
         xRotation -= mouseY * customMouseSensitivity;
         xRotation = Mathf.Clamp(xRotation, -90f, 90f);
 
-        transform.localRotation = Quaternion.Euler(xRotation, 0f, 0f);
+        cameraTarget.transform.localRotation = Quaternion.Euler(xRotation, 0f, 0f);
         playerBody.Rotate(Vector3.up * mouseX * customMouseSensitivity);
     }
 }

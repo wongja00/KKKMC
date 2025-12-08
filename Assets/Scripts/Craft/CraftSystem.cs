@@ -3,8 +3,9 @@ using System;
 using System.Collections.Generic;
 using System.Collections;
 using UnityEngine.UI;
+using Mirror;
 
-public class CraftSystem : MonoBehaviour
+public class CraftSystem : NetworkBehaviour
 {
     [Header("제작키")]
     [SerializeField] private KeyCode craftKey = KeyCode.G;
@@ -33,11 +34,29 @@ public class CraftSystem : MonoBehaviour
     {
         InventorySystem.OnInventoryChanged += OnChangeItem;
         AddToEventCard();
+
+                GameObject playerUI = GameObject.Find("PlayerUI");
+        if (playerUI != null)
+        {
+            Transform[] allChildren = playerUI.GetComponentsInChildren<Transform>(true); // true: include inactive
+           
+            foreach (Transform child in allChildren)
+            {
+                if (child.name == "BlurprintUI")
+                {
+                    craftUI = child.gameObject;
+                    
+                    break;
+                }
+            }
+        }
     }
 
     // Update is called once per frame
     void Update()
     {
+        if(!isLocalPlayer) return;
+        
         ToggleCraftUI();
     }
 

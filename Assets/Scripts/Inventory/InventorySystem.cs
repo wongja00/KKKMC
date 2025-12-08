@@ -5,13 +5,14 @@ using UnityEngine.UI;
 using TMPro;
 using System.Collections.Generic;
 using UnityEngine.PlayerLoop;
+using Mirror;
+using Unity.Cinemachine;
 
-public class InventorySystem : MonoBehaviour
+public class InventorySystem : NetworkBehaviour
 {
     //private List<Item> items = new List<Item>();
 
     private Dictionary<string, List<Item>> itemObjects = new Dictionary<string, List<Item>>();
-
 
     public List<InventorySlot> inventorySlots = new List<InventorySlot>();
     
@@ -42,12 +43,21 @@ public class InventorySystem : MonoBehaviour
 
     //UI상 아이템 컨테이너  - 인벤토리 패널
     [SerializeField] private Transform inventoryItemContainer;
+
+    [SerializeField] private Collider itemCollider;
+    [SerializeField] private float interactrange;
     
     public static event Action<Item, int> OnInventoryChanged;
 
     private int slotMask;
 
     [SerializeField]private GameObject PlayerUI;
+
+    [SerializeField] CinemachineCamera playerCamera;
+
+    private LayerMask itemMask;
+
+    private GameObject curItem;
 
     void Awake()
     {
@@ -84,6 +94,7 @@ public class InventorySystem : MonoBehaviour
     void Start()
     {
         slotMask = LayerMask.GetMask("Slot");
+        itemMask = LayerMask.GetMask("Item");
 
         foreach(InventorySlot slot in inventoryPanel.GetComponentsInChildren<InventorySlot>())
         {
@@ -115,6 +126,8 @@ public class InventorySystem : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if(!isLocalPlayer) return;
+        
         if (Input.GetKeyDown(inventoryKey))
         {
             if(inventoryPanel.activeSelf)
@@ -136,6 +149,8 @@ public class InventorySystem : MonoBehaviour
 
     public void AddItem(Item item, int Amount = 1)
     {
+        if(!isLocalPlayer) return;
+
         if(item == null)
         {
             Debug.Log("Item is null");
@@ -149,7 +164,6 @@ public class InventorySystem : MonoBehaviour
         {
             existingList = new List<Item>();
             itemObjects[item.GetItemId()] = existingList;
-            
         }
 
         if(existingList.Count > 0)
@@ -181,6 +195,8 @@ public class InventorySystem : MonoBehaviour
 
     private void AddItem(GameObject item, int Amount = 1)
     {
+        if(!isLocalPlayer) return;
+
         if(item != null)
         {
             item.TryGetComponent<Item>(out Item tempItem);
@@ -188,14 +204,27 @@ public class InventorySystem : MonoBehaviour
             //데이터 처리
             AddItem(tempItem, Amount);            
 
-            if(item.scene.IsValid())
-                Destroy(item);
+            uint ni = item.GetComponent<NetworkIdentity>().netId;
+
+            if(isLocalPlayer)        
+                ItemDeleteOnServer(ni);
         }
     }
 
+    [Command]
+    void ItemDeleteOnServer(uint netID)
+    {
+        if (NetworkServer.spawned.TryGetValue(netID, out NetworkIdentity ni))
+        {
+            if (ni.gameObject.scene.IsValid())
+                NetworkServer.Destroy(ni.gameObject);
+        }
+    }
 
     public void AddItemUI(Item item)
     {        
+        if(!isLocalPlayer) return;
+
         //일단 임시적으로 핫바에 
         foreach(InventorySlot slot in hotBarSlots)
         {
@@ -233,26 +262,49 @@ public class InventorySystem : MonoBehaviour
 
     public void ShowPickupItemUI()
     {
-        Physics.Raycast(Camera.main.transform.position, Camera.main.transform.forward, out RaycastHit hit, 3f);
-        if(hit.collider != null && hit.collider.gameObject.CompareTag("Item"))
-        {
-            pickupItemUI.SetActive(true);
 
-            PickupItem(hit);
-        }
-        else
-        {
-            pickupItemUI.SetActive(false);
+        Collider[] colliders = Physics.OverlapSphere(transform.position, interactrange, itemMask);
 
-        }
+        if(colliders.Length <= 0) {pickupItemUI.SetActive(false); return;}
+        if(curItem == colliders[0].gameObject) {pickupItemUI.SetActive(false); return;}
+
+        else {pickupItemUI.SetActive(true);}
+
+
+
+        PickupItem(colliders[0]);
+
+        
+
+
+        //if(Physics.Raycast(playerCamera.transform.position, playerCamera.transform.forward, out RaycastHit hit, 10f))
+        //{
+        //    if(hit.collider != null && hit.collider.gameObject.CompareTag("Item"))
+        //    {
+        //        pickupItemUI.SetActive(true);
+//
+        //        PickupItem(hit);
+        //    }
+        //    else
+        //    {
+        //        pickupItemUI.SetActive(false);
+//
+        //    }
+        //}
+        //else
+        //{
+        //    pickupItemUI.SetActive(false);
+        //}
     }
 
-    public void PickupItem(RaycastHit hit)
-    {
+    public void PickupItem(Collider hit)
+    {   
+        if(!isLocalPlayer) return;
+
         //아이템 줍줍줍
         if(Input.GetKeyDown(getItemKey))
         {
-            GameObject item = hit.collider.gameObject;
+            GameObject item = hit.gameObject;
 
             AddItem(item);
         }
@@ -352,7 +404,7 @@ public class InventorySystem : MonoBehaviour
 
     public void ShowAttachUI()
     {
-        if (Physics.Raycast(Camera.main.transform.position, Camera.main.transform.forward, out RaycastHit hit, 3f, slotMask))
+        if (Physics.Raycast(playerCamera.transform.position, playerCamera.transform.forward, out RaycastHit hit, 3f, slotMask))
         {
             if (hit.collider.gameObject.TryGetComponent<AttachedModule>(out AttachedModule module) && module != null && !module.GetIsAttached())
             {
@@ -465,6 +517,11 @@ public class InventorySystem : MonoBehaviour
         {
             return 0;
         }
+    }
+
+    public void SetCurItme(GameObject item)
+    {
+        curItem = item;
     }
 
 }

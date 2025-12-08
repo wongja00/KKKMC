@@ -1,0 +1,17 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cd38e41e574930049ae3b1ce5f7ad992, type: 3}
+  m_Name: GunContainer
+  m_EditorClassIdentifier: 
+  itemDatas:
+  - {fileID: 11400000, guid: 41e839d9b92dddb4facda0ce94492b50, type: 2}
+  - {fileID: 11400000, guid: 1e49cb02c00afd445ad513423b196eae, type: 2}

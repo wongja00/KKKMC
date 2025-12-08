@@ -4,12 +4,24 @@ using Mirror;
 using UnityEngine.ProBuilder.Shapes;
 using Unity.VisualScripting;
 using UnityEngine.UIElements;
+using Unity.Cinemachine;
+using System.Collections;
 
 public class PlayerMovement : NetworkBehaviour
 {
     public CharacterController controller;
 
+    [SerializeField]
+    private CinemachineCamera playerCamera;
+
+    [SerializeField]
+    private Animator animator;
+    [SerializeField]
+    private KeyCode dashKey = KeyCode.LeftShift;
+
     public float speed = 12f;
+    public float originSpeed = 12f;
+    public float maxSpeed = 24f;
     public float gravity = 9.81f;
     public float jumpHight = 3.0f;
     public float customAirDrag = 4.0f;
@@ -19,10 +31,8 @@ public class PlayerMovement : NetworkBehaviour
     public LayerMask groundMask;
 
     Vector3 velocity;
-    bool isGrounded;
 
-    [SyncVar] private Vector3 networkPosition;
-    [SyncVar] private Quaternion networkRotation;
+    bool isGrounded;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -31,7 +41,8 @@ public class PlayerMovement : NetworkBehaviour
         {
             controller.enabled = false;
         }
-        
+        originSpeed = speed;
+        velocity = Vector3.zero;
     }
 
     // Update is called once per frame
@@ -60,34 +71,40 @@ public class PlayerMovement : NetworkBehaviour
         float x = Input.GetAxis("Horizontal");
         float z = Input.GetAxis("Vertical");
 
+        float currentSpeed = originSpeed;
+        if(Input.GetKey(dashKey))
+        {
+            currentSpeed = originSpeed * 2;
+        }
+
+
         Vector3 move = transform.right * x + transform.forward * z;
 
-        controller.Move(move * (speed-airDrag) * Time.deltaTime);
+        // 속도에 따라 animator에 Speed 변수 변경
+        if (animator != null)
+        {
+            float animSpeed = move.magnitude * (currentSpeed - airDrag);
+
+            animator.SetFloat("Speed", animSpeed / maxSpeed);
+        }
+
+        controller.Move(move * (currentSpeed - airDrag) * Time.deltaTime);
 
         if(Input.GetButton("Jump") && isGrounded)
         {
-            velocity.y = Mathf.Sqrt(jumpHight * -2f * -gravity);
+            velocity.y = Mathf.Sqrt(jumpHight * 2f * gravity);
         }
 
         velocity.y -= gravity * Time.deltaTime;
         controller.Move(velocity *Time.deltaTime);
-
-        CmdUpdatePosition(transform.position, transform.rotation);
     }
 
-        [Command]
-        void CmdUpdatePosition(Vector3 pos, Quaternion rot)
-        {
-            networkPosition = pos;
-            networkRotation = rot;
-        }
+    public override void OnStartLocalPlayer()
+    {
+        base.OnStartLocalPlayer();
 
-        void LateUpdate()
-        {
-            if(!isLocalPlayer)
-            {
-                transform.position = Vector3.Lerp(transform.position, networkPosition, Time.deltaTime * 15f);
-                transform.rotation = Quaternion.Lerp(transform.rotation, networkRotation, Time.deltaTime * 15f);
-            }
-        }
+        CinemachineBrain brain = Camera.main.GetComponent<CinemachineBrain>();
+        brain.enabled = false;
+        brain.enabled = true;
+    }
 }

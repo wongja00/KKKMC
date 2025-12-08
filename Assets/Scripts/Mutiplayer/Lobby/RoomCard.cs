@@ -11,6 +11,8 @@ public class RoomCard : MonoBehaviour
     
     [SerializeField] private Button connectButton; 
 
+    [SerializeField] private Image userProfileImage;
+
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -29,6 +31,17 @@ public class RoomCard : MonoBehaviour
     public void OnAddButtonEvent(UnityAction connectEvent)
     {
         connectButton.onClick.AddListener(connectEvent);
+    }
+
+    public void SetProfileImage(Texture2D porfileImage)
+    {
+        if (userProfileImage != null && porfileImage != null)
+        {
+            userProfileImage.sprite = Sprite.Create(
+                porfileImage,
+                new Rect(0, 0, porfileImage.width, porfileImage.height), 
+                new Vector2(0.5f, 0.5f));
+        }
     }
 
 }

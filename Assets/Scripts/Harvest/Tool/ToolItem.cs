@@ -2,8 +2,9 @@ using UnityEngine;
 using System;
 using System.Collections;
 using Unity.VisualScripting;
+using UnityEngine.InputSystem;
 
-public class ToolItem : MonoBehaviour, Item, ToolBase
+public class ToolItem : MonoBehaviour, Item, ToolBase, Equable
 {
     [SerializeField]
     private string itemID = "";
@@ -19,6 +20,10 @@ public class ToolItem : MonoBehaviour, Item, ToolBase
     private int curDurability = 100;
 
     private bool isAttached = false; 
+
+    private bool isEquipped = false;
+
+    [SerializeField] private KeyCode harvestKey = KeyCode.Mouse0;
 
 
     public int GetCount()
@@ -170,5 +175,26 @@ public class ToolItem : MonoBehaviour, Item, ToolBase
     void Update()
     {
         
+    }
+
+    
+    public bool GetIsEquipped()
+    {
+        return isEquipped;
+    }
+
+    public void SetIsEquipped(bool isEquipped)
+    {
+        this.isEquipped = isEquipped; 
+    }
+
+    public KeyCode GetKeyCode()
+    {
+        return harvestKey;
+    }
+
+    public void UseItem()
+    {
+        DoHarvest();
     }
 }

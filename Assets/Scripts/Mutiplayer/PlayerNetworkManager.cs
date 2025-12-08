@@ -1,12 +1,13 @@
 using UnityEngine;
 using Mirror;
+using Unity.Cinemachine;
 
 public class PlayerNetworkManager : NetworkBehaviour
 {
    [Header("플레이어 컴포넌트")]
     [SerializeField] private PlayerMovement playerMovement;
     [SerializeField] private CharacterController characterController;
-    [SerializeField] private Camera playerCamera;
+    [SerializeField] private CinemachineCamera playerCamera;
     [SerializeField] private MouseLook mouseLook;
 
     [Header("네트워크 동기화")]

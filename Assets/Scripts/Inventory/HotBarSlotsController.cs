@@ -1,11 +1,15 @@
 using UnityEngine;
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using Mirror;
 
-public class HotBarSlotsController : MonoBehaviour
+public class HotBarSlotsController : NetworkBehaviour
 {
     public int slotCount {get; set;}
     public int curSelSlot {get; private set;}
+
+    public static event Action OnChangeSlot;
 
     private static readonly KeyCode[] AlphaKeys = {
         KeyCode.Alpha1, KeyCode.Alpha2, KeyCode.Alpha3,
@@ -32,6 +36,8 @@ public class HotBarSlotsController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if(!isLocalPlayer) return;
+
         int max = Mathf.Min(slotCount, 10);
         for(int i = 0; i< max; i++)
         {
@@ -75,5 +81,7 @@ public class HotBarSlotsController : MonoBehaviour
     private void SelectSlot(int i)
     {
         curSelSlot = i;
+
+        OnChangeSlot?.Invoke();
     }
 }
