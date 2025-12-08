@@ -168,6 +168,9 @@ public class HandHeld : NetworkBehaviour
                     magText.text = gunBase.CurMag();
                     OnUseItem += () => {magText.text = gunBase.CurMag();};
 
+                    aiming.curGun = gunBase;
+                    gunBase.SetAimingCompo(aiming);
+
                     if(gunBase.gunData.type == GunType.AssultRifle)
                     {
                         animator.SetLayerWeight((int)AnimLayer.Rifle, 1f);
@@ -267,6 +270,11 @@ public class HandHeld : NetworkBehaviour
             {
                 Debug.Log("연발");
                 OnUseItem?.Invoke();
+                aiming.isADS = true;
+            }
+            else
+            {
+                aiming.isADS = false;
             }
         }
         else
@@ -274,6 +282,11 @@ public class HandHeld : NetworkBehaviour
             if (Input.GetKeyDown(itemUseKey))
             {
                 OnUseItem?.Invoke();
+                aiming.isADS = true;
+            }
+            else if(Input.GetKeyDown(itemUseKey))
+            {
+                aiming.isADS = false;
             }
         }
 
@@ -290,7 +303,7 @@ public class HandHeld : NetworkBehaviour
     {
         if(curGun == null) return;
 
-        Vector3 direction = target.position - curGun.transform.position;
+        Vector3 direction = target.position - curGun.firePoint.transform.position;
 
         if(direction.magnitude > 0.01f)
         {

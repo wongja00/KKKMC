@@ -78,6 +78,7 @@ public class GunBase : NetworkBehaviour, Item, Equable
     public void SetAimingCompo(Aiming aim)
     {
         this.aiming = aim;
+        aimTarget = aim.aimTarget;
     }
 
     public void Shoot()
@@ -99,15 +100,10 @@ public class GunBase : NetworkBehaviour, Item, Equable
         // 그렇지 않으면 카메라 방향 사용
         Vector3 shootDirection;
 
-        if(aimTarget != null && aiming != null && aiming.isAiming)
+        if(aimTarget != null && aiming != null)
         {
             //firePoint 에서 aimTarget으로의 방향 계산
             shootDirection = (aimTarget.position - firePoint.transform.position).normalized;
-        }
-        else if(playerCamera != null)
-        {
-            //카메라가 보는 방향 사용
-            shootDirection = playerCamera.transform.forward;
         }
         else
         {

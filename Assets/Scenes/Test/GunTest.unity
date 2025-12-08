@@ -15510,6 +15510,11 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 595990690}
   m_Mesh: {fileID: 91218278702364970, guid: 0a9ad2b5edd0c6d49bc3aebe133e3850, type: 3}
+--- !u!4 &596401328 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 1376832861527793235, guid: e4c60ba1742245243936798b1c22fce6, type: 3}
+  m_PrefabInstance: {fileID: 2095519389}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &597553126
 GameObject:
   m_ObjectHideFlags: 0
@@ -40691,6 +40696,37 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1517547296}
   m_Mesh: {fileID: 4300000, guid: a6ec3703e29203d4cb67b94418cddab8, type: 3}
+--- !u!1 &1520428475
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1520428476}
+  m_Layer: 8
+  m_Name: AimTarget
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1520428476
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1520428475}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 596401328}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1520788168
 GameObject:
   m_ObjectHideFlags: 0
@@ -55338,13 +55374,20 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 2954960619322119309, guid: e4c60ba1742245243936798b1c22fce6, type: 3}
+      propertyPath: aimTarget
+      value: 
+      objectReference: {fileID: 1520428476}
     - target: {fileID: 4641755532622999874, guid: e4c60ba1742245243936798b1c22fce6, type: 3}
       propertyPath: m_Name
       value: Player (1)
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
-    m_AddedGameObjects: []
+    m_AddedGameObjects:
+    - targetCorrespondingSourceObject: {fileID: 1376832861527793235, guid: e4c60ba1742245243936798b1c22fce6, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1520428476}
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: e4c60ba1742245243936798b1c22fce6, type: 3}
 --- !u!1 &2100368273
