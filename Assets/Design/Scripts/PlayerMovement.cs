@@ -6,31 +6,50 @@ using Unity.VisualScripting;
 using UnityEngine.UIElements;
 using Unity.Cinemachine;
 using System.Collections;
+using Unity.Mathematics;
+using System;
+using UnityEngine.Animations.Rigging;
+using UnityEngine.Animations;
 
 public class PlayerMovement : NetworkBehaviour
 {
     public CharacterController controller;
+    public GameObject playerCharacter;
+
 
     [SerializeField]
     private CinemachineCamera playerCamera;
 
     [SerializeField]
     private Animator animator;
+    
     [SerializeField]
     private KeyCode dashKey = KeyCode.LeftShift;
 
-    public float speed = 12f;
-    public float originSpeed = 12f;
-    public float maxSpeed = 24f;
+    [SerializeField]
+    private Aiming aiming;
+
+    public float speed = 6f;
+    public float originSpeed = 6f;
+    public float maxSpeed = 12f;
     public float gravity = 9.81f;
     public float jumpHight = 3.0f;
     public float customAirDrag = 4.0f;
+
+    [Header("Upper Body Rotation")]
+    public AimConstraint aimRig;
+    public float rifTransitionSpeed = 12f;
+    public float targetRigweight = 0f;
 
     public Transform groundCheck;
     public float groundDistance = 0.4f;
     public LayerMask groundMask;
 
+    bool isAiming ;
+
+
     Vector3 velocity;
+    Vector2 animVelocity;
 
     bool isGrounded;
 
@@ -43,19 +62,26 @@ public class PlayerMovement : NetworkBehaviour
         }
         originSpeed = speed;
         velocity = Vector3.zero;
+
+        playerCamera = CameraManager.Instance.GetPlayerCemera();
     }
 
     // Update is called once per frame
     void Update()
     {
         if(isLocalPlayer == false) return;
+        
+        isAiming = aiming != null && (aiming.isAiming || aiming.isADS);
 
         HandleMovement();
+        HandleUpperBodyRotation();
+        RotateBodyAiming();
     }   
 
     void HandleMovement()
     {
         isGrounded = Physics.CheckSphere(groundCheck.position, groundDistance, groundMask);
+
         float airDrag;
 
         if(isGrounded && velocity.y < 0 )
@@ -71,25 +97,60 @@ public class PlayerMovement : NetworkBehaviour
         float x = Input.GetAxis("Horizontal");
         float z = Input.GetAxis("Vertical");
 
+        Vector3 cameraForward = playerCamera.transform.forward;
+        Vector3 cameraRight = playerCamera.transform.right;
+                //Y축 제거(수평이동만)
+        cameraForward.y = 0f;
+        cameraRight.y = 0f;
+
+        if(cameraForward.sqrMagnitude < 0.001f)
+        {
+            cameraForward = playerCharacter.transform.forward;
+        }
+
+        cameraForward.Normalize();
+        cameraRight.Normalize();
+
+        Vector3 move = cameraRight * x + cameraForward * z;
+        
+        if(isAiming)
+        {
+            animVelocity.x = x  != 0 ? x / 2 : 0;
+            animVelocity.y = z  != 0 ? z / 2 : 0;
+        }
+        else
+        {
+            animVelocity.y = Mathf.Abs(z) <= 0 ?  Mathf.Abs(x) : Mathf.Abs(z);
+            animVelocity.x = 0;
+        }
+
         float currentSpeed = originSpeed;
         if(Input.GetKey(dashKey))
         {
             currentSpeed = originSpeed * 2;
+            animVelocity *= 4;
         }
 
 
-        Vector3 move = transform.right * x + transform.forward * z;
+
+        //입력시 카메라 기준으로 회전
+        if(move.magnitude > 0.01f && !isAiming)
+        {
+            Quaternion targetRotation = Quaternion.LookRotation(move);
+            targetRotation = Quaternion.Euler(0, targetRotation.eulerAngles.y, 0);
+            playerCharacter.transform.rotation = Quaternion.Slerp(playerCharacter.transform.rotation, targetRotation, Time.deltaTime * 10);
+        }
 
         // 속도에 따라 animator에 Speed 변수 변경
         if (animator != null)
         {
-            float animSpeed = move.magnitude * (currentSpeed - airDrag);
-
-            animator.SetFloat("Speed", animSpeed / maxSpeed);
+            animator.SetFloat("velocityX", animVelocity.x);
+            animator.SetFloat("velocityZ", animVelocity.y);
         }
 
         controller.Move(move * (currentSpeed - airDrag) * Time.deltaTime);
 
+        //점프
         if(Input.GetButton("Jump") && isGrounded)
         {
             velocity.y = Mathf.Sqrt(jumpHight * 2f * gravity);
@@ -97,6 +158,33 @@ public class PlayerMovement : NetworkBehaviour
 
         velocity.y -= gravity * Time.deltaTime;
         controller.Move(velocity *Time.deltaTime);
+    }
+
+    void RotateBodyAiming()
+    {        
+        if(!isAiming) return;
+
+        float camYaw = playerCamera.transform.eulerAngles.y;
+        float bodyYaw = playerCharacter.transform.eulerAngles.y;
+        
+        float angleDiff  = Mathf.DeltaAngle(bodyYaw, camYaw);
+        float thresHold = 30f;
+
+        if(Mathf.Abs(angleDiff) > thresHold)
+        {
+            float targetYaw = Mathf.MoveTowardsAngle(bodyYaw, camYaw, Time.deltaTime * 360f);
+            playerCharacter.transform.rotation = Quaternion.Euler(0, targetYaw, 0);
+        }
+    }
+
+    void HandleUpperBodyRotation()
+    {
+        if(aimRig == null) return;
+
+        aimRig.constraintActive = isAiming;
+
+        targetRigweight = isAiming ?  0.9f : 0f;
+        aimRig.weight = Mathf.Lerp(aimRig.weight, targetRigweight, rifTransitionSpeed * Time.deltaTime);
     }
 
     public override void OnStartLocalPlayer()

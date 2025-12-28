@@ -1,0 +1,11 @@
+{
+    "asset": "3f60daeb7ea4ab34790b9c5286e297e7",
+    "fileName": "019b135d-6168-763d-bc2c-5d142230c210.pose.json",
+    "prompt": "걷기, 제자리",
+    "negativePrompt": "",
+    "model": "9e46c009-67d8-4254-a3a0-32e3168247ee",
+    "modelName": "Text to Motion",
+    "customSeed": 1966938463,
+    "w3CTraceId": "fdea7d2b7360a249f58417f97cfe4565",
+    "isTrimmed": false
+}

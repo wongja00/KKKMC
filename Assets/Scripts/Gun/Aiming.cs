@@ -1,33 +1,35 @@
 using UnityEngine;
 using Unity.Cinemachine;
+using UnityEngine.Animations.Rigging;
+using Mirror;
 
-public class Aiming : MonoBehaviour
+public class Aiming : NetworkBehaviour
 {
     [SerializeField] public Transform aimTarget;
     [SerializeField] private CinemachineCamera cameraTransform;
     [SerializeField] private KeyCode aimKey = KeyCode.Mouse1;
     [SerializeField] private Animator animator;
     [SerializeField] HandHeld handHeld;
-
+    [SerializeField] Rig handRig;
     public bool isAiming {get; private set;}
     public bool isADS;
-
     [SerializeField] private Camera mainCamera;
-
     [SerializeField] private LayerMask aimLayerMask;
-
     public GunBase curGun;
-
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        if(!isLocalPlayer) return;
+
         mainCamera = Camera.main;
+        cameraTransform = CameraManager.Instance.GetPlayerCemera();
     }
 
     // Update is called once per frame
     void Update()
     {
+        if(!isLocalPlayer) return;
         AimingGun();
     }
 
@@ -47,42 +49,40 @@ public class Aiming : MonoBehaviour
             aimPoint = camRay.origin + camRay.direction * 1000f;
         }
 
-        Debug.DrawLine(mainCamera.transform.position, aimPoint);
-        
-
         if(isADS || isAiming)
         {
             aimTarget.position = aimPoint;
-
-            handHeld.GunAiming(aimTarget);
+            handRig.weight = 1.0f;
+            //handHeld.GunAiming(aimTarget);
 
             if(InteractUIManager.Instance != null && mainCamera != null)
             {
                 InteractUIManager.Instance.SetAimCrosshairWorldPosition(aimTarget.position);
             }
         }
+        else
+        {            
+            handRig.weight = 0.0f;
+        }
 
         if(Input.GetKey(aimKey))
         {
-            isAiming = true;
+            isAiming = true;            
         }
         else
         {
             isAiming = false;
         }
-
     
-            if(!isAiming && !isADS)
-            {
-                handHeld.SetOriginAim();
-                InteractUIManager.Instance.SetAimCrosshair(false);
-            }
-                
-
+         if(!isAiming && !isADS)
+         {
+             //handHeld.SetOriginAim();
+             InteractUIManager.Instance.SetAimCrosshair(false);
+         }
 
         float targetFOV = isAiming ? 40f : 60f;
         cameraTransform.Lens.FieldOfView = Mathf.Lerp(cameraTransform.Lens.FieldOfView, targetFOV, Time.deltaTime * 10);
 
-        animator.SetBool("isAiming",isAiming);
+        animator.SetBool("isAiming",isAiming || isADS);
     }
 }

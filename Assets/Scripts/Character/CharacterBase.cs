@@ -1,7 +1,8 @@
 
+using Mirror;
 using UnityEngine;
 
-public abstract class CharacterBase : MonoBehaviour, ICharacter 
+public abstract class CharacterBase : NetworkBehaviour, ICharacter 
 {
     public string Name {get; set;} = "Unknown";
     public int Level {get; set;} = 1;

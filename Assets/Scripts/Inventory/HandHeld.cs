@@ -13,6 +13,7 @@ public class HandHeld : NetworkBehaviour
     [SerializeField] HotBarSlotsController hotBarSlotsController;
     [SerializeField] TextMeshProUGUI magText;
     [SerializeField] Aiming aiming;
+    [SerializeField] Rig AimingRig;
     
     [SerializeField] private Animator animator;
 
@@ -62,7 +63,7 @@ public class HandHeld : NetworkBehaviour
         SetIKPos();
 
         //총 보간
-        GunRoatateLinear();
+        //GunRoatateLinear();
     }
 
     void LateUpdate()
@@ -89,15 +90,15 @@ public class HandHeld : NetworkBehaviour
         curGun.leftHandIKPoint.rotation,
         Time.deltaTime * 15f);
 
-                rightHandIKPoint.position = Vector3.Lerp(
-            rightHandIKPoint.position,
-        curGun.rightHandIKPoint.position,
-        Time.deltaTime * 15f);
+       //        rightHandIKPoint.position = Vector3.Lerp(
+       //    rightHandIKPoint.position,
+       //curGun.rightHandIKPoint.position,
+       //Time.deltaTime * 15f);
 
-        rightHandIKPoint.rotation = Quaternion.Slerp(
-            rightHandIKPoint.rotation,
-        curGun.rightHandIKPoint.rotation,
-        Time.deltaTime * 15f);
+       //rightHandIKPoint.rotation = Quaternion.Slerp(
+       //    rightHandIKPoint.rotation,
+       //curGun.rightHandIKPoint.rotation,
+       //Time.deltaTime * 15f);
     }
 }
 
@@ -138,6 +139,7 @@ public class HandHeld : NetworkBehaviour
            animator.SetLayerWeight(i, 0f);
             leftHandIK.weight = 0;
             rightHandIK.weight = 0;
+            AimingRig.weight = 0f;
        }
 
         if(curObj == null)
@@ -178,8 +180,9 @@ public class HandHeld : NetworkBehaviour
                         //leftHandIK.data.target = gunBase.leftHandIKPoint;
                         //rightHandIK.data.target = gunBase.rightHandIKPoint;
 
-                        leftHandIK.weight = 0.9f;
-                        rightHandIK.weight = 0.9f;
+                        leftHandIK.weight = 1f;
+                        AimingRig.weight = 0.9f;
+                        //rightHandIK.weight = 0.9f;
 
                         curGun = gunBase;
                         gunOriginRot = gunBase.transform.localRotation;
@@ -194,6 +197,7 @@ public class HandHeld : NetworkBehaviour
             {
                 magText.gameObject.SetActive(false);
                 curGun = null;
+                
             }
 
             inventorySystem.SetCurItme(curObjectItem);
@@ -354,7 +358,7 @@ public class HandHeld : NetworkBehaviour
         );
 
         leftHandIK.weight = currentLeftWeight;
-        rightHandIK.weight = currentLeftWeight;
+        //rightHandIK.weight = currentLeftWeight;
 
 
     } 

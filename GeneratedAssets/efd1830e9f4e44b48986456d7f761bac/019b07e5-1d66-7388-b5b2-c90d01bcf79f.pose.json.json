@@ -1,0 +1,11 @@
+{
+    "asset": "efd1830e9f4e44b48986456d7f761bac",
+    "fileName": "019b07e5-1d66-7388-b5b2-c90d01bcf79f.pose.json",
+    "prompt": "셔플댄스",
+    "negativePrompt": "",
+    "model": "9e46c009-67d8-4254-a3a0-32e3168247ee",
+    "modelName": "Text to Motion",
+    "customSeed": 1808550969,
+    "w3CTraceId": "409abbe315897dc32ff7922c99433d16",
+    "isTrimmed": false
+}

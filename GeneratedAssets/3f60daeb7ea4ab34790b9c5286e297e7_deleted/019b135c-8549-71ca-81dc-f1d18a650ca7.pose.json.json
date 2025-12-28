@@ -1,0 +1,11 @@
+{
+    "asset": "3f60daeb7ea4ab34790b9c5286e297e7",
+    "fileName": "019b135c-8549-71ca-81dc-f1d18a650ca7.pose.json",
+    "prompt": "Walk, In Place",
+    "negativePrompt": "",
+    "model": "9e46c009-67d8-4254-a3a0-32e3168247ee",
+    "modelName": "Text to Motion",
+    "customSeed": 210561815,
+    "w3CTraceId": "19767d942453857f8442f5be027739d5",
+    "isTrimmed": false
+}

@@ -14,9 +14,15 @@ public class PlayerNetworkManager : NetworkBehaviour
     [SyncVar] public string playerName = "Player";
     [SyncVar] public Color playerColor = Color.white;
 
+    void Awake()
+    {
+         playerCamera = CameraManager.Instance.GetPlayerCemera();
+    }
+
     //네트워크 연결시 실행
     public override void OnStartAuthority()
     {
+
         //로컬 플레이어만 실행
         playerCamera.enabled = true;
         playerMovement.enabled = true;

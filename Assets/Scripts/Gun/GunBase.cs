@@ -57,6 +57,8 @@ public class GunBase : NetworkBehaviour, Item, Equable
         currentAmmo = gunData.maxAmmo;
         lastFireTime = 0;
         curMagText = $"{currentAmmo} / {gunData.maxAmmo}";
+
+        playerCamera = CameraManager.Instance.GetPlayerCemera();
     }
 
     // Update is called once per frame

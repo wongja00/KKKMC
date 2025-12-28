@@ -1,0 +1,11 @@
+{
+    "asset": "837c9e5800c5bff4aa878b36f638399d",
+    "fileName": "019b1336-3541-76d5-9b9c-8322f57f7c05.pose.json",
+    "prompt": "Rifle Aiming",
+    "negativePrompt": "",
+    "model": "9e46c009-67d8-4254-a3a0-32e3168247ee",
+    "modelName": "Text to Motion",
+    "customSeed": 424592865,
+    "w3CTraceId": "44f45a89d5da63a5e0bd1e0d9993f933",
+    "isTrimmed": false
+}

@@ -1,0 +1,11 @@
+{
+    "asset": "837c9e5800c5bff4aa878b36f638399d",
+    "fileName": "019b1336-dab5-7d57-9807-a71ae14e50ee.pose.json",
+    "prompt": "Rifle Aim idle",
+    "negativePrompt": "",
+    "model": "9e46c009-67d8-4254-a3a0-32e3168247ee",
+    "modelName": "Text to Motion",
+    "customSeed": 1380810507,
+    "w3CTraceId": "ce77ad8c1d7be7260d44540f0c23d0e9",
+    "isTrimmed": false
+}

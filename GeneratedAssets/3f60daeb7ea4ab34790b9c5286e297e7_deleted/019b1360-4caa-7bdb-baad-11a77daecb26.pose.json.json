@@ -1,0 +1,11 @@
+{
+    "asset": "3f60daeb7ea4ab34790b9c5286e297e7",
+    "fileName": "019b1360-4caa-7bdb-baad-11a77daecb26.pose.json",
+    "prompt": "\"A clean, loopable 3D walk-in-place animation of a humanoid character. No root motion forward movement. Feet should stay planted in place except for natural stepping. Smooth hip rotation, natural arm swing, balanced foot roll, and stable center of gravity. No sliding on the ground. Realistic pacing and weight shift. Neutral mood, standard walking cycle. Full body motion capture quality. Unity-ready animation with consistent bone orientation and no drift.\"",
+    "negativePrompt": "",
+    "model": "9e46c009-67d8-4254-a3a0-32e3168247ee",
+    "modelName": "Text to Motion",
+    "customSeed": 905230807,
+    "w3CTraceId": "15ad7a9321e0c4b8633fbe00f3735025",
+    "isTrimmed": false
+}

@@ -93,6 +93,10 @@ public class InventorySystem : NetworkBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        if(!isLocalPlayer) return;
+
+        playerCamera = CameraManager.Instance.GetPlayerCemera();
+
         slotMask = LayerMask.GetMask("Slot");
         itemMask = LayerMask.GetMask("Item");
 

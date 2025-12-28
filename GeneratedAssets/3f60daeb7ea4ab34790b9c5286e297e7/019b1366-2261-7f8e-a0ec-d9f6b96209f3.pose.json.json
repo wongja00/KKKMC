@@ -1,0 +1,11 @@
+{
+    "asset": "3f60daeb7ea4ab34790b9c5286e297e7",
+    "fileName": "019b1366-2261-7f8e-a0ec-d9f6b96209f3.pose.json",
+    "prompt": "Walk",
+    "negativePrompt": "",
+    "model": "9e46c009-67d8-4254-a3a0-32e3168247ee",
+    "modelName": "Text to Motion",
+    "customSeed": 688267512,
+    "w3CTraceId": "51646bab05a742679e6bd17c6f02fb70",
+    "isTrimmed": false
+}

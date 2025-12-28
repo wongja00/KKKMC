@@ -1,0 +1,11 @@
+{
+    "asset": "efd1830e9f4e44b48986456d7f761bac",
+    "fileName": "019b07e8-81ab-7c67-b4c5-ec2c33fca57f.pose.json",
+    "prompt": "Generate a full-body b-boy dance animation. \r\nThe motion should be dynamic, rhythmic, and physically grounded. \r\nPreserve center-of-mass balance, natural transitions, weight shifting, and momentum. \r\nOutput keyframes suitable for humanoid animation in Unity. \r\nNo camera movement. Full loop-ready motion.",
+    "negativePrompt": "",
+    "model": "9e46c009-67d8-4254-a3a0-32e3168247ee",
+    "modelName": "Text to Motion",
+    "customSeed": 327165033,
+    "w3CTraceId": "869f62d0d2c7a8de00cb730a441abe6c",
+    "isTrimmed": false
+}
