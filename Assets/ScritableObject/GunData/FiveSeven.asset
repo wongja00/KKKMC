@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: FiveSeven
   m_EditorClassIdentifier: 
   type: 1
-  damage: 10
+  damage: 20
   fireRate: 0.3
   maxAmmo: 12
   reloadTime: 1.5

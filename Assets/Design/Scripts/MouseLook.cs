@@ -18,6 +18,9 @@ public class MouseLook : NetworkBehaviour
     [SerializeField]
     private Transform cameraTarget;
 
+    [SerializeField] private KeyCode menuKey = KeyCode.Escape;
+    bool isMenu = false;
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -30,17 +33,34 @@ public class MouseLook : NetworkBehaviour
     }
 
     // Update is called once per frame
-    void FixedUpdate()
+    void Update()
     {
         if(!isLocalPlayer) return;
 
-        float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity * Time.deltaTime;
-        float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity * Time.deltaTime;
+        if(Input.GetKeyDown(menuKey))
+        {
+            isMenu = !isMenu;
+        }
 
-        xRotation -= mouseY * customMouseSensitivity;
+        if(isMenu) return;
+
+        float mouseX = Input.GetAxisRaw("Mouse X") * mouseSensitivity;
+        float mouseY = Input.GetAxisRaw("Mouse Y") * mouseSensitivity;
+
+        mouseX *= Time.unscaledDeltaTime;
+        mouseY *= Time.unscaledDeltaTime;
+
+        xRotation -= mouseY;
         xRotation = Mathf.Clamp(xRotation, -90f, 90f);
 
-        yRotation += mouseX * customMouseSensitivity;
+        yRotation += mouseX;
+
+
+    }
+
+    void LateUpdate()
+    {
+        if(!isLocalPlayer) return;
 
         cameraTarget.transform.localRotation = Quaternion.Euler(xRotation, yRotation, 0f);
     }

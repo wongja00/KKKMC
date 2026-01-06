@@ -17,16 +17,4 @@ public class Room
         this.rect = rect;
         type = RoomType.Combat;//일단 기본은 전투방
     }
-
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
 }

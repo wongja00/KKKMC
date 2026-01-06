@@ -12,7 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 74782612f1236de4696c67610851f74e, type: 3}
   m_Name: AK-47
   m_EditorClassIdentifier: 
-  damage: 10
+  type: 0
+  damage: 30
   fireRate: 0.1
   maxAmmo: 30
   reloadTime: 2

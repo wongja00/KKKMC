@@ -15,6 +15,7 @@ GameObject:
   - component: {fileID: 7607679874875980151}
   - component: {fileID: 4217177275373462510}
   - component: {fileID: 4108295261717069268}
+  - component: {fileID: 4011917211868864479}
   m_Layer: 0
   m_Name: Door
   m_TagString: Untagged
@@ -164,54 +165,54 @@ MonoBehaviour:
   - m_Vertices: 0b0000000e00000012000000
   m_SharedTextures: []
   m_Positions:
-  - {x: -3.5, y: -2.5, z: 1}
-  - {x: 3.5, y: -2.5, z: 1}
-  - {x: -3.5, y: 2.5, z: 1}
-  - {x: 3.5, y: 2.5, z: 1}
-  - {x: 3.5, y: -2.5, z: 1}
-  - {x: 3.5, y: -2.5, z: -1}
-  - {x: 3.5, y: 2.5, z: 1}
-  - {x: 3.5, y: 2.5, z: -1}
-  - {x: 3.5, y: -2.5, z: -1}
-  - {x: -3.5, y: -2.5, z: -1}
-  - {x: 3.5, y: 2.5, z: -1}
-  - {x: -3.5, y: 2.5, z: -1}
-  - {x: -3.5, y: -2.5, z: -1}
-  - {x: -3.5, y: -2.5, z: 1}
-  - {x: -3.5, y: 2.5, z: -1}
-  - {x: -3.5, y: 2.5, z: 1}
-  - {x: -3.5, y: 2.5, z: 1}
-  - {x: 3.5, y: 2.5, z: 1}
-  - {x: -3.5, y: 2.5, z: -1}
-  - {x: 3.5, y: 2.5, z: -1}
-  - {x: -3.5, y: -2.5, z: -1}
-  - {x: 3.5, y: -2.5, z: -1}
-  - {x: -3.5, y: -2.5, z: 1}
-  - {x: 3.5, y: -2.5, z: 1}
+  - {x: -7.5, y: -2.5, z: 1}
+  - {x: 7.5, y: -2.5, z: 1}
+  - {x: -7.5, y: 2.5, z: 1}
+  - {x: 7.5, y: 2.5, z: 1}
+  - {x: 7.5, y: -2.5, z: 1}
+  - {x: 7.5, y: -2.5, z: -1}
+  - {x: 7.5, y: 2.5, z: 1}
+  - {x: 7.5, y: 2.5, z: -1}
+  - {x: 7.5, y: -2.5, z: -1}
+  - {x: -7.5, y: -2.5, z: -1}
+  - {x: 7.5, y: 2.5, z: -1}
+  - {x: -7.5, y: 2.5, z: -1}
+  - {x: -7.5, y: -2.5, z: -1}
+  - {x: -7.5, y: -2.5, z: 1}
+  - {x: -7.5, y: 2.5, z: -1}
+  - {x: -7.5, y: 2.5, z: 1}
+  - {x: -7.5, y: 2.5, z: 1}
+  - {x: 7.5, y: 2.5, z: 1}
+  - {x: -7.5, y: 2.5, z: -1}
+  - {x: 7.5, y: 2.5, z: -1}
+  - {x: -7.5, y: -2.5, z: -1}
+  - {x: 7.5, y: -2.5, z: -1}
+  - {x: -7.5, y: -2.5, z: 1}
+  - {x: 7.5, y: -2.5, z: 1}
   m_Textures0:
-  - {x: 7, y: -4}
+  - {x: 15, y: -4}
   - {x: 0, y: -4}
-  - {x: 7, y: 1}
+  - {x: 15, y: 1}
   - {x: 0, y: 1}
   - {x: 2, y: -4}
   - {x: 0, y: -4}
   - {x: 2, y: 1}
   - {x: 0, y: 1}
-  - {x: 7, y: -4}
+  - {x: 15, y: -4}
   - {x: 0, y: -4}
-  - {x: 7, y: 1}
+  - {x: 15, y: 1}
   - {x: 0, y: 1}
   - {x: 2, y: -4}
   - {x: 0, y: -4}
   - {x: 2, y: 1}
   - {x: 0, y: 1}
   - {x: 0, y: 1}
-  - {x: 7, y: 1}
+  - {x: 15, y: 1}
   - {x: 0, y: -1}
-  - {x: 7, y: -1}
-  - {x: 7, y: -1}
+  - {x: 15, y: -1}
+  - {x: 15, y: -1}
   - {x: 0, y: -1}
-  - {x: 7, y: 1}
+  - {x: 15, y: 1}
   - {x: 0, y: 1}
   m_Textures2: []
   m_Textures3: []
@@ -249,7 +250,7 @@ MonoBehaviour:
   m_PreserveMeshAssetOnDestroy: 0
   assetGuid: 
   m_Mesh: {fileID: 0}
-  m_VersionIndex: 2068
+  m_VersionIndex: 2609
   m_IsSelectable: 1
   m_SelectedFaces: 
   m_SelectedEdges: []
@@ -269,8 +270,8 @@ MonoBehaviour:
   m_Shape:
     rid: 655040149049835802
   m_ShapeRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_UnmodifiedMeshVersion: 2065
-  m_Size: {x: 7, y: 5, z: 2}
+  m_UnmodifiedMeshVersion: 2600
+  m_Size: {x: 15, y: 5, z: 2}
   m_LocalCenter: {x: 0, y: 0, z: 0}
   references:
     version: 2
@@ -352,7 +353,7 @@ MeshCollider:
   m_LayerOverridePriority: 0
   m_IsTrigger: 0
   m_ProvidesContacts: 0
-  m_Enabled: 0
+  m_Enabled: 1
   serializedVersion: 5
   m_Convex: 0
   m_CookingOptions: 30
@@ -370,3 +371,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Door
   col: {fileID: 4217177275373462510}
+--- !u!208 &4011917211868864479
+NavMeshObstacle:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1533850854617090760}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Shape: 1
+  m_Extents: {x: 7.5000005, y: 2.5, z: 1}
+  m_MoveThreshold: 0.1
+  m_Carve: 0
+  m_CarveOnlyStationary: 1
+  m_Center: {x: 0, y: 0, z: 0}
+  m_TimeToStationary: 0.5

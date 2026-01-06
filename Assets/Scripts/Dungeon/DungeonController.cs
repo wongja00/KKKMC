@@ -1,25 +1,42 @@
 using UnityEngine;
 using System.Collections.Generic;
 using WebSocketSharp;
+using Mirror;
+using Unity.VisualScripting;
+using UnityEngine.ProBuilder;
+using UnityEngine.ProBuilder.Shapes;
+using UnityEngine.ProBuilder.MeshOperations;
 
-public class DungeonController : MonoBehaviour
+public class DungeonController : NetworkBehaviour
 {
     public RoomType roomType;
 
     public Door[] doors;
     private List<GameObject> spawnEnemies = new List<GameObject>();
     public List<Transform> spawnPoints = new List<Transform>();
+    public List<GameObject> barriers = new List<GameObject>();
+    public GameObject barrierPrefab;
+    public Room area;
 
     private int aliveEnemies = 0;
     private bool activated = false;
 
     private BoxCollider boxCollider;
+    
 
     void Awake()
     {
         boxCollider = GetComponent<BoxCollider>();
         
         doors = FindDoorsInRoom();
+    }
+
+    void Start()
+    {
+        OpenDoors();
+        CreateRoomWall();
+        boxCollider.size = new Vector3(boxCollider.size.x - 10, 3, boxCollider.size.z - 10);
+
     }
 
     void OnTriggerEnter(Collider other)
@@ -50,12 +67,17 @@ public class DungeonController : MonoBehaviour
     {
         foreach(var d in doors)
             d.Open();
+        
+        
+        DisabeBarriers();
     }
 
     void CloseDoors()
     {
         foreach(var d in doors)
             d.Close();
+        
+        ActiveBarriers();
     }
 
     void EndCombat()
@@ -96,7 +118,7 @@ public class DungeonController : MonoBehaviour
 
     Door[] FindDoorsInRoom()
     {
-        List<Door> result = new();
+        List<Door> result = new List<Door>();
 
         Collider[] hits = Physics.OverlapBox(
             transform.position + boxCollider.center,
@@ -125,11 +147,46 @@ public class DungeonController : MonoBehaviour
 
     }
 
-
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    // 방 밖 못나가게 방벽(벽) 세우는 함수
+    void CreateRoomWall()
     {
-        
+        Vector3 northPos = new Vector3(boxCollider.center.x, boxCollider.center.y, boxCollider.center.z + boxCollider.size.z/2);
+        Vector3 southPos = new Vector3(boxCollider.center.x, boxCollider.center.y, boxCollider.center.z - boxCollider.size.z/2);
+        Vector3 eastPos = new Vector3(boxCollider.center.x + boxCollider.size.x/2, boxCollider.center.y, boxCollider.center.z);
+        Vector3 westPos = new Vector3(boxCollider.center.x - boxCollider.size.x/2, boxCollider.center.y, boxCollider.center.z);
+
+        GameObject a = Object.Instantiate(barrierPrefab, northPos, Quaternion.identity);
+        GameObject b = Object.Instantiate(barrierPrefab, southPos, Quaternion.identity);
+        GameObject c = Object.Instantiate(barrierPrefab, eastPos, Quaternion.identity);
+        GameObject d = Object.Instantiate(barrierPrefab, westPos, Quaternion.identity);
+
+        a.transform.localScale = new Vector3 (boxCollider.size.x, 5, 0.3f); 
+        b.transform.localScale = new Vector3 (boxCollider.size.x, 5, 0.3f); 
+        c.transform.localScale = new Vector3 (0.3f, 5, boxCollider.size.z); 
+        d.transform.localScale = new Vector3 (0.3f, 5, boxCollider.size.z); 
+
+        barriers.Add(a);
+        barriers.Add(b);
+        barriers.Add(c);
+        barriers.Add(d);
+
+        DisabeBarriers();
+    }
+
+    void DisabeBarriers()
+    {
+        foreach(GameObject bar in barriers)
+        {
+            bar.SetActive(false);
+        }
+    }
+
+    void ActiveBarriers()
+    {
+        foreach(GameObject bar in barriers)
+        {
+            bar.SetActive(true);
+        }
     }
 
     // Update is called once per frame

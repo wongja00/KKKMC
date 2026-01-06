@@ -17,7 +17,7 @@ public class GunBase : NetworkBehaviour, Item, Equable
     [SerializeField] private AudioSource audioSource;
     [SerializeField] private AudioClip fireClip;
 
-    [SerializeField] private int currentAmmo = 0;
+    public int currentAmmo{get; private set;} = 0;
 
     [SerializeField] private CinemachineCamera playerCamera;
     [SerializeField] public Transform leftHandIKPoint;
@@ -27,6 +27,7 @@ public class GunBase : NetworkBehaviour, Item, Equable
     private bool isReloading = false;
     private float lastFireTime = 0f;
     private Aiming aiming;
+    private Coroutine reloadCoroutine;
 
     //총알 프리팹
     public GameObject bulletPrefab;
@@ -45,6 +46,8 @@ public class GunBase : NetworkBehaviour, Item, Equable
 
     [SerializeField] private LayerMask shootLayerMask;
     public event Action OnUseItem;
+    public event Action OnChangedMag;
+    public event Action OnReload;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
 
@@ -68,7 +71,7 @@ public class GunBase : NetworkBehaviour, Item, Equable
         
         if(currentAmmo <= 0)
         {
-            StartCoroutine(Reload());
+            reloadCoroutine = StartCoroutine(Reload());
         }
 
         if(Input.GetKeyDown(gunFireKey))
@@ -91,6 +94,7 @@ public class GunBase : NetworkBehaviour, Item, Equable
 
         currentAmmo--;
         curMagText = $"{currentAmmo} / {gunData.maxAmmo}";
+        OnChangedMag?.Invoke();
 
         ShotBullet();
 
@@ -163,10 +167,32 @@ public class GunBase : NetworkBehaviour, Item, Equable
 
     IEnumerator Reload()
     {
+        OnReload?.Invoke();
+
         isReloading = true;
+        
         yield return new WaitForSeconds(gunData.reloadTime);
+        
         currentAmmo = gunData.maxAmmo;
         isReloading = false;
+        reloadCoroutine = null;
+        OnChangedMag?.Invoke();
+    }
+    
+    public void CancleReload()
+    {
+        if(reloadCoroutine != null)
+        {
+            StopCoroutine(reloadCoroutine);
+            isReloading = false;
+            reloadCoroutine = null;
+        }
+    }
+
+    public void SetOnChangedMagNull()
+    {
+        OnChangedMag = null;
+        OnReload = null;
     }
 
     public string GetName()
@@ -256,7 +282,8 @@ public class GunBase : NetworkBehaviour, Item, Equable
 
     public void UseItem()
     {
-        Shoot();
+        if(!isReloading && currentAmmo > 0)
+            Shoot();
     }
 
     public string CurMag()
@@ -282,4 +309,12 @@ public class GunBase : NetworkBehaviour, Item, Equable
     {
         audioSource.PlayOneShot(fireClip);
     }
+
+    public void reload()
+    {  
+        if(isReloading) return;
+
+        reloadCoroutine = StartCoroutine(Reload());
+    }
+
 }

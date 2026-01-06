@@ -13,6 +13,7 @@ public class InteractUIManager : MonoBehaviour
     [SerializeField] TextMeshProUGUI GunUIText;
     [SerializeField] Image aimCrosshair;
     [SerializeField] RectTransform aimCrosshairRect;
+    [SerializeField] ReloadCoolTImeUI reloadCoolTImeUI;
     [SerializeField] Camera cam;
 
     void Awake()
@@ -61,6 +62,11 @@ public class InteractUIManager : MonoBehaviour
         if(aimCrosshair == null) return;
 
         aimCrosshair.gameObject.SetActive(isActive);
+    }
+
+    public ReloadCoolTImeUI GetReloadUI()
+    {
+        return reloadCoolTImeUI;
     }
 
     public void SetAimCrosshairPosition(Vector2 screenPosition)

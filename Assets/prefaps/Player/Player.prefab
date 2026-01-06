@@ -3616,7 +3616,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1376832861527793235
 Transform:
   m_ObjectHideFlags: 0
@@ -3659,6 +3659,8 @@ MonoBehaviour:
   syncDirection: 0
   syncMode: 0
   syncInterval: 0
+  skinRederer: {fileID: 9218520419043135712}
+  skillKey1: 101
 --- !u!114 &5489407841458146111
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3765,7 +3767,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   sceneId: 0
-  _assetId: 0
+  _assetId: 3429329830
   serverOnly: 0
   visibility: 0
   hasSpawned: 0
@@ -7294,7 +7296,7 @@ SkinnedMeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 45c510f44a3703340917bd682f0acd23, type: 2}
+  - {fileID: 2100000, guid: f489837d856b1084a8aa1236f1a2a410, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -7587,10 +7589,12 @@ MonoBehaviour:
   inventorySystem: {fileID: 4444876471346629886}
   hotBarSlotsController: {fileID: 4921575737773124357}
   magText: {fileID: 0}
+  reloadUI: {fileID: 0}
   aiming: {fileID: 2954960619322119309}
   AimingRig: {fileID: 7324193005389297695}
   animator: {fileID: 817829206491354978}
   itemUseKey: 323
+  ReloadKey: 114
   leftHandIK: {fileID: 5866793633028808526}
   rightHandIK: {fileID: 5579045433952939478}
   rightHandIKPoint: {fileID: 1925255698000320505}

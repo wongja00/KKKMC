@@ -2,6 +2,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using Mirror;
 using Unity.AI.Navigation;
+using System.Collections;
 
 public class DungeonGenerator : MonoBehaviour
 {
@@ -15,6 +16,7 @@ public class DungeonGenerator : MonoBehaviour
     
     [Header("Dungeon Settings")]
     public int roomCount = 15;
+    public int roomThreshold = 50;
     public Vector2Int roomMinSize = new Vector2Int(32, 32);
     public Vector2Int roomMaxSize = new Vector2Int(128, 128);
 
@@ -37,6 +39,7 @@ public class DungeonGenerator : MonoBehaviour
     [SerializeField] Transform dungeonRoot;
     [SerializeField] GameObject doorPrefab;
     [SerializeField] Transform doorRoot;
+    [SerializeField] GameObject barrierPrefab;
 
     Vector2Int[] directions =
     {
@@ -45,6 +48,147 @@ public class DungeonGenerator : MonoBehaviour
         Vector2Int.left,
         Vector2Int.right
     };
+
+    class BSPNode
+    {
+        public RectInt area;
+        public BSPNode left;
+        public BSPNode right;
+        public RectInt? room;
+
+        public BSPNode(RectInt area)
+        {
+            this.area = area;
+        }
+
+        public bool IsLeaf => left == null && right == null;
+    }
+
+    // Start is called once before the first execution of Update after the MonoBehaviour is created
+    void Start()
+    {
+        //GenerateRooms();
+        //AssignRoomTypes();
+        //ConnectRoomsWithMST();
+
+        rooms.Clear();
+
+        BSPNode root = new BSPNode(new RectInt(1, 1, dungeonWidth - 2, dungeonHeight - 2));
+
+        Split(root, depth: 4);
+        CreateRoomsFromBSP(root);
+        AssignRoomTypes();
+
+        InitMap();
+        CarveRooms();
+        doorRequests.Clear();
+        //CarveAllCorridors();
+
+        GetAnyRoom(root);
+
+        //BuildFloor3D();
+        StartCoroutine(BuildWalls3D());
+        //BuildDoors3D();
+        //BuildDoorsFromRequests();
+
+        BuildRoomControllers();
+
+        dungeonRoot.GetComponent<NavMeshBuilder>().NavMeshbuilding();
+        
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        
+    }
+        //사각형을 쪼갬
+    void Split(BSPNode node, int depth)
+    {
+        if(depth <= 0) return;
+
+        bool horizontal = Random.value < 0.5f;
+
+        int max = (horizontal ? node.area.height : node.area.width) - roomThreshold;
+        if(max <= roomThreshold) return;
+
+        if(horizontal && node.area.width - node.area.height >= 50)
+        {
+            horizontal = false;
+        }
+        if(!horizontal && node.area.height - node.area.width >= 50)
+        {
+            horizontal = true;
+        }
+
+        int split = Random.Range(roomThreshold, max);
+
+        if(horizontal)
+        {
+            node.left = new BSPNode(
+                new RectInt(node.area.x, node.area.y, node.area.width, split)
+            );
+            node.right = new BSPNode(
+                new RectInt(node.area.x, node.area.y + split, node.area.width, node.area.height - split)
+            );
+        }
+        else
+        {
+            node.left = new BSPNode(
+                new RectInt(node.area.x, node.area.y, split, node.area.height)
+            );
+            node.right = new BSPNode(
+                new RectInt(node.area.x + split, node.area.y , node.area.width - split, node.area.height)
+            );
+        }
+
+        Split(node.left, depth - 1);
+        Split(node.right, depth - 1);
+    }
+
+    //쪼갠 사각형을 바탕으로 방으로 만듬
+    void CreateRoomsFromBSP(BSPNode node)
+    {
+        if(!node.IsLeaf)
+        {
+            CreateRoomsFromBSP(node.left);
+            CreateRoomsFromBSP(node.right);
+            return;
+        }
+
+        int margin = 4;//딱붙어있지 않게 마진을 남김
+
+        int w = Random.Range(node.area.width / 2, node.area.width - margin);
+        int h = Random.Range(node.area.height / 2, node.area.height - margin);
+
+        int x = Random.Range(node.area.x + margin, node.area.xMax - w - margin);
+        int y = Random.Range(node.area.y + margin, node.area.yMax - h - margin);
+
+        RectInt roomRect = new RectInt(x, y, w, h);
+        node.room = roomRect;
+
+        rooms.Add(new Room(roomRect));
+    }
+
+    //방끼리 이어줌
+    RectInt GetAnyRoom(BSPNode node)
+    {
+        if(node.IsLeaf) return node.room.Value;
+        
+        RectInt a = GetAnyRoom(node.left);
+        RectInt b = GetAnyRoom(node.right);
+
+        var (exitA, dirA) = GetRoomExit(a, Vector2Int.RoundToInt(b.center));
+        var (exitB, dirB) = GetRoomExit(b, Vector2Int.RoundToInt(a.center));
+
+        CarveCorridor(
+            exitA,
+            exitB,
+            dirA
+        );
+
+        return a;
+    }
 
     private struct DoorCandidate
     {
@@ -59,173 +203,6 @@ public class DungeonGenerator : MonoBehaviour
             dir = d;
         }
 
-    }
-
-    void TryAddDoor(Room room, Vector2Int roomCell, List<DoorCandidate> list)
-    {
-        //방 내부 바닥이어야 함
-        if(!InBounds(roomCell.x, roomCell.y)) return;
-        if(map[roomCell.x, roomCell.y] != 1) return;
-
-        foreach(var dir in directions)//up / down / left / right
-        {
-            int nx = roomCell.x + dir.x;
-            int ny = roomCell.y + dir.y;
-
-            if(!InBounds(nx, ny)) continue;
-
-            //옆칸이 바닥이어야 함(복도)
-            if(map[nx, ny] != 1) continue;
-
-            //옆칸이 다른방 내부면 문으로 취급하면 방이 합쳐짐
-            //방 밖 바닥(복도)으로만 문 생성
-            if(IsInsideAnyRoom(nx, ny)) continue;
-
-            list.Add(new DoorCandidate(roomCell, new Vector2Int(nx, ny), dir));
-        }
-    }
-
-    int GetDoorCountFor(Room room)
-    {
-        return room.type switch
-        {
-            RoomType.Start => 1,
-            RoomType.Boss => 1,
-            RoomType.Treasure => 1,
-            RoomType.Elite => 1,
-            _ => Random.value < 0.25f ? 2 : 1, // 전투방은 가끔 2개
-        };
-    }
-
-    bool InSideRoom(Room room, int x, int y) =>
-        room.rect.Contains(new Vector2Int(x, y));
-
-    bool IsInsideAnyRoom(int x, int y)
-    {
-        var p = new Vector2Int(x, y);
-        foreach(var r in rooms)
-            if(r.rect.Contains(p)) return true;
-        return false;
-    } 
-
-    List<DoorCandidate> GetDoorCandidates(Room room)
-    {
-        List<DoorCandidate> list = new List<DoorCandidate>();
-
-        //방의 테두리만 스캔(빠르고 정확)
-        int xMin = room.rect.xMin;
-        int xMax = room.rect.xMax - 1;
-        int yMin = room.rect.yMin;
-        int yMax = room.rect.yMax - 1;
-
-        //테두리 좌표
-        for(int x = xMin; x <= xMax; x++)
-        {
-            TryAddDoor(room, new Vector2Int(x, yMin), list);
-            TryAddDoor(room, new Vector2Int(x, yMax), list);
-        }
-        for(int y = yMin; y <= yMax; y++)
-        {
-            TryAddDoor(room, new Vector2Int(xMin, y), list);
-            TryAddDoor(room, new Vector2Int(xMax, y), list);
-        }
-
-        return list;
-    }
-
-    void BuildDoorsFromRequests()
-    {
-        if(doorPrefab == null || doorRoot == null) return;
-
-        var used = new HashSet<Vector3>();
-
-        foreach(var req in doorRequests)
-        {
-            Vector2Int c = req.cell;
-            Vector2Int dir = req.dir;
-
-            Vector3 pos = new Vector3(
-                req.cell.x - req.dir.x * 0.5f,
-                1.25f,
-                req.cell.y - req.dir.y * 0.5f
-            );
-
-            if(!used.Add(pos)) continue;
-
-            //복도의 실제 방향 확인
-            bool isHorizontal = IsCorridorHorizontal(c);
-
-            Quaternion rot = 
-            !isHorizontal
-            ? Quaternion.Euler(0, 90, 0)
-            : Quaternion.identity;
-
-            Instantiate(doorPrefab, pos, rot, doorRoot);
-        }
-    }
-
-    bool IsCorridorHorizontal(Vector2Int cell)
-    {
-        //문위치 주변의 복도 타일 확인
-        int horizontalCount = 0;
-        int verticalCount = 0;
-
-
-        //좌우 확인
-        for(int i = -2; i <= 2; i++)
-        {
-            Vector2Int check = new Vector2Int(cell.x + i, cell.y);
-            if(InBounds(check.x, check.y) &&
-            map[check.x, check.y] == 1 &&
-            !IsInsideAnyRoom(check.x, check.y))
-            {
-                horizontalCount++;
-            }
-        }
-
-        //상하 확인
-        for(int i = -2; i <= 2; i++)
-        {
-            Vector2Int check = new Vector2Int(cell.x, cell.y + i);
-            if(InBounds(check.x, check.y) &&
-            map[check.x, check.y] == 1 &&
-            !IsInsideAnyRoom(check.x, check.y))
-            {
-                verticalCount++;
-            }
-        }
-
-        //수평복도가 더 많으면 수평
-        return horizontalCount > verticalCount;
-    }
-
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-        GenerateRooms();
-        AssignRoomTypes();
-        ConnectRoomsWithMST();
-
-        InitMap();
-        CarveRooms();
-        doorRequests.Clear();
-        CarveAllCorridors();
-
-        BuildFloor3D();
-        BuildWalls3D();
-        //BuildDoors3D();
-        BuildDoorsFromRequests();
-
-        BuildRoomControllers();
-
-        dungeonRoot.GetComponent<NavMeshBuilder>().NavMeshbuilding();
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
     }
     
     private void GenerateRooms()
@@ -528,6 +505,30 @@ void CarveCorridor(Vector2Int from, Vector2Int to, Vector2Int exitDir)
         }
     }
 
+    (Vector2Int edge, Vector2Int dir) GetRoomExit(RectInt room, Vector2Int target)
+    {
+        Vector2Int center = Vector2Int.RoundToInt(room.center);
+        Vector2Int d = target - center;
+
+        if(Mathf.Abs(d.x) > Mathf.Abs(d.y))
+        {
+            int y = Mathf.Clamp(center.y, room.yMin + 1, room.yMax - 2);
+            if(d.x > 0)
+                return (new Vector2Int(room.xMax - 1, y), Vector2Int.right);
+                else
+                return (new Vector2Int(room.xMin, y), Vector2Int.left);
+            
+        }
+        else
+        {
+            int x = Mathf.Clamp(center.x, room.xMin + 1, room.xMax - 2);
+            if(d.y > 0)
+                return(new Vector2Int(x, room.yMax - 1), Vector2Int.up);
+                else
+                return (new Vector2Int(x, room.yMin), Vector2Int.down);
+        }
+    }
+
     void CarveWideAt(Vector2Int p)
     {
         for(int dx = -2; dx <= 2; dx++)
@@ -563,8 +564,10 @@ void CarveCorridor(Vector2Int from, Vector2Int to, Vector2Int exitDir)
         }
     }
 
-    void BuildWalls3D()
+    IEnumerator BuildWalls3D(int batch = 1000)
     {
+        int placed = 0;
+
         for(int x = 0; x < dungeonWidth; x++)
         {
             for(int z = 0; z < dungeonHeight; z++)
@@ -595,6 +598,11 @@ void CarveCorridor(Vector2Int from, Vector2Int to, Vector2Int exitDir)
                     : Quaternion.identity;
 
                     Instantiate(wallPrefab, wallPos, rot, dungeonRoot);
+
+                        if(++placed % batch == 0)
+                        {
+                            yield return null;   
+                        }
                     }
 }
 
@@ -607,44 +615,12 @@ void CarveCorridor(Vector2Int from, Vector2Int to, Vector2Int exitDir)
         return x >= 0 && z >= 0 && x < dungeonWidth && z < dungeonHeight;
     }
 
-    Vector2Int GetRoomEdge(Room room, Vector2Int target)
-    {
-        Vector2Int d = target - room.Center;
-
-        bool useVerticalWall = Mathf.Abs(d.x) > Mathf.Abs(d.y);
-
-        if(useVerticalWall)
-        {
-            //왼쪽/ 오른쪽 벽
-            int x = (d.x > 0) ? room.rect.xMax - 1 : room.rect.xMin;
-
-            int y = room.Center.y;
-
-            y = Mathf.Clamp(y, room.rect.yMin, room.rect.yMax - 1);
-
-            return new Vector2Int(x, y);            
-        }
-        else
-        {
-            //아래/ 위 벽
-
-
-
-            int x = room.Center.x;
-            int y = (d.y > 0) ? room.rect.yMax - 1 : room.rect.yMin;
-
-            x = Mathf.Clamp(x, room.rect.xMin, room.rect.xMax - 1);
-
-            return new Vector2Int(x, y);
-        }
-
-    }
-    
     void BuildRoomControllers()
     {
         foreach(var room in rooms)
         {
             GameObject go = new GameObject($"Room_{room.type}");
+            go.AddComponent<NetworkIdentity>();
             go.layer = LayerMask.NameToLayer("DetectColl");
             go.transform.parent = dungeonRoot;
             //go.transform.position = new Vector3(room.Center.x, 0, room.Center.y);
@@ -659,13 +635,15 @@ void CarveCorridor(Vector2Int from, Vector2Int to, Vector2Int exitDir)
             );
 
             box.size = new Vector3(
-                room.rect.width+10,
+                room.rect.width + 10,
                 3,
-                room.rect.height+10
+                room.rect.height + 10
             );
 
             DungeonController rc = go.AddComponent<DungeonController>();
+            rc.barrierPrefab = barrierPrefab;
             rc.roomType = room.type;
+            rc.area = room;
 
             BuildSpawnPoints(room, rc);
         }
@@ -711,10 +689,10 @@ void CarveCorridor(Vector2Int from, Vector2Int to, Vector2Int exitDir)
     {
         List<Vector2Int> candidates = new List<Vector2Int>();
 
-        int xMin = room.rect.xMin + 1;
-        int xMax = room.rect.xMax - 2;
-        int yMin = room.rect.yMin + 1;
-        int yMax = room.rect.yMax - 2;
+        int xMin = room.rect.xMin + 10;
+        int xMax = room.rect.xMax - 20;
+        int yMin = room.rect.yMin + 10;
+        int yMax = room.rect.yMax - 20;
 
         for(int x = xMin; x <= xMax; x++)
         {
@@ -757,4 +735,100 @@ void CarveCorridor(Vector2Int from, Vector2Int to, Vector2Int exitDir)
         }
     }
     
+    void TryAddDoor(Room room, Vector2Int roomCell, List<DoorCandidate> list)
+    {
+        //방 내부 바닥이어야 함
+        if(!InBounds(roomCell.x, roomCell.y)) return;
+        if(map[roomCell.x, roomCell.y] != 1) return;
+
+        foreach(var dir in directions)//up / down / left / right
+        {
+            int nx = roomCell.x + dir.x;
+            int ny = roomCell.y + dir.y;
+
+            if(!InBounds(nx, ny)) continue;
+
+            //옆칸이 바닥이어야 함(복도)
+            if(map[nx, ny] != 1) continue;
+
+            //옆칸이 다른방 내부면 문으로 취급하면 방이 합쳐짐
+            //방 밖 바닥(복도)으로만 문 생성
+            if(IsInsideAnyRoom(nx, ny)) continue;
+
+            list.Add(new DoorCandidate(roomCell, new Vector2Int(nx, ny), dir));
+        }
+    }
+
+    bool IsInsideAnyRoom(int x, int y)
+    {
+        var p = new Vector2Int(x, y);
+        foreach(var r in rooms)
+            if(r.rect.Contains(p)) return true;
+        return false;
+    } 
+
+    void BuildDoorsFromRequests()
+    {
+        if(doorPrefab == null || doorRoot == null) return;
+
+        var used = new HashSet<Vector3>();
+
+        foreach(var req in doorRequests)
+        {
+            Vector2Int c = req.cell;
+
+            Vector3 pos = new Vector3(
+                req.cell.x - req.dir.x * 0.5f,
+                1.25f,
+                req.cell.y - req.dir.y * 0.5f
+            );
+
+            if(!used.Add(pos)) continue;
+
+            //복도의 실제 방향 확인
+            bool isHorizontal = IsCorridorHorizontal(c);
+
+            Quaternion rot = 
+            !isHorizontal
+            ? Quaternion.Euler(0, 90, 0)
+            : Quaternion.identity;
+
+            Instantiate(doorPrefab, pos, rot, doorRoot);
+        }
+    }
+
+    bool IsCorridorHorizontal(Vector2Int cell)
+    {
+        //문위치 주변의 복도 타일 확인
+        int horizontalCount = 0;
+        int verticalCount = 0;
+
+
+        //좌우 확인
+        for(int i = -2; i <= 2; i++)
+        {
+            Vector2Int check = new Vector2Int(cell.x + i, cell.y);
+            if(InBounds(check.x, check.y) &&
+            map[check.x, check.y] == 1 &&
+            !IsInsideAnyRoom(check.x, check.y))
+            {
+                horizontalCount++;
+            }
+        }
+
+        //상하 확인
+        for(int i = -2; i <= 2; i++)
+        {
+            Vector2Int check = new Vector2Int(cell.x, cell.y + i);
+            if(InBounds(check.x, check.y) &&
+            map[check.x, check.y] == 1 &&
+            !IsInsideAnyRoom(check.x, check.y))
+            {
+                verticalCount++;
+            }
+        }
+
+        //수평복도가 더 많으면 수평
+        return horizontalCount > verticalCount;
+    }
 }

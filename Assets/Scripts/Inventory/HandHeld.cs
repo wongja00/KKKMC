@@ -12,12 +12,16 @@ public class HandHeld : NetworkBehaviour
     [SerializeField] InventorySystem inventorySystem;
     [SerializeField] HotBarSlotsController hotBarSlotsController;
     [SerializeField] TextMeshProUGUI magText;
+
+    //장전할떄 화면 가운데 뿅하는 UI
+    [SerializeField] ReloadCoolTImeUI reloadUI;
     [SerializeField] Aiming aiming;
     [SerializeField] Rig AimingRig;
     
     [SerializeField] private Animator animator;
 
     [SerializeField] private KeyCode itemUseKey = KeyCode.Mouse0;
+    [SerializeField] private KeyCode ReloadKey = KeyCode.R;
 
     [SerializeField] private TwoBoneIKConstraint leftHandIK;
     [SerializeField] private TwoBoneIKConstraint rightHandIK;
@@ -44,6 +48,7 @@ public class HandHeld : NetworkBehaviour
         if(!isLocalPlayer) return;
 
         magText = InteractUIManager.Instance.GetGunMagText();
+        reloadUI = InteractUIManager.Instance.GetReloadUI();
         
         InventorySystem.OnInventoryChanged += UpdateHandPrefabs;
         HotBarSlotsController.OnChangeSlot += ShowCurItem;
@@ -62,6 +67,8 @@ public class HandHeld : NetworkBehaviour
 
         SetIKPos();
 
+        GunReload();
+
         //총 보간
         //GunRoatateLinear();
     }
@@ -73,12 +80,6 @@ public class HandHeld : NetworkBehaviour
     // Animator가 업데이트된 후에 IK 적용
     if(curGun != null)
     {
-        //leftHandIKPoint.position = curGun.leftHandIKPoint.position;
-        //leftHandIKPoint.rotation = curGun.leftHandIKPoint.rotation;
-        
-        //rightHandIKPoint.position = curGun.rightHandIKPoint.position;
-        //rightHandIKPoint.rotation = curGun.rightHandIKPoint.rotation;
-
         //위치와 회전을 보간하여 부드럽게 전화
         leftHandIKPoint.position = Vector3.Lerp(
             leftHandIKPoint.position,
@@ -90,15 +91,6 @@ public class HandHeld : NetworkBehaviour
         curGun.leftHandIKPoint.rotation,
         Time.deltaTime * 15f);
 
-       //        rightHandIKPoint.position = Vector3.Lerp(
-       //    rightHandIKPoint.position,
-       //curGun.rightHandIKPoint.position,
-       //Time.deltaTime * 15f);
-
-       //rightHandIKPoint.rotation = Quaternion.Slerp(
-       //    rightHandIKPoint.rotation,
-       //curGun.rightHandIKPoint.rotation,
-       //Time.deltaTime * 15f);
     }
 }
 
@@ -141,10 +133,19 @@ public class HandHeld : NetworkBehaviour
             rightHandIK.weight = 0;
             AimingRig.weight = 0f;
        }
+       
+        if(curGun != null)
+        {
+            magText.gameObject.SetActive(false);
+            reloadUI.CancleReload();
+            curGun.CancleReload();
+            curGun = null;
+        }
 
         if(curObj == null)
         {
             magText.gameObject.SetActive(false);
+            
             return;
         } 
             
@@ -155,20 +156,22 @@ public class HandHeld : NetworkBehaviour
         
         if (toolItem != null)
         {
-
             toolItem.SetIsEquipped(true);
-            OnUseItem+=toolItem.UseItem;
+            OnUseItem += toolItem.UseItem;
 
             if (toolItem is GunBase gunBase)
             {
                 // GunBase인 경우 탄창 정보를 magText에 표시
                 if (magText != null)
                 {
+                    gunBase.SetOnChangedMagNull();
 
                     magText.text = gunBase.CurMag();
                     magText.gameObject.SetActive(true);
                     magText.text = gunBase.CurMag();
                     OnUseItem += () => {magText.text = gunBase.CurMag();};
+                    gunBase.OnChangedMag += () => {magText.text = gunBase.CurMag();};
+                    gunBase.OnReload += () => {reloadUI.RunCoolTime(gunBase.gunData.reloadTime);};
 
                     aiming.curGun = gunBase;
                     gunBase.SetAimingCompo(aiming);
@@ -189,15 +192,21 @@ public class HandHeld : NetworkBehaviour
                     }
                     else
                     {
-                        curGun = null;
+                        reloadUI.CancleReload();
+                        curGun.CancleReload();
+                        curGun = gunBase;
                     }
                 }
             }
             else
             {
-                magText.gameObject.SetActive(false);
-                curGun = null;
-                
+                if(curGun != null)
+                {
+                    magText.gameObject.SetActive(false);
+                    reloadUI.CancleReload();
+                    curGun.CancleReload();
+                    curGun = null;
+                }
             }
 
             inventorySystem.SetCurItme(curObjectItem);
@@ -272,7 +281,6 @@ public class HandHeld : NetworkBehaviour
         {
             if (Input.GetKey(itemUseKey))
             {
-                Debug.Log("연발");
                 OnUseItem?.Invoke();
                 aiming.isADS = true;
             }
@@ -295,11 +303,6 @@ public class HandHeld : NetworkBehaviour
         }
 
 
-
-    }
-
-    void SetGunMagagine()
-    {
 
     }
 
@@ -362,4 +365,15 @@ public class HandHeld : NetworkBehaviour
 
 
     } 
+
+    private void GunReload()
+    {
+        if(Input.GetKeyDown(ReloadKey))
+        {
+            if(curGun != null && curGun.currentAmmo <= curGun.gunData.maxAmmo)
+            {
+                curGun.reload();
+            }
+        }
+    }
 }

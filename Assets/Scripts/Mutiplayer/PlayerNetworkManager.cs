@@ -16,15 +16,17 @@ public class PlayerNetworkManager : NetworkBehaviour
 
     void Awake()
     {
-         playerCamera = CameraManager.Instance.GetPlayerCemera();
+        if(playerCamera != null)
+            playerCamera = CameraManager.Instance.GetPlayerCemera();
     }
 
     //네트워크 연결시 실행
-    public override void OnStartAuthority()
+    public override void OnStartLocalPlayer()
     {
 
         //로컬 플레이어만 실행
-        playerCamera.enabled = true;
+        if(playerCamera != null)
+            playerCamera.enabled = true;
         playerMovement.enabled = true;
         mouseLook.enabled = true;
 
@@ -33,7 +35,7 @@ public class PlayerNetworkManager : NetworkBehaviour
 
     public override void OnStartClient()
     {
-        if(!isLocalPlayer)
+        if(!isLocalPlayer && playerCamera != null)
         {
             playerCamera.enabled = false;
             playerMovement.enabled = false;
