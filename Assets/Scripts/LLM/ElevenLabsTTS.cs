@@ -35,7 +35,6 @@ public class ElevenLabsTTS : MonoBehaviour
     public IEnumerator Speak(string text, Action onDone = null, Action<string> onError = null)
     {
         string url = $"https://api.elevenlabs.io/v1/text-to-speech/{voiceId}";
-
         Debug.Log("[TTS] URL = " + url);
         Debug.Log("[TTS] voiceId = " + voiceId);
 

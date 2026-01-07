@@ -7,6 +7,7 @@ public class NPCDialogueController : MonoBehaviour
 {
     public LLMChat llm;
     public ElevenLabsTTS tts;
+    public DialogueUI dialogueUI;
 
     //간단 히스토리(너무 길어지면 느려짐: 최근 6 ~ 10개만 유지 추천)
     private readonly List<LLMChat.Msg> history = new();
@@ -29,6 +30,8 @@ public class NPCDialogueController : MonoBehaviour
 
         //히스토리 과식 방지: system + 최근 8개만 남기기
         TrimHistoryKeepLast(9);
+
+        dialogueUI.sendButton.interactable = false;
 
         string reply = null;
         string err = null;
@@ -58,9 +61,13 @@ public class NPCDialogueController : MonoBehaviour
         Debug.Log($"[NPC] NPC Reply: {reply}");
         Debug.Log($"[NPC] Speak Text(len={speakText.Length}): {speakText}");
 
+        dialogueUI.SetDialogue(speakText);
+
         yield return tts.Speak(speakText,
             onDone: () => { },
             onError: (e) => Debug.LogError("TTS Error: " + e));
+
+        dialogueUI.sendButton.interactable = true;
     }
 
      void TrimHistoryKeepLast(int keepCountIncludingSystem)
@@ -77,18 +84,19 @@ public class NPCDialogueController : MonoBehaviour
         history.AddRange(tail);
     }
 
+    void SendPlayerText()
+    {
+        PlayerSays(dialogueUI.sendText);
+    }
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        
+        dialogueUI.OnSend.AddListener(SendPlayerText);
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.T))
-        {
-            PlayerSays("처음인데, 뭘 하면 되죠?");
-        }
     }
 }
