@@ -1,0 +1,11 @@
+{
+    "asset": "c75b15e6ddd60554d8293349eaed50f3",
+    "fileName": "019bad80-193f-7bb0-a400-f1c7c0d20cba.pose.json",
+    "prompt": "펀치",
+    "negativePrompt": "",
+    "model": "9e46c009-67d8-4254-a3a0-32e3168247ee",
+    "modelName": "Text to Motion",
+    "customSeed": 1386272253,
+    "w3CTraceId": "90d31471f2f3f2f492ca933861a879a3",
+    "isTrimmed": false
+}

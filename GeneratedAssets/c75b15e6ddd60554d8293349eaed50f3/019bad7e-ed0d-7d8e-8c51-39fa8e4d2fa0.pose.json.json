@@ -1,0 +1,11 @@
+{
+    "asset": "c75b15e6ddd60554d8293349eaed50f3",
+    "fileName": "019bad7e-ed0d-7d8e-8c51-39fa8e4d2fa0.pose.json",
+    "prompt": "“Hit 1: fast jab/straight. 6–10 frames anticipation then strike. Minimal step, quick torso twist. On hit frame fist fully extended, wrist locked. Short recovery, ends ready for hit 2.”",
+    "negativePrompt": "",
+    "model": "9e46c009-67d8-4254-a3a0-32e3168247ee",
+    "modelName": "Text to Motion",
+    "customSeed": 715927565,
+    "w3CTraceId": "f7eb852a3dc5e6e75e09a63d1afb9550",
+    "isTrimmed": false
+}

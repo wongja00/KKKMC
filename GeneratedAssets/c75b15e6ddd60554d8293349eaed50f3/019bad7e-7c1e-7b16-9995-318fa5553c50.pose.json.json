@@ -1,0 +1,11 @@
+{
+    "asset": "c75b15e6ddd60554d8293349eaed50f3",
+    "fileName": "019bad7e-7c1e-7b16-9995-318fa5553c50.pose.json",
+    "prompt": "“Third-person action unarmed melee combo. Minimal root motion, no foot sliding. Clear anticipation, strong hit frame. Power chain: hips → shoulders → arm → fist. Exaggerated game silhouette, snappy timing, recover to chain.”\n\n“Hit 1: fast jab/straight. 6–10 frames anticipation then strike. Minimal step, quick torso twist. On hit frame fist fully extended, wrist locked. Short recovery, ends ready for hit 2.”",
+    "negativePrompt": "",
+    "model": "9e46c009-67d8-4254-a3a0-32e3168247ee",
+    "modelName": "Text to Motion",
+    "customSeed": 61121777,
+    "w3CTraceId": "c39c05c53ccae43bbc870a0646a3b4d8",
+    "isTrimmed": false
+}

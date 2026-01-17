@@ -1,0 +1,11 @@
+{
+    "asset": "c75b15e6ddd60554d8293349eaed50f3",
+    "fileName": "019bad7f-af55-7401-8a73-e3633055f9ae.pose.json",
+    "prompt": "“1타: 빠른 스트레이트 펀치(또는 잽). 6~10프레임 anticipation 후 즉시 타격. 앞발은 고정, 상체만 짧게 틀며 주먹이 목표를 ‘찍고’ 들어가게. 히트 프레임에서 주먹이 완전히 뻗고, 손목은 단단히 고정. 후딜 짧게, 2타를 위한 가드/준비 자세로 마무리.”",
+    "negativePrompt": "",
+    "model": "9e46c009-67d8-4254-a3a0-32e3168247ee",
+    "modelName": "Text to Motion",
+    "customSeed": 468894811,
+    "w3CTraceId": "884d247806ac3b53f48a0b81e8ff16c8",
+    "isTrimmed": false
+}

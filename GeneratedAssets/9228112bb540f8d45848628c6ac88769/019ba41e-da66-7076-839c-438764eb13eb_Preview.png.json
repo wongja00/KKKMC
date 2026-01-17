@@ -1,0 +1,11 @@
+{
+    "asset": "9228112bb540f8d45848628c6ac88769",
+    "fileName": "019ba41e-da66-7076-839c-438764eb13eb_Preview.png",
+    "prompt": "Create a URP Unlit transparent energy barrier material.\r\n\r\nThe barrier should look like a sci-fi shield:\r\nThe surface is semi-transparent and filled with animated blue noise patterns, \r\ngiving the feeling of flowing energy across the barrier.\r\n\r\nWhen other objects intersect with the barrier, \r\na red glowing intersection effect should appear at the contact area.\r\nThis red intersection should be added on top of the blue barrier color \r\nand must NOT reduce transparency.\r\n\r\nShader requirements:\r\n- Use animated procedural noise for the blue energy (Simple Noise or Voronoi)\r\n- Use scene depth or depth difference to detect intersections\r\n- Intersection mask should be smooth and adjustable in thickness\r\n- Final color = blue energy + red intersection glow\r\n- Alpha must be controlled separately from intersection\r\n- Alpha should be stable and not multiplied by intersection\r\n- Optionally, intersection increases opacity slightly instead of reducing it\r\n\r\nThe result should look like:\r\na glowing blue force field that flashe",
+    "negativePrompt": "",
+    "model": "44ec3749-963a-44b1-aa54-dc19f6ed8ab2",
+    "modelName": "Unity Texture2D",
+    "customSeed": 68389171,
+    "w3CTraceId": "70ed68d7836eaa949a4b67f8eb0594ba",
+    "refinementMode": "Generation"
+}
