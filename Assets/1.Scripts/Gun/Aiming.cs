@@ -65,16 +65,16 @@ public class Aiming : NetworkBehaviour
             handRig.weight = 0.0f;
         }
 
-        if(Input.GetKey(aimKey))
+        if(Input.GetKey(aimKey) && handHeld.curGun != null)
         {
-            isAiming = true;            
+            isAiming = true;  
         }
         else
         {
             isAiming = false;
         }
     
-         if(!isAiming && !isADS)
+         if(!isAiming && !isADS && handHeld.curGun != null)
          {
              //handHeld.SetOriginAim();
              InteractUIManager.Instance.SetAimCrosshair(false);

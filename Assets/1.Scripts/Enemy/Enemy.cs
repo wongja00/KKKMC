@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.AI;
 using System;
 using System.Collections;
+using UnityEngine.UI;
 
 public class Enemy : CharacterBase
 {
@@ -25,6 +26,9 @@ public class Enemy : CharacterBase
     [SerializeField] SkinnedMeshRenderer skinRenderer;
 
     MaterialPropertyBlock mpb;
+
+    [SerializeField]
+    Image hpBar;
 
 
     void Awake()
@@ -113,6 +117,7 @@ public class Enemy : CharacterBase
     override public void TakeDamage(int damage)
     {
         base.TakeDamage(damage);
+        hpBar.fillAmount = CurHP/MaxHP;
 
         if(CurHP <= 0 && isDead == false)
         {

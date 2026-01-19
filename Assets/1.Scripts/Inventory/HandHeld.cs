@@ -13,7 +13,7 @@ public class HandHeld : NetworkBehaviour
     [SerializeField] HotBarSlotsController hotBarSlotsController;
     [SerializeField] TextMeshProUGUI magText;
 
-    //장전할떄 화면 가운데 뿅하는 UI
+    //장전할떄 화면 가운데 윙하는 UI
     [SerializeField] ReloadCoolTImeUI reloadUI;
     [SerializeField] Aiming aiming;
     [SerializeField] Rig AimingRig;
@@ -29,11 +29,11 @@ public class HandHeld : NetworkBehaviour
     [SerializeField] private Transform leftHandIKPoint;
     private Dictionary<int, GameObject> HotBarPrefabs;
 
-    private GameObject curObjectItem;
+    public GameObject curObjectItem{private set; get;}
 
     public event Action OnUseItem;
 
-    private GunBase curGun;
+    public GunBase curGun{get; private set;}
     private Quaternion gunOriginRot;
 
     private float ikWeightVelocity;
@@ -64,8 +64,6 @@ public class HandHeld : NetworkBehaviour
         if(!isLocalPlayer) return;
 
         UseItem();
-
-        SetIKPos();
 
         GunReload();
 

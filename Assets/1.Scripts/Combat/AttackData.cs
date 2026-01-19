@@ -19,10 +19,12 @@ public class AttackData : ScriptableObject
     public float startupTime = 0.1f;//선딜
     public float activeTime = 0.2f; //판정시간
     public float recoveryTime = 0.3f;//후딜
+    public List<HitBoxWindow> hitBoxTimes = new List<HitBoxWindow>();//히트박스 판정시간 0~1까지 NormalTime
     public float totalDuration => startupTime + activeTime + recoveryTime;
 
     [Header("판정")]
     public float damage = 10f;
+    public float distance = 5f;//판정 거리
     public float knockbackForce = 5f;
     public Vector3 hitboxOffset = Vector3.zero;
     public Vector3 hitboxSize = Vector3.one;
@@ -37,6 +39,7 @@ public class AttackData : ScriptableObject
 
     [Header("이동")]
     public bool canMoveDuringAttack = false;
+    public bool canRotateDuringAttack = false;
     public float movementSpeedMultiplier = 0.5f;
 
     [Header("콤보 연결")]
@@ -58,6 +61,13 @@ public class AttackEvent
     public float floatValue;
     public int intValue;
     public string stringValue;
+}
+
+[Serializable]
+public class HitBoxWindow
+{
+    [Range(0f, 1f)] public float start = 0.1f;
+    [Range(0f, 1f)] public float end = 0.2f;
 }
 
 public enum AttackEventType

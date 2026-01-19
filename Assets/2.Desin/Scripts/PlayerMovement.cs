@@ -28,6 +28,8 @@ public class PlayerMovement : NetworkBehaviour
 
     [SerializeField]
     private Aiming aiming;
+    [SerializeField]
+    private CombatSystem combat;
 
     public float speed = 6f;
     public float originSpeed = 6f;
@@ -131,14 +133,13 @@ public class PlayerMovement : NetworkBehaviour
             animVelocity *= 4;
         }
 
-
-
         //입력시 카메라 기준으로 회전
-        if(move.magnitude > 0.01f && !isAiming)
+        if(move.magnitude > 0.01f && !isAiming && combat.canRotateDuringAttack)
         {
             Quaternion targetRotation = Quaternion.LookRotation(move);
             targetRotation = Quaternion.Euler(0, targetRotation.eulerAngles.y, 0);
-            playerCharacter.transform.rotation = Quaternion.Slerp(playerCharacter.transform.rotation, targetRotation, Time.deltaTime * 10);
+            //playerCharacter.transform.rotation = Quaternion.Slerp(playerCharacter.transform.rotation, targetRotation, Time.deltaTime * 10);
+            playerCharacter.transform.rotation = targetRotation;
         }
 
         // 속도에 따라 animator에 Speed 변수 변경
@@ -148,16 +149,28 @@ public class PlayerMovement : NetworkBehaviour
             animator.SetFloat("velocityZ", animVelocity.y);
         }
 
-        controller.Move(move * (currentSpeed - airDrag) * Time.deltaTime);
+        if(combat.canMoveDuringAttack || !combat.isAttacking)
+            controller.Move(move * (currentSpeed - airDrag) * Time.deltaTime);
 
         //점프
-        if(Input.GetButton("Jump") && isGrounded)
+        if(Input.GetButtonDown("Jump") && isGrounded)
         {
             velocity.y = Mathf.Sqrt(jumpHight * 2f * gravity);
         }
 
         velocity.y -= gravity * Time.deltaTime;
         controller.Move(velocity *Time.deltaTime);
+    }
+
+    //즉시 회전하는 함수
+    void RotateToAttack(Vector3 move)
+    {
+        if(move.magnitude > 0.01f && !isAiming)
+        {
+            Quaternion targetRotation = Quaternion.LookRotation(move);
+            targetRotation = Quaternion.Euler(0, targetRotation.eulerAngles.y, 0);
+            playerCharacter.transform.rotation = targetRotation;
+        }
     }
 
     void RotateBodyAiming()

@@ -17,15 +17,19 @@ MonoBehaviour:
   animationClip: {fileID: 8456185703765157504, guid: d98044a64183bda4990be8eceb00a482, type: 3}
   animationSpeed: 1
   startupTime: 0.1
-  activeTime: 0.2
+  activeTime: 0.1
   recoveryTime: 0.3
+  hitBoxTimes:
+  - start: 0.167
+    end: 0.309
   damage: 10
-  knockbackForce: 5
+  distance: 10
+  knockbackForce: 1
   hitboxOffset: {x: 0, y: 0, z: 0}
   hitboxSize: {x: 1, y: 1, z: 1}
   hitLayerMask:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 65792
   events:
   - eventName: 
     triggerTime: 0
@@ -38,5 +42,6 @@ MonoBehaviour:
   inputType: 0
   inputWindow: 0.3
   canMoveDuringAttack: 0
+  canRotateDuringAttack: 0
   movementSpeedMultiplier: 0.5
   canChainTo: 

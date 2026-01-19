@@ -3684,6 +3684,7 @@ MonoBehaviour:
   animator: {fileID: 817829206491354978}
   dashKey: 304
   aiming: {fileID: 2954960619322119309}
+  combat: {fileID: 7787473704795262931}
   speed: 12
   originSpeed: 12
   maxSpeed: 24
@@ -6101,13 +6102,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2212aa973a41a0c4eb861ec546dadf6b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CombatSystem
+  syncDirection: 0
+  syncMode: 0
+  syncInterval: 0
   animator: {fileID: 817829206491354978}
+  playerTransform: {fileID: 2795096459147847034}
+  playerMovement: {fileID: 5489407841458146111}
+  handHeld: {fileID: 1411696618427616043}
   character: {fileID: 7510349755269515821}
   hitboxOrigin: {fileID: 6501597639703518149}
   availableAttacks:
   - {fileID: 11400000, guid: eebc8839cdfd4a840b001a03f0aaae68, type: 2}
-  availableCombos:
-  - {fileID: 11400000, guid: 87251d4e27fd47a489a2020e8dacac23, type: 2}
+  availableCombos: []
 --- !u!1 &7727681635910843663
 GameObject:
   m_ObjectHideFlags: 0
@@ -7318,7 +7324,7 @@ Transform:
   m_GameObject: {fileID: 8938961398345934473}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 1.02}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

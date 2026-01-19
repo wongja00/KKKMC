@@ -5,11 +5,15 @@ using System;
 using UnityEditor;
 using UnityEngine.Playables;
 using UnityEngine.Animations;
+using Mirror;
 
-public class CombatSystem : MonoBehaviour
+public class CombatSystem : NetworkBehaviour
 {
     [Header("참조 컴포넌트")]
     public Animator animator;
+    public Transform playerTransform;
+    public PlayerMovement playerMovement;
+    public HandHeld handHeld;
     public PlayableGraph playableGraph;
     public AnimationPlayableOutput playableOutput;
     public AnimationClipPlayable curPlayable;
@@ -24,9 +28,11 @@ public class CombatSystem : MonoBehaviour
     private AttackData currentAttack;
     private ComboChain currentCombo;
     private int currentComboStep = 0;
-    private float currentAttackTimer = 0f;
-    private bool isAttacking = false;
+    private float attackNormalTime = 0f;
+    public bool isAttacking{get; private set;} = false;
     private bool canReceiveInput = false;
+    public bool canMoveDuringAttack{private set; get;} = true;//공격하면서 움직일수 있는지
+    public bool canRotateDuringAttack{private set; get;} = true;//공격하면서 회전할수 있는지
 
     [Header("입력 버퍼")]
     private Queue<AttackInputType> inputBuffer = new Queue<AttackInputType>();
@@ -39,14 +45,20 @@ public class CombatSystem : MonoBehaviour
     private float lastHitTime = 0f;
 
     private Dictionary<int, AttackData> attackDictionary = new Dictionary<int, AttackData>();
+    Dictionary<float, bool> hitFired = new Dictionary<float, bool>();
     private Coroutine currentAttackCoroutine;
 
     public event Action<AttackEvent> OnCustomEvent;
+
+    private HashSet<CharacterBase> hitEnemies = new HashSet<CharacterBase>();
+    HashSet<int> firedHitWindows = new HashSet<int>();
     
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        if(!isLocalPlayer) return;
+
         //공격 데이터를 딕셔너리로 변환(빠른 검색)
         foreach(var attack in availableAttacks)
         {
@@ -58,9 +70,12 @@ public class CombatSystem : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if(!isLocalPlayer) return;
+
         if(!isAttacking)
         {
-            HandleInput();
+            if(handHeld.curObjectItem == null)
+                HandleInput();
         }
 
         UpdateComboTimer();
@@ -84,19 +99,16 @@ public class CombatSystem : MonoBehaviour
         if(Input.GetButtonDown("Fire1"))
         {
             TryStartAttack(AttackInputType.Light);
-        Debug.Log("공격");
-        }
-        
+        }        
         //강공격
-        else if(Input.GetButtonDown("Fire1"))
+        else if(Input.GetButtonDown("Fire2"))
         {
-            TryStartAttack(AttackInputType.Light);
-        }
-        
+            TryStartAttack(AttackInputType.Heavy);
+        }        
         //특공격
-        else if(Input.GetButtonDown("Fire1"))
+        else if(Input.GetButtonDown("Fire3"))
         {
-            TryStartAttack(AttackInputType.Light);
+            TryStartAttack(AttackInputType.Special);
         }
 
     }
@@ -115,35 +127,46 @@ public class CombatSystem : MonoBehaviour
         AttackData attack = FindAttackByInput(inputType);
         if(attack != null)
         {
-            StartAttack(attack);
+            StartAttack(attack.attackID);
         }
     }
 
-    void StartAttack(AttackData attack)
+    [Command]
+    void StartAttack(int ID)
+    {
+        firedHitWindows.Clear();
+        hitEnemies.Clear();
+
+        Server_ExecuteAttack(attackDictionary[ID]);
+    }
+
+    [Server]
+    void Server_ExecuteAttack(AttackData attack)
     {
         if(isAttacking) return;
 
         currentAttack = attack;
         isAttacking = true;
-        currentAttackTimer = 0f;
         canReceiveInput = false;
+        canMoveDuringAttack = attack.canMoveDuringAttack;
+        canRotateDuringAttack = attack.canRotateDuringAttack;
 
         //애니메이션 재생
         if(animator != null && attack.animationClip != null)
         {
-            //animator.speed = attack.animationSpeed;
-            //animator.Play(attack.animationClip.name);
-
-            PlayAttackAnimation(attack);
+            PlayAttackAnimation(attack.attackID);
         }
-
-        //공격 코루틴 시작
+        
+        // 공격 코루틴 시작
         if(currentAttackCoroutine != null)
             StopCoroutine(currentAttackCoroutine);
 
         currentAttackCoroutine = StartCoroutine(AttackCoroutine(attack));
     }
 
+
+
+    [ClientRpc]
     void PlayAttackAnimation(AttackData attack)
     {
         if(playableGraph.IsValid())
@@ -161,6 +184,27 @@ public class CombatSystem : MonoBehaviour
         playableGraph.Play();
     }
 
+    [ClientRpc]
+    void PlayAttackAnimation(int attackID)
+    {
+        AttackData attack = attackDictionary[attackID];
+
+        if(playableGraph.IsValid())
+        playableGraph.Destroy();
+
+        playableGraph = PlayableGraph.Create("AttackGraph");
+        playableGraph.SetTimeUpdateMode(DirectorUpdateMode.GameTime);
+
+        curPlayable = AnimationClipPlayable.Create(playableGraph, attack.animationClip);
+        curPlayable.SetSpeed(attack.animationSpeed);
+
+        playableOutput = AnimationPlayableOutput.Create(playableGraph, "Anim", animator);
+        playableOutput.SetSourcePlayable(curPlayable);
+
+        playableGraph.Play();
+    }
+
+    [Server]
     IEnumerator AttackCoroutine(AttackData attack)
     {
         //선딜
@@ -170,7 +214,7 @@ public class CombatSystem : MonoBehaviour
         canReceiveInput = true;
 
         //판정 시작
-        StartCoroutine(DamageWindowCoroutine(attack));
+        StartCoroutine(DamageWindowCoroutine(attack.attackID));
 
         //이벤트 처리
         StartCoroutine(ProcessAttackEvents(attack));
@@ -182,31 +226,81 @@ public class CombatSystem : MonoBehaviour
         EndAttack();
     }
 
-    IEnumerator DamageWindowCoroutine(AttackData attack)
+    [Server]
+    IEnumerator DamageWindowCoroutine(int attackID)
     {
         float elapsed = 0f;
 
-        while(elapsed < attack.activeTime)
+        AttackData attack = attackDictionary[attackID];
+
+        while(elapsed <= attack.totalDuration)
         {
-            CheckHit(attack);
+            float normalTime = elapsed / attack.totalDuration;
+
+            for(int i = 0; i< attack.hitBoxTimes.Count; i++)
+            {
+                var window = attack.hitBoxTimes[i];
+
+                if(normalTime >= window.start && window.end >= normalTime)
+                {
+                    if(firedHitWindows.Contains(i)) continue;
+
+                    CheckHit(attack.attackID);
+                    firedHitWindows.Add(i);
+                }
+            }
+            
             elapsed += Time.deltaTime;
             yield return null;
         }
+
+        hitEnemies.Clear();
+    }
+    void OnDrawGizmos()
+    {
+        foreach(CharacterBase en in hitEnemies)
+            Gizmos.DrawLine(transform.position, en.transform.position);       
     }
 
-    void CheckHit(AttackData attack)
+    [Server]
+    void CheckHit(int attackID)
     {
-        Vector3 hitboxPos = hitboxOrigin.position + hitboxOrigin.TransformDirection(attack.hitboxOffset);
-        Collider[] hits = Physics.OverlapBox(hitboxPos, attack.hitboxSize / 2f, 
-        hitboxOrigin.rotation, attack.hitLayerMask);
+        AttackData attack = attackDictionary[attackID];
+
+        Vector3 hitboxPos = transform.position + hitboxOrigin.TransformDirection(attack.hitboxOffset);
+
+        Collider[] hits = Physics.OverlapSphere(playerTransform.position, attack.distance, attack.hitLayerMask);
+
+        float closest = float.MaxValue;
 
         foreach(var hit in hits)
         {
-            ICharacter target = hit.GetComponent<ICharacter>();
+            float dist = Vector3.Distance(playerTransform.position, hit.transform.position);
+
+            if(closest > dist)
+                closest = dist;
+        }
+
+        foreach(var hit in hits)
+        {
+            // 공격대상(hit)이 내 앞에 있을 때만 판정 (transform.forward 기준)
+            Vector3 toTarget = (hit.transform.position - playerTransform.position).normalized;
+            float forwardDot = Vector3.Dot(playerTransform.forward, toTarget);
+            if(forwardDot < 0.3f)
+            {
+                continue; // 앞에 있지 않으면 맞지 않음
+            }
+            CharacterBase target = hit.GetComponentInParent<CharacterBase>();
+
+            
+
+            if(!hitEnemies.Add(target)) continue;
+
             if((target != null) && !ReferenceEquals(target, character))
             {
                 //데미지 처리 
                 target.TakeDamage((int)attack.damage);
+                Debug.Log("공격");
 
                 //넉백
                 Rigidbody rb = hit.GetComponent<Rigidbody>();
@@ -248,8 +342,7 @@ public class CombatSystem : MonoBehaviour
             break;
             case AttackEventType.Custom:
             //커스텀 이벤트
-            OnCustomEvent?.Invoke(evt);
-            
+            OnCustomEvent?.Invoke(evt);            
             break;
         }
     }
@@ -272,9 +365,9 @@ public class CombatSystem : MonoBehaviour
                 }
                 else
                 {
-                    //일반 체인
+                    //일반 공격이거나 다음콤보로
                     EndAttack();
-                    StartAttack(nextAttack);
+                    StartAttack(nextAttack.attackID);
                 }
             }
         }
@@ -319,16 +412,17 @@ public class CombatSystem : MonoBehaviour
         if(currentComboStep < combo.steps.Count)
         {
             EndAttack();
-            StartAttack(combo.steps[currentComboStep].attackData);
+            StartAttack(combo.steps[currentComboStep].attackData.attackID);
         }
     }
 
     void EndAttack()
     {
         isAttacking = false;
+        canMoveDuringAttack = true;//공격 끝나면 무조건 움직일수 있게
+        canRotateDuringAttack = true;
         canReceiveInput = false;
         currentAttack = null;
-        currentAttackTimer = 0f;
 
         StopAnimation();
 
