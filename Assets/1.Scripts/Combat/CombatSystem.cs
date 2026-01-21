@@ -25,18 +25,25 @@ public class CombatSystem : NetworkBehaviour
     public List<ComboChain> availableCombos = new List<ComboChain>();
 
     [Header("상태")]
+    [SyncVar] private int currentAttackID = -1;
+    [SyncVar] private int queueAttackID = -1;
     private AttackData currentAttack;
     private ComboChain currentCombo;
     private int currentComboStep = 0;
     private float attackNormalTime = 0f;
-    public bool isAttacking{get; private set;} = false;
-    private bool canReceiveInput = false;
-    public bool canMoveDuringAttack{private set; get;} = true;//공격하면서 움직일수 있는지
-    public bool canRotateDuringAttack{private set; get;} = true;//공격하면서 회전할수 있는지
+    
+    [SyncVar] public bool isAttacking = false;
+
+    [SerializeField]
+    [SyncVar]private bool canReceiveInput = false;
+    [SyncVar] public bool canMoveDuringAttack = true;//공격하면서 움직일수 있는지
+    [SyncVar] public bool canRotateDuringAttack = true;//공격하면서 회전할수 있는지
+    
+    double curPlayableDuration = 0;
 
     [Header("입력 버퍼")]
     private Queue<AttackInputType> inputBuffer = new Queue<AttackInputType>();
-    private float inputBufferTime = 0.2f;
+    private float INPUT_BUFFER_WINDOW = 1f;
     private float lastInputTime = 0f;
 
     [Header("콤보 관리")]
@@ -47,12 +54,12 @@ public class CombatSystem : NetworkBehaviour
     private Dictionary<int, AttackData> attackDictionary = new Dictionary<int, AttackData>();
     Dictionary<float, bool> hitFired = new Dictionary<float, bool>();
     private Coroutine currentAttackCoroutine;
-
-    public event Action<AttackEvent> OnCustomEvent;
+    private Coroutine currentDamageCoroutine;
+    HashSet<int> firedHitWindows = new HashSet<int>();
 
     private HashSet<CharacterBase> hitEnemies = new HashSet<CharacterBase>();
-    HashSet<int> firedHitWindows = new HashSet<int>();
     
+    public event Action<AttackEvent> OnCustomEvent;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -63,7 +70,9 @@ public class CombatSystem : NetworkBehaviour
         foreach(var attack in availableAttacks)
         {
             if(attack != null)
+            {
                 attackDictionary[attack.attackID] = attack;
+            }
         }
     }
 
@@ -72,7 +81,7 @@ public class CombatSystem : NetworkBehaviour
     {
         if(!isLocalPlayer) return;
 
-        if(!isAttacking)
+        //if(!isAttacking)
         {
             if(handHeld.curObjectItem == null)
                 HandleInput();
@@ -82,35 +91,68 @@ public class CombatSystem : NetworkBehaviour
         ProcessInputBuffer();
     }
 
-    void LateUpdate()
-    {
-        if(isAttacking && playableGraph.IsValid())
-        {
-            if(curPlayable.GetTime() >= curPlayable.GetDuration())
-            {
-                EndAttack();
-            }
-        }
-    }
-
     void HandleInput()
     {
+        AttackInputType? input = null;
+
         //경공격
         if(Input.GetButtonDown("Fire1"))
         {
-            TryStartAttack(AttackInputType.Light);
+            input = AttackInputType.Light;
+            //TryStartAttack(AttackInputType.Light);
         }        
         //강공격
         else if(Input.GetButtonDown("Fire2"))
         {
-            TryStartAttack(AttackInputType.Heavy);
+            input = AttackInputType.Heavy;
+            //TryStartAttack(AttackInputType.Heavy);
         }        
         //특공격
         else if(Input.GetButtonDown("Fire3"))
         {
-            TryStartAttack(AttackInputType.Special);
+            input = AttackInputType.Special;
+            //TryStartAttack(AttackInputType.Special);
         }
 
+        if(input.HasValue)
+        {
+            BufferInput(input.Value);
+        }
+
+    }
+
+    void BufferInput(AttackInputType inputType)
+    {
+        //버퍼 크기 제한
+        if(inputBuffer.Count >= 3)
+            inputBuffer.Dequeue();
+
+        inputBuffer.Enqueue(inputType);
+        lastInputTime = Time.time;
+    }
+
+    void ProcessInputBuffer()
+    {
+        if(inputBuffer.Count == 0) return;
+
+        //입력 버퍼 윈도우 체크
+        if(Time.time - lastInputTime > INPUT_BUFFER_WINDOW)
+        {
+            inputBuffer.Clear();
+            return;
+        }
+        //공격중이고 입력가능하면 콤보시도
+        if(isAttacking && canReceiveInput)
+        {
+            var inputType = inputBuffer.Dequeue();
+            TryChainCombo(inputType);
+        }
+        //대기중이면 새 공격 시작
+        else if(!isAttacking && inputBuffer.Count > 0)
+        {
+            var inputType = inputBuffer.Dequeue();
+            TryStartAttack(inputType);
+        }
     }
 
     void TryStartAttack(AttackInputType inputType)
@@ -118,9 +160,9 @@ public class CombatSystem : NetworkBehaviour
         //콤보 중이면 다음 단계 시도
         if(isAttacking && currentCombo != null)
         {
-            TryChainCombo(inputType);
+            //TryChainCombo(inputType);
 
-            return;
+            //return;
         }
 
         //새공격 시작
@@ -134,8 +176,16 @@ public class CombatSystem : NetworkBehaviour
     [Command]
     void StartAttack(int ID)
     {
-        firedHitWindows.Clear();
-        hitEnemies.Clear();
+        if(!attackDictionary.ContainsKey(ID))
+        {
+            return;
+        }
+
+        if(isAttacking && currentAttackCoroutine != null)
+        {
+            StopCoroutine(currentAttackCoroutine);
+        }
+
 
         Server_ExecuteAttack(attackDictionary[ID]);
     }
@@ -143,8 +193,12 @@ public class CombatSystem : NetworkBehaviour
     [Server]
     void Server_ExecuteAttack(AttackData attack)
     {
-        if(isAttacking) return;
+        //if(isAttacking) return;
 
+        firedHitWindows.Clear();
+        hitEnemies.Clear();
+        
+        currentAttackID = attack.attackID;
         currentAttack = attack;
         isAttacking = true;
         canReceiveInput = false;
@@ -164,26 +218,6 @@ public class CombatSystem : NetworkBehaviour
         currentAttackCoroutine = StartCoroutine(AttackCoroutine(attack));
     }
 
-
-
-    [ClientRpc]
-    void PlayAttackAnimation(AttackData attack)
-    {
-        if(playableGraph.IsValid())
-            playableGraph.Destroy();
-
-        playableGraph = PlayableGraph.Create("AttackGraph");
-        playableGraph.SetTimeUpdateMode(DirectorUpdateMode.GameTime);
-
-        curPlayable = AnimationClipPlayable.Create(playableGraph, attack.animationClip);
-        curPlayable.SetSpeed(attack.animationSpeed);
-
-        playableOutput = AnimationPlayableOutput.Create(playableGraph, "Anim", animator);
-        playableOutput.SetSourcePlayable(curPlayable);
-
-        playableGraph.Play();
-    }
-
     [ClientRpc]
     void PlayAttackAnimation(int attackID)
     {
@@ -197,6 +231,7 @@ public class CombatSystem : NetworkBehaviour
 
         curPlayable = AnimationClipPlayable.Create(playableGraph, attack.animationClip);
         curPlayable.SetSpeed(attack.animationSpeed);
+        curPlayableDuration = (attack.animationClip.averageDuration) + (attack.animationClip.averageDuration * (1 - attack.animationSpeed));
 
         playableOutput = AnimationPlayableOutput.Create(playableGraph, "Anim", animator);
         playableOutput.SetSourcePlayable(curPlayable);
@@ -208,22 +243,41 @@ public class CombatSystem : NetworkBehaviour
     IEnumerator AttackCoroutine(AttackData attack)
     {
         //선딜
-        yield return new WaitForSeconds(attack.startupTime);
+        //yield return new WaitForSeconds(attack.startupTime);
 
         //입력 가능 시간 시작
         canReceiveInput = true;
 
         //판정 시작
-        StartCoroutine(DamageWindowCoroutine(attack.attackID));
+        currentDamageCoroutine = StartCoroutine(DamageWindowCoroutine(attack.attackID));
 
         //이벤트 처리
         StartCoroutine(ProcessAttackEvents(attack));
 
         //후딜
-        yield return new WaitForSeconds(attack.activeTime + attack.recoveryTime);
+        double duration = curPlayableDuration;
+        Debug.Log($"시간{duration}");
+        yield return new WaitForSeconds((float)duration);
 
+        if(queueAttackID != -1)
+        {
+            int nextID = queueAttackID;
+            queueAttackID = -1;
+            Server_ExecuteAttack(attackDictionary[nextID]);
+            yield break;
+        }
         //공격 종료
         EndAttack();
+    }
+
+    double GetPlayableDuration()
+    {
+        return curPlayable.GetDuration();
+    }
+
+    double GetPlayableGetTime()
+    {
+        return curPlayable.GetTime();
     }
 
     [Server]
@@ -233,9 +287,16 @@ public class CombatSystem : NetworkBehaviour
 
         AttackData attack = attackDictionary[attackID];
 
-        while(elapsed <= attack.totalDuration)
+        while(elapsed <= curPlayableDuration)
         {
-            float normalTime = elapsed / attack.totalDuration;
+            double normalTime = elapsed / curPlayableDuration;
+
+            if(playableGraph.IsValid() && curPlayable.IsValid())
+            {
+                double currentTime = GetPlayableGetTime();
+                double duration = curPlayableDuration;
+                //normalTime = duration > 0 ? (float)(currentTime / duration) : 0f;
+            }
 
             for(int i = 0; i< attack.hitBoxTimes.Count; i++)
             {
@@ -283,7 +344,7 @@ public class CombatSystem : NetworkBehaviour
 
         foreach(var hit in hits)
         {
-            // 공격대상(hit)이 내 앞에 있을 때만 판정 (transform.forward 기준)
+            // 공격대상(hit)이 내 앞에 있을 때만 판정 (playerTransform.forward 기준)
             Vector3 toTarget = (hit.transform.position - playerTransform.position).normalized;
             float forwardDot = Vector3.Dot(playerTransform.forward, toTarget);
             if(forwardDot < 0.3f)
@@ -292,30 +353,27 @@ public class CombatSystem : NetworkBehaviour
             }
             CharacterBase target = hit.GetComponentInParent<CharacterBase>();
 
-            
-
+            if(target == null) continue;
+            if(ReferenceEquals(target, character)) continue;
             if(!hitEnemies.Add(target)) continue;
 
-            if((target != null) && !ReferenceEquals(target, character))
+            //데미지 처리 
+            target.TakeDamage((int)attack.damage);
+            Debug.Log($"피해자{target.name}, 공격{attack.attackName}");
+
+            //넉백
+            Rigidbody rb = hit.GetComponent<Rigidbody>();
+            if(rb != null)
             {
-                //데미지 처리 
-                target.TakeDamage((int)attack.damage);
-                Debug.Log("공격");
-
-                //넉백
-                Rigidbody rb = hit.GetComponent<Rigidbody>();
-                if(rb != null)
-                {
-                    Vector3 direction = (hit.transform.position - transform.position).normalized;
-                    rb.AddForce(direction * attack.knockbackForce, ForceMode.Impulse);
-                }
-
-                //콤보 카운트 증가
-                OnHitEnemy();
+                Vector3 direction = (hit.transform.position - transform.position).normalized;
+                rb.AddForce(direction * attack.knockbackForce, ForceMode.Impulse);
             }
+
+            OnHitEnemy();
         }
     }
 
+    [Server]
     IEnumerator ProcessAttackEvents(AttackData attack)
     {
         foreach(var evt in attack.events)
@@ -349,36 +407,34 @@ public class CombatSystem : NetworkBehaviour
 
     void TryChainCombo(AttackInputType inputType)
     {
-        if(!canReceiveInput) return;
+        //if(!canReceiveInput) return;
+        if(currentAttack == null) return;
 
         //현재 공격에서 연결 가능한 공격 찾기
-        if(currentAttack != null)
-        {
-            AttackData nextAttack = FindChainableAttack(currentAttack, inputType);
-            if(nextAttack != null)
-            {
-                //콤보 체인 찾기
-                ComboChain combo = FindComboChain(currentAttack, nextAttack);
-                if(combo != null)
-                {
-                    StartCombo(combo);
-                }
-                else
-                {
-                    //일반 공격이거나 다음콤보로
-                    EndAttack();
-                    StartAttack(nextAttack.attackID);
-                }
-            }
-        }
+        //if(currentAttack != null)
+        
+        CmdQueueCombo(inputType);
+    }
+
+    [Command]
+    void CmdQueueCombo(AttackInputType input)
+    {
+        if(currentAttack == null) return;
+
+        AttackData nextAttack = FindChainableAttack(currentAttack, input);
+        if(nextAttack == null) return;
+
+        queueAttackID = nextAttack.attackID;
     }
 
 
     AttackData FindChainableAttack(AttackData from, AttackInputType inputType)
     {
-        AttackData nextAttack = FindAttackByInput(inputType);
+        //return null;
+        AttackData nextAttack = FindNextAttackByInput(from.attackID, inputType);
+        //AttackData nextAttack = FindAttackByInput(inputType);
 
-        if(nextAttack != null && from.canChainTo.Contains(nextAttack.attackID))
+        if(nextAttack != null)
         {
             return nextAttack;
         }
@@ -386,36 +442,21 @@ public class CombatSystem : NetworkBehaviour
         return null;
     }
 
-    ComboChain FindComboChain(AttackData from, AttackData to)
+    AttackData FindNextAttackByInput(int attackID, AttackInputType inputType)
     {
-        foreach(var combo in availableCombos)
+        if(attackDictionary[attackID].canChainTo == null) return null;
+
+        foreach(int ID in attackDictionary[attackID].canChainTo)
         {
-            if(combo.steps.Count > currentComboStep + 1)
+            if(attackDictionary[ID].inputType == inputType)
             {
-                if(combo.steps[currentComboStep].attackData == from &&
-                   combo.steps[currentComboStep + 1].attackData == to)
-                   {
-                        return combo;
-                   }
+                return attackDictionary[ID];
             }
         }
         return null;
     }
 
-    void StartCombo(ComboChain combo)
-    {
-        currentCombo = combo;
-        currentComboStep = 0;
-
-        //다음단께로 진행
-        currentComboStep++;
-        if(currentComboStep < combo.steps.Count)
-        {
-            EndAttack();
-            StartAttack(combo.steps[currentComboStep].attackData.attackID);
-        }
-    }
-
+    [Command]
     void EndAttack()
     {
         isAttacking = false;
@@ -423,6 +464,8 @@ public class CombatSystem : NetworkBehaviour
         canRotateDuringAttack = true;
         canReceiveInput = false;
         currentAttack = null;
+        currentAttackID = -1;
+        queueAttackID = -1;
 
         StopAnimation();
 
@@ -434,6 +477,7 @@ public class CombatSystem : NetworkBehaviour
         }
     }
 
+    [ClientRpc]
     void StopAnimation()
     {
         if(playableGraph.IsValid())
@@ -472,8 +516,5 @@ public class CombatSystem : NetworkBehaviour
         return null;
     }
 
-    void ProcessInputBuffer()
-    {
-        //입력 버퍼 처리
-    }
+
 }

@@ -16,11 +16,11 @@ public class AttackData : ScriptableObject
     public float animationSpeed = 1.0f; //애니메이션 재생 속도
 
     [Header("타이밍")]
-    public float startupTime = 0.1f;//선딜
-    public float activeTime = 0.2f; //판정시간
-    public float recoveryTime = 0.3f;//후딜
+    //public float startupTime = 0.1f;//선딜
+    //public float activeTime = 0.2f; //판정시간
+    //public float recoveryTime = 0.3f;//후딜
     public List<HitBoxWindow> hitBoxTimes = new List<HitBoxWindow>();//히트박스 판정시간 0~1까지 NormalTime
-    public float totalDuration => startupTime + activeTime + recoveryTime;
+    //public float totalDuration => startupTime + activeTime + recoveryTime;
 
     [Header("판정")]
     public float damage = 10f;

@@ -6113,7 +6113,10 @@ MonoBehaviour:
   hitboxOrigin: {fileID: 6501597639703518149}
   availableAttacks:
   - {fileID: 11400000, guid: eebc8839cdfd4a840b001a03f0aaae68, type: 2}
-  availableCombos: []
+  - {fileID: 11400000, guid: a349ccba83bceca4fbfc05e6e163dcaf, type: 2}
+  - {fileID: 11400000, guid: 0889c4816501465458cbe43d01aa4ab1, type: 2}
+  availableCombos:
+  - {fileID: 11400000, guid: 87251d4e27fd47a489a2020e8dacac23, type: 2}
 --- !u!1 &7727681635910843663
 GameObject:
   m_ObjectHideFlags: 0
