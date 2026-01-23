@@ -39,7 +39,8 @@ public class CombatSystem : NetworkBehaviour
     [SyncVar] public bool canMoveDuringAttack = true;//공격하면서 움직일수 있는지
     [SyncVar] public bool canRotateDuringAttack = true;//공격하면서 회전할수 있는지
     
-    double curPlayableDuration = 0;
+    [Range(0,1)]
+    private float curPlayableDuration = 1;
 
     [Header("입력 버퍼")]
     private Queue<AttackInputType> inputBuffer = new Queue<AttackInputType>();
@@ -231,12 +232,19 @@ public class CombatSystem : NetworkBehaviour
 
         curPlayable = AnimationClipPlayable.Create(playableGraph, attack.animationClip);
         curPlayable.SetSpeed(attack.animationSpeed);
-        curPlayableDuration = (attack.animationClip.averageDuration) + (attack.animationClip.averageDuration * (1 - attack.animationSpeed));
+        //curPlayableDuration = attack.animationClip.length / attack.animationSpeed;
 
         playableOutput = AnimationPlayableOutput.Create(playableGraph, "Anim", animator);
         playableOutput.SetSourcePlayable(curPlayable);
 
         playableGraph.Play();
+    }
+
+    [Server]
+    void SetDurationTime(int attackID)
+    {
+        AttackData attack = attackDictionary[attackID]; 
+        curPlayableDuration = attack.animationClip.length / attack.animationSpeed;
     }
 
     [Server]
@@ -253,11 +261,10 @@ public class CombatSystem : NetworkBehaviour
 
         //이벤트 처리
         StartCoroutine(ProcessAttackEvents(attack));
-
-        //후딜
-        double duration = curPlayableDuration;
+        SetDurationTime(attack.attackID);
+        float duration = curPlayableDuration;
         Debug.Log($"시간{duration}");
-        yield return new WaitForSeconds((float)duration);
+        yield return new WaitForSeconds(duration);
 
         if(queueAttackID != -1)
         {
@@ -290,13 +297,6 @@ public class CombatSystem : NetworkBehaviour
         while(elapsed <= curPlayableDuration)
         {
             double normalTime = elapsed / curPlayableDuration;
-
-            if(playableGraph.IsValid() && curPlayable.IsValid())
-            {
-                double currentTime = GetPlayableGetTime();
-                double duration = curPlayableDuration;
-                //normalTime = duration > 0 ? (float)(currentTime / duration) : 0f;
-            }
 
             for(int i = 0; i< attack.hitBoxTimes.Count; i++)
             {
