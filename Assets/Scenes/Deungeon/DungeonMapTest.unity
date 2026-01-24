@@ -7552,7 +7552,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &1028680630
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7566,8 +7566,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DungeonGenerator
   startPos: {fileID: 542091358}
-  dungeonWidth: 200
-  dungeonHeight: 200
+  dungeonWidth: 150
+  dungeonHeight: 150
   roomMargin: 5
   roomCount: 10
   roomThreshold: 50
@@ -16467,6 +16467,10 @@ PrefabInstance:
     - target: {fileID: 6085485029212841904, guid: dc1e1f2163e58b14fb96081722ce3a3e, type: 3}
       propertyPath: m_Name
       value: DungeonRoot
+      objectReference: {fileID: 0}
+    - target: {fileID: 6162472356405900290, guid: dc1e1f2163e58b14fb96081722ce3a3e, type: 3}
+      propertyPath: m_NavMeshData
+      value: 
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

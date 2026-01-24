@@ -1,0 +1,81 @@
+using System;
+using Unity.Behavior;
+using UnityEngine;
+using UnityEngine.AI;
+using Action = Unity.Behavior.Action;
+using Unity.Properties;
+using Mirror;
+
+[Serializable, GeneratePropertyBag]
+[NodeDescription(name: "ChaseAction", story: "[Self] Navigate To [Target]", category: "Action", id: "177198fa2956caa18572b596b50c5490")]
+public partial class ChaseAction : Action
+{
+    [SerializeReference] public BlackboardVariable<GameObject> Self;
+    [SerializeReference] public BlackboardVariable<GameObject> Target;
+
+    private NavMeshAgent agent;
+    private Animator animator;
+    private NetworkIdentity identity;
+    private Vector2 animVelocity;
+
+    protected override Status OnStart()
+    {        
+        if (agent == null)
+        {
+            agent = Self.Value.GetComponent<NavMeshAgent>();
+            identity = Self.Value.GetComponent<NetworkIdentity>();
+            animator = Self.Value.GetComponent<Enemy>().GetAnimator();
+        }
+        
+        if(identity != null && identity.isServer == false) return Status.Success; //서버가 아니면(클라면) 스킵킵
+
+        return Status.Running;
+    }
+
+    protected override Status OnUpdate()
+    {
+        if (agent != null && Target.Value != null && Self.Value.activeSelf == true)
+        {
+            float distanceToPlayer = Vector3.Distance(Self.Value.transform.position, Target.Value.transform.position);
+
+            if (animator != null)
+            {
+                if (agent.velocity.z < 0)
+                {
+                    animVelocity.y = -1;
+                }
+
+                if (distanceToPlayer > 5f)
+                {
+                    agent.speed = 5; // 속도 증가
+                    
+                    //animVelocity.x = 2;
+                    animVelocity.y = 2;
+                }
+                else if(distanceToPlayer <= 5f)
+                {
+                    agent.speed = 2; // 속도 감소
+                    
+                    //animVelocity.x = 2;
+                    animVelocity.y = 1;
+                }
+                else
+                {
+                    return Status.Success;//도착
+                }
+
+                //animator.SetFloat("velocityX", animVelocity.x);
+                animator.SetFloat("velocityZ", animVelocity.y);
+            }
+
+            agent.SetDestination(Target.Value.transform.position);
+        }
+        else
+        {
+             return Status.Failure;
+        }
+
+        return Status.Running;
+    }
+}
+

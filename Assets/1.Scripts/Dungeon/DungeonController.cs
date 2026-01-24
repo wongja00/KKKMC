@@ -97,6 +97,7 @@ public class DungeonController : NetworkBehaviour
             if(enemy.GetComponent<Enemy>() != null)
             {
                 enemy.GetComponent<Enemy>().OnDeath += OnEnemyDead;
+                enemy.GetComponent<Enemy>().isDugeon = true;
             }
         }
     }

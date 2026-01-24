@@ -6,7 +6,8 @@ using UnityEngine.UI;
 
 public class Enemy : CharacterBase
 {
-    [SerializeField] private Animator animator; 
+    [SerializeField]
+    private Animator animator; 
 
     public float detectRange = 20f;
     public float stopDistance = 1.5f;
@@ -14,6 +15,7 @@ public class Enemy : CharacterBase
     private NavMeshAgent agent;
     Transform player;
     bool isRun;
+    public bool isDugeon = false;
 
     public event Action OnDeath;
 
@@ -24,6 +26,7 @@ public class Enemy : CharacterBase
     readonly int rimIntensity = Shader.PropertyToID("_RimIntensity");
     readonly int rimPower = Shader.PropertyToID("_RimPower");
     [SerializeField] SkinnedMeshRenderer skinRenderer;
+    [SerializeField] EnemyFSM enemyFSM;
 
     MaterialPropertyBlock mpb;
 
@@ -44,6 +47,11 @@ public class Enemy : CharacterBase
     {
         player = GetNearestPlayer();
 
+        if(enemyFSM != null)
+        {
+            enemyFSM.SetUp(player, null, isDugeon);
+        }
+
         CurHP = MaxHP;
         isDead = false;
         isRun = false;
@@ -56,7 +64,7 @@ public class Enemy : CharacterBase
     {
         if(isDead || agent == null || !agent.enabled || !agent.isOnNavMesh) return;
 
-        TrackingPlayer();
+        //TrackingPlayer();
     }
 
     private void TrackingPlayer()
@@ -82,36 +90,44 @@ public class Enemy : CharacterBase
             }
             else if(!isRun)
             {
-                agent.speed = 3.5f; // 속도 정상화 (기본값으로 복구)
+                agent.speed = 2.5f; // 속도 정상화 (기본값으로 복구)
                 //animVelocity.x = 1;
                 animVelocity.y = 1;
-            }
-
-            // 체력이 일정 이하면 도망
-            float hpThreshold = MaxHP * 0.3f; // 30% 이하로 떨어지면 도망
-            if (CurHP <= hpThreshold)
-            {
-                isRun = true;
-                SetRim(true, Color.red, 2f, 3f);
-
-                FleeFromNearestPlayer();
-
-                return;
             }
             else
             {
                 isRun = false;
                 agent.SetDestination(player.position);
             }
-        }
-
-
-        if (animator != null)
-        {
+            
             //animator.SetFloat("velocityX", animVelocity.x);
             animator.SetFloat("velocityZ", animVelocity.y);
         }
+    }
 
+    public Animator GetAnimator()
+    {
+        return animator;
+    }
+
+    void SetAnimValocity()
+    {
+
+    }
+
+    private void LowHP()
+    {
+                    // 체력이 일정 이하면 도망
+        float hpThreshold = MaxHP * 0.3f; // 30% 이하로 떨어지면 도망
+        if (CurHP <= hpThreshold)
+        {
+            isRun = true;
+            SetRim(true, Color.red, 2f, 3f);
+
+            FleeFromNearestPlayer();
+
+            return;
+        }
     }
 
     override public void TakeDamage(int damage)

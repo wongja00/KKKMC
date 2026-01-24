@@ -3757,6 +3757,8 @@ GameObject:
   - component: {fileID: 4373339393954182854}
   - component: {fileID: 7223181532108767671}
   - component: {fileID: 7783658097741540959}
+  - component: {fileID: 3477292191222101171}
+  - component: {fileID: 1155768735229393497}
   m_Layer: 16
   m_Name: TheSoulGeneral
   m_TagString: Untagged
@@ -3868,7 +3870,9 @@ MonoBehaviour:
   animator: {fileID: 5843822830080126947}
   detectRange: 30
   stopDistance: 1.5
+  isDugeon: 0
   skinRenderer: {fileID: 710344529388101459}
+  enemyFSM: {fileID: 1155768735229393497}
   hpBar: {fileID: 6739433061252230269}
 --- !u!195 &7783658097741540959
 NavMeshAgent:
@@ -3892,6 +3896,60 @@ NavMeshAgent:
   m_BaseOffset: 0
   m_WalkableMask: 1
   m_ObstacleAvoidanceType: 2
+--- !u!114 &3477292191222101171
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9195384841540127689}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f0038c16c34866b4f9e25c9c0dc0f7e6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.Behavior::Unity.Behavior.BehaviorGraphAgent
+  ShowTopMostFoldoutHeaderGroup: 1
+  m_Graph: {fileID: 3890911357181994974, guid: 44c3ef66e723e944a950c80a98fcb5f1, type: 2}
+  m_BlackboardVariableOverridesList:
+  - rid: 2417628713732538606
+  - rid: 2417628716476662040
+  m_OriginalGraph: {fileID: 0}
+  m_IsInitialised: 0
+  m_IsStarted: 0
+  NetcodeRunOnlyOnOwner: 0
+  references:
+    version: 2
+    RefIds:
+    - rid: 2417628713732538606
+      type: {class: 'BlackboardVariable`1[[UnityEngine.GameObject, UnityEngine.CoreModule]]', ns: Unity.Behavior, asm: Unity.Behavior}
+      data:
+        GUID:
+          m_Value0: 1
+          m_Value1: 0
+        Name: Self
+        m_Value: {fileID: 9195384841540127689}
+    - rid: 2417628716476662040
+      type: {class: 'BlackboardVariable`1[[UnityEngine.Animator, UnityEngine.AnimationModule]]', ns: Unity.Behavior, asm: Unity.Behavior}
+      data:
+        GUID:
+          m_Value0: 5763358245508226204
+          m_Value1: 17564156300408560190
+        Name: Animator
+        m_Value: {fileID: 5843822830080126947}
+--- !u!114 &1155768735229393497
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9195384841540127689}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f006672e0ded64e42bafb9037c6b7d3b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyFSM
+  navMeshAgent: {fileID: 7783658097741540959}
+  behaviorGraphAgent: {fileID: 3477292191222101171}
 --- !u!1001 &6937701613757011566
 PrefabInstance:
   m_ObjectHideFlags: 0
