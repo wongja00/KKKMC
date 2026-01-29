@@ -23,6 +23,7 @@ public class NetworkManager : Mirror.NetworkManager
     private bool isInitialized = false;
 
     [SerializeField] private FizzySteamworks fizzySteamworks;//steam transport
+    [SerializeField] private DungeonGenerator dungeonGenerator;
 
     public int ConnectionID;
     
@@ -91,6 +92,11 @@ public class NetworkManager : Mirror.NetworkManager
     {
         base.OnClientConnect();
         Debug.Log("클라이언트 연결됨");
+    }
+
+    public override void OnStartServer()
+    {
+        base.OnStartServer();
     }
 
     async public override void OnClientDisconnect()

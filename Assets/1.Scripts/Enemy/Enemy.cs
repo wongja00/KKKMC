@@ -3,6 +3,7 @@ using UnityEngine.AI;
 using System;
 using System.Collections;
 using UnityEngine.UI;
+using Mirror;
 
 public class Enemy : CharacterBase
 {
@@ -18,6 +19,8 @@ public class Enemy : CharacterBase
     public bool isDugeon = false;
 
     public event Action OnDeath;
+    
+    public event Action OnTakeDamage; 
 
     private Vector2 animVelocity;
 
@@ -27,7 +30,8 @@ public class Enemy : CharacterBase
     readonly int rimPower = Shader.PropertyToID("_RimPower");
     [SerializeField] SkinnedMeshRenderer skinRenderer;
     [SerializeField] EnemyFSM enemyFSM;
-
+    [SerializeField] EnemyCombatSystem enemyCombatSystem;
+    [SerializeField] NetworkIdentity identity;
     MaterialPropertyBlock mpb;
 
     [SerializeField]
@@ -40,16 +44,31 @@ public class Enemy : CharacterBase
         agent.stoppingDistance = stopDistance;
 
         mpb = new MaterialPropertyBlock();
+
+
     }
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        if(isServer)
+        {
+            Debug.Log("서버");
+        }
+        else
+        {
+            enemyFSM.StopGraph();
+        }
+
         player = GetNearestPlayer();
 
         if(enemyFSM != null)
         {
-            enemyFSM.SetUp(player, null, isDugeon);
+            enemyFSM.SetUp(player, null, isDugeon, identity.isServer);
+            OnDeath += enemyFSM.StopGraph;
+            OnDeath += ()=>{enemyCombatSystem.isdead = true;};
+            OnDeath += enemyCombatSystem.StopAnimation;
+             
         }
 
         CurHP = MaxHP;
@@ -133,6 +152,11 @@ public class Enemy : CharacterBase
     override public void TakeDamage(int damage)
     {
         base.TakeDamage(damage);
+
+        OnTakeDamage?.Invoke();
+        
+        enemyFSM.SetHP(CurHP);
+
         hpBar.fillAmount = CurHP/MaxHP;
 
         if(CurHP <= 0 && isDead == false)
@@ -160,6 +184,7 @@ public class Enemy : CharacterBase
         isDead = true;
 
         animator.SetBool("isDead", true);
+        Debug.Log("사망");
         OnDeath?.Invoke();
         agent.enabled = false;
 

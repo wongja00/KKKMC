@@ -29,12 +29,15 @@ public static class EnemyFactory
 
         GameObject e = Object.Instantiate(enemyPrefaps[type], pos, Quaternion.identity);
 
+        //Debug.Log("적 생성");
+
         if(NavMesh.SamplePosition(pos, out NavMeshHit hit, 50f, NavMesh.AllAreas))
         {
             e.transform.position = hit.position;
-            Debug.LogWarning("NavMesh Sample 실패");
         }
+        else Debug.LogWarning("NavMesh Sample 실패");
 
+        NetworkServer.Spawn(e);
         return e;
     }
 }

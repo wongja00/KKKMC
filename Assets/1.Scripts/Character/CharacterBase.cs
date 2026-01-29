@@ -9,7 +9,9 @@ public abstract class CharacterBase : NetworkBehaviour, ICharacter
     public int Experience {get; set;} = 0;
     public float MaxHP {get; set;} = 100;
     public float CurHP{get; set;} = 100;
+    //[SyncVar]
     public float MaxMp{get; set;} = 100;
+
     public float CurMp{get; set;} = 100;
     public Status stat{get; set;} = new Status();
     public bool isDead{get; set;} = false;

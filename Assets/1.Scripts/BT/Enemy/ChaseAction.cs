@@ -27,13 +27,15 @@ public partial class ChaseAction : Action
             animator = Self.Value.GetComponent<Enemy>().GetAnimator();
         }
         
-        if(identity != null && identity.isServer == false) return Status.Success; //서버가 아니면(클라면) 스킵킵
+        //if(identity != null && identity.isServer == false) return Status.Success; //서버가 아니면(클라면) 스킵
 
         return Status.Running;
     }
 
     protected override Status OnUpdate()
     {
+        //if(identity != null && identity.isServer == false) return Status.Running; //서버가 아니면(클라면) 스킵
+
         if (agent != null && Target.Value != null && Self.Value.activeSelf == true)
         {
             float distanceToPlayer = Vector3.Distance(Self.Value.transform.position, Target.Value.transform.position);
@@ -47,20 +49,21 @@ public partial class ChaseAction : Action
 
                 if (distanceToPlayer > 5f)
                 {
-                    agent.speed = 5; // 속도 증가
+                    agent.speed = 3; // 속도 증가
                     
                     //animVelocity.x = 2;
                     animVelocity.y = 2;
                 }
                 else if(distanceToPlayer <= 5f)
                 {
-                    agent.speed = 2; // 속도 감소
+                    agent.speed = 1.5f; // 속도 감소
                     
                     //animVelocity.x = 2;
                     animVelocity.y = 1;
                 }
                 else
                 {
+                    animVelocity.y = 0;
                     return Status.Success;//도착
                 }
 

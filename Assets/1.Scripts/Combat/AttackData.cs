@@ -91,3 +91,10 @@ public enum AttackInputType
     Guard,//가드
     Jump//점프
 }
+
+public enum BTAttackType
+{
+    Melee,
+    Range,
+    Special
+}

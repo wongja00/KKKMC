@@ -1,11 +1,10 @@
 using System.Linq;
 using UnityEngine;
-using Unity.AI;
 using Unity.Behavior;
 using UnityEngine.AI;
-using Unity.VisualScripting;
+using Mirror;
 
-public class EnemyFSM : MonoBehaviour
+public class EnemyFSM : NetworkBehaviour
 {
     private Transform target;
 
@@ -14,7 +13,32 @@ public class EnemyFSM : MonoBehaviour
     [SerializeField]
     private BehaviorGraphAgent behaviorGraphAgent;
 
-    public void SetUp(Transform target, GameObject[] wayPoints, bool isDugeon = false)
+
+    void Awake()
+    {
+        NetworkIdentity identity = GetComponent<NetworkIdentity>();
+        if (identity != null && !identity.isServer)
+        {
+            //behaviorGraphAgent.enabled = false; // BT 통째로 서버 전용
+        }
+    }
+
+    void Update()
+    {
+
+    }
+
+    public void StopGraph()
+    {
+        behaviorGraphAgent.enabled = false;
+    }
+
+    public void SetHP(float hp)
+    {
+        behaviorGraphAgent.SetVariableValue("curHP", hp);
+    }
+
+    public void SetUp(Transform target, GameObject[] wayPoints, bool isDugeon = false, bool isServer = false)
     {
         this.target = target;
 
@@ -29,6 +53,7 @@ public class EnemyFSM : MonoBehaviour
             //behaviorGraphAgent.SetVariableValue("patrolPoints", wayPoints.ToList());
             behaviorGraphAgent.SetVariableValue("isInDungeon", isDugeon);
             behaviorGraphAgent.SetVariableValue("Target", target.gameObject);
+            behaviorGraphAgent.SetVariableValue("isServer", isServer);
 
             behaviorGraphAgent.Start();
         }

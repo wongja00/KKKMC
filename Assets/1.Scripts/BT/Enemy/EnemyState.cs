@@ -8,5 +8,6 @@ public enum EnemyState
 	Attack,
 	Chase,
 	Dodge,
-	Stun
+	Stun,
+	Dead
 }
