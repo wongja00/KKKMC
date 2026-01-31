@@ -16,6 +16,8 @@ using Steamworks;
 
 public class NetworkManager : Mirror.NetworkManager
 {
+    [Header("스팀 할겨?")]
+    public bool isSteam = false;
     [Header("플레이어 프리팹")]
     [SerializeField] private GameObject origiPlayerPrefab;
 
@@ -56,30 +58,7 @@ public class NetworkManager : Mirror.NetworkManager
         
         // 씬이 넘어가도 객체가 파괴되지 않도록 함
         DontDestroyOnLoad(this.gameObject);
-        
-        //try
-        //{
-        //    await UnityServices.InitializeAsync();
-        //    Debug.Log("유니티 서비스 초기화 완료");
-        //    isInitialized = true;
-        //}
-        //catch(System.Exception ex)
-        //{
-//
-        //    Debug.Log($"유니티 서비스 초기화 실패 {ex.Message}");
-        //    isInitialized = false;
-        //}
     }
-
-    //private async Task EnsureInitialized()
-    //{
-    //    if(!isInitialized)
-    //    {
-    //        await UnityServices.InitializeAsync();
-    //        isInitialized = true;
-    //    }
-    //}
-
 
     public override void OnServerAddPlayer(NetworkConnectionToClient conn)
     {
@@ -136,7 +115,7 @@ public class NetworkManager : Mirror.NetworkManager
         }
 
         //네트워크 매니저의 트랜스 포트를 스팀 트랜스포트로 설정
-        if(transport != fizzySteamworks)
+        if(transport != fizzySteamworks && isSteam == true)
         {
             transport = fizzySteamworks;
         }
@@ -230,44 +209,22 @@ public class NetworkManager : Mirror.NetworkManager
         {
             joinCode = joinCode?.Trim();
 
-        if (string.IsNullOrEmpty(joinCode) || joinCode.Length < 6)
-        {
-            Debug.LogError("유효하지 않은 join code입니다.");
-            return;
-        }
+            if (string.IsNullOrEmpty(joinCode) || joinCode.Length < 6)
+            {
+                Debug.LogError("유효하지 않은 join code입니다.");
+                return;
+            }
 
-        //await EnsureInitialized();
-        if (!AuthenticationService.Instance.IsSignedIn)
-        {
-            //await UnityServices.InitializeAsync();
-            await AuthenticationService.Instance.SignInAnonymouslyAsync();
-        }
+            if (!AuthenticationService.Instance.IsSignedIn)
+            {
+                await AuthenticationService.Instance.SignInAnonymouslyAsync();
+            }
 
-        Debug.Log($"조인코드로 연결시도{joinCode}");
+            Debug.Log($"조인코드로 연결시도{joinCode}");
 
-        //조인 코드를 사용하여 할당 정보 가져오기
-        //JoinAllocation allocation = await RelayService.Instance.JoinAllocationAsync(joinCode);
-        //Debug.Log($"릴레이서버 : {allocation.RelayServer.IpV4}:{allocation.RelayServer.Port}");
-
-
-        //unityTransport1.SetClientRelayData(
-        //    allocation.RelayServer.IpV4,
-        //    (ushort)allocation.RelayServer.Port,
-        //    allocation.AllocationIdBytes,
-        //    allocation.Key,
-        //    allocation.ConnectionData,
-        //    allocation.HostConnectionData
-        //);
-        //networkAddress = allocation.RelayServer.IpV4;
-
-        StartClient();
+            StartClient();
 
         }
-        //catch(RelayServiceException ex)
-        //{
-            //Debug.Log($"릴레이 접속 실패: {ex.Message}");
-            //throw;
-        //}
         catch(System.Exception ex)
         {
             Debug.Log($"연결중 오류 발생{ex.Message}");

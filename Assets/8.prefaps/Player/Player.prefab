@@ -3611,6 +3611,7 @@ GameObject:
   - component: {fileID: 755107403833392110}
   - component: {fileID: 3007705423430846978}
   - component: {fileID: 4948274575251071209}
+  - component: {fileID: 8394944378077094957}
   m_Layer: 8
   m_Name: Player
   m_TagString: Player
@@ -3812,13 +3813,13 @@ MonoBehaviour:
   syncInterval: 0
   target: {fileID: 1376832861527793235}
   syncPosition: 1
-  syncRotation: 1
+  syncRotation: 0
   syncScale: 0
   onlySyncOnChange: 1
   compressRotation: 1
   interpolatePosition: 1
-  interpolateRotation: 1
-  interpolateScale: 1
+  interpolateRotation: 0
+  interpolateScale: 0
   coordinateSpace: 0
   timelineOffset: 1
   showGizmos: 0
@@ -3829,6 +3830,23 @@ MonoBehaviour:
   positionSensitivity: 0.01
   rotationSensitivity: 0.01
   scaleSensitivity: 0.01
+--- !u!114 &8394944378077094957
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4641755532622999874}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7f6f3bf89aa97405989c802ba270f815, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Mirror.Components::Mirror.NetworkAnimator
+  syncDirection: 1
+  syncMode: 0
+  syncInterval: 0
+  clientAuthority: 1
+  animator: {fileID: 817829206491354978}
 --- !u!1 &4652135957547338077
 GameObject:
   m_ObjectHideFlags: 0
@@ -6117,6 +6135,10 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 0889c4816501465458cbe43d01aa4ab1, type: 2}
   availableCombos:
   - {fileID: 11400000, guid: 87251d4e27fd47a489a2020e8dacac23, type: 2}
+  isAttacking: 0
+  canReceiveInput: 0
+  canMoveDuringAttack: 1
+  canRotateDuringAttack: 1
 --- !u!1 &7727681635910843663
 GameObject:
   m_ObjectHideFlags: 0
@@ -7011,6 +7033,7 @@ GameObject:
   - component: {fileID: 2795096459147847034}
   - component: {fileID: 817829206491354978}
   - component: {fileID: 4570044295043358996}
+  - component: {fileID: 2731814224274913012}
   m_Layer: 8
   m_Name: TheProtegonist
   m_TagString: Untagged
@@ -7075,6 +7098,40 @@ MonoBehaviour:
   - m_Rig: {fileID: 5907969041909618891}
     m_Active: 1
   m_Effectors: []
+--- !u!114 &2731814224274913012
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8749188528132229002}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a553cb17010b2403e8523b558bffbc14, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Mirror.Components::Mirror.NetworkTransformUnreliable
+  syncDirection: 1
+  syncMode: 0
+  syncInterval: 0
+  target: {fileID: 2795096459147847034}
+  syncPosition: 0
+  syncRotation: 1
+  syncScale: 0
+  onlySyncOnChange: 0
+  compressRotation: 1
+  interpolatePosition: 0
+  interpolateRotation: 1
+  interpolateScale: 0
+  coordinateSpace: 0
+  timelineOffset: 1
+  showGizmos: 0
+  showOverlay: 0
+  overlayColor: {r: 0, g: 0, b: 0, a: 0.5}
+  bufferResetMultiplier: 3
+  useFixedUpdate: 0
+  positionSensitivity: 0.01
+  rotationSensitivity: 0.01
+  scaleSensitivity: 0.01
 --- !u!1 &8781852040298603634
 GameObject:
   m_ObjectHideFlags: 0

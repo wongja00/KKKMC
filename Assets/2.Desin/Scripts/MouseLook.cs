@@ -27,6 +27,7 @@ public class MouseLook : NetworkBehaviour
         if(!isLocalPlayer) return;
 
         Cursor.lockState = CursorLockMode.Locked;
+        
         playerCamera = CameraManager.Instance.GetPlayerCemera();
         playerCamera.Follow = cameraTarget;
         playerCamera.LookAt = cameraTarget;
@@ -40,9 +41,14 @@ public class MouseLook : NetworkBehaviour
         if(Input.GetKeyDown(menuKey))
         {
             isMenu = !isMenu;
+            if(isMenu) Cursor.lockState = CursorLockMode.None;
+            else Cursor.lockState = CursorLockMode.Locked;
         }
 
-        if(isMenu) return;
+        if(isMenu)
+        {
+            return;
+        } 
 
         float mouseX = Input.GetAxisRaw("Mouse X") * mouseSensitivity;
         float mouseY = Input.GetAxisRaw("Mouse Y") * mouseSensitivity;

@@ -4,7 +4,6 @@ using System.Linq;
 using Mirror;
 using Unity.AI.Navigation;
 using UnityEngine;
-using UnityEngine.AI;
 
 public class DungeonGenerator : NetworkBehaviour
 {
@@ -61,11 +60,29 @@ public class DungeonGenerator : NetworkBehaviour
 
 
     Coroutine coroutine;
+
+    int dungeonSeed = 0;
     
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+
+    }
+
+    public void MakeDungeon()
+    {        
+        Debug.Log("던전 생성");
+        dungeonSeed = Random.Range(int.MinValue, int.MaxValue);
+        RpcSetDungeonSeed(dungeonSeed);
+    }
+
+    [ClientRpc]
+    void RpcSetDungeonSeed(int seed)
+    {
+        dungeonSeed = seed;
+        Random.InitState(dungeonSeed);
+        
         StartCoroutine(DungeonBuild());
     }
 
@@ -141,8 +158,60 @@ public class DungeonGenerator : NetworkBehaviour
         }
         LightsRestoration();
         CleanupBoxed();
+        BlockedPassage();
+        SpawnDoors();
 
         surface.BuildNavMesh();
+    }
+
+    void SpawnDoors()
+    {
+        if(doorPercent > 0)
+        {
+            Connector[] allConnector = transform.GetComponentsInChildren<Connector>();
+            for(int i = 0; i < allConnector.Length; i ++)
+            {
+                Connector myConnector = allConnector[i];
+
+                if(myConnector.isConnected)
+                {
+                    //문 소환할 랜덤 확률
+                    int roll = Random.Range(1, 101);
+                    if(roll <= doorPercent)
+                    {
+                        Vector3 halfExtents = new Vector3(myConnector.size.x, 1f, myConnector.size.x);
+                        Vector3 pos = myConnector.transform.position;
+                        Vector3 offset = Vector3.up * 0.5f;
+
+                        Collider[] hits = Physics.OverlapBox(pos + offset, halfExtents, Quaternion.identity, LayerMask.GetMask("Door"));
+                        if(hits.Length == 0)
+                        {
+                            int doorIndex = Random.Range(0, doorPrefabs.Length);
+                            GameObject goDoor = Instantiate(doorPrefabs[doorIndex], pos, myConnector.transform.rotation, myConnector.transform) as GameObject;
+                            goDoor.transform.Rotate(-90, 0, 0);
+                            goDoor.name = doorPrefabs[doorIndex].name;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    void BlockedPassage()
+    {
+        foreach(Connector con in transform.GetComponentsInChildren<Connector>())
+        {
+            if(con.isConnected == false)
+            {   
+                Vector3 pos = con.transform.position;
+                int wallIndex = Random.Range(0, blockedPrefabs.Length);
+
+                GameObject goWall = Instantiate(blockedPrefabs[wallIndex] , con.transform) as GameObject;
+
+                goWall.name = blockedPrefabs[wallIndex].name;
+
+            }
+        }
     }
 
     void LightsRestoration()

@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 6019593787821519879}
   - component: {fileID: 1652364696326463145}
   - component: {fileID: 6331867392646846184}
-  m_Layer: 0
+  m_Layer: 18
   m_Name: DoorArch
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -208,6 +208,10 @@ PrefabInstance:
     - target: {fileID: 7841071401019586472, guid: 5ad30b79f7bf30f49b35369921cea309, type: 3}
       propertyPath: m_Name
       value: Door.arch
+      objectReference: {fileID: 0}
+    - target: {fileID: 7841071401019586472, guid: 5ad30b79f7bf30f49b35369921cea309, type: 3}
+      propertyPath: m_Layer
+      value: 18
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

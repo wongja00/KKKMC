@@ -9,7 +9,7 @@ namespace Mirror
     [HelpURL("https://mirror-networking.gitbook.io/docs/components/network-manager-hud")]
     public class NetworkManagerHUD : MonoBehaviour
     {
-        NetworkManager manager;
+        [SerializeField]NetworkManager manager;
 
         public int offsetX;
         public int offsetY;

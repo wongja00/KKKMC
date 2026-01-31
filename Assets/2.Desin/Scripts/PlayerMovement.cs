@@ -136,6 +136,8 @@ public class PlayerMovement : NetworkBehaviour
         //입력시 카메라 기준으로 회전
         if(move.magnitude > 0.01f && !isAiming && combat.canRotateDuringAttack)
         {
+            Debug.Log("이동");
+
             Quaternion targetRotation = Quaternion.LookRotation(move);
             targetRotation = Quaternion.Euler(0, targetRotation.eulerAngles.y, 0);
             //playerCharacter.transform.rotation = Quaternion.Slerp(playerCharacter.transform.rotation, targetRotation, Time.deltaTime * 10);
@@ -150,7 +152,10 @@ public class PlayerMovement : NetworkBehaviour
         }
 
         if(combat.canMoveDuringAttack || !combat.isAttacking)
+        {
             controller.Move(move * (currentSpeed - airDrag) * Time.deltaTime);
+
+        }
 
         //점프
         if(Input.GetButtonDown("Jump") && isGrounded)
@@ -160,6 +165,22 @@ public class PlayerMovement : NetworkBehaviour
 
         velocity.y -= gravity * Time.deltaTime;
         controller.Move(velocity *Time.deltaTime);
+
+        Vector3 finalMove = move * (currentSpeed - airDrag);
+        //CmdMove(finalMove, velocity, playerCharacter.transform.rotation, animVelocity);
+    }
+
+    [Command]
+    void CmdMove(Vector3 move, Vector3 vel, Quaternion rot, Vector2 animvel)
+    {
+        controller.Move(move * Time.deltaTime);
+        velocity = vel;
+        controller.Move(velocity * Time.deltaTime);
+
+        playerCharacter.transform.rotation = rot;
+        
+        animator.SetFloat("velocityX", animVelocity.x);
+        animator.SetFloat("velocityZ", animVelocity.y);
     }
 
     //즉시 회전하는 함수

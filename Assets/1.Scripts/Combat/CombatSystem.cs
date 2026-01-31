@@ -27,7 +27,7 @@ public class CombatSystem : NetworkBehaviour
     [Header("상태")]
     [SyncVar] private int currentAttackID = -1;
     [SyncVar] private int queueAttackID = -1;
-    private AttackData currentAttack;
+    //private AttackData currentAttack;
     private ComboChain currentCombo;
     private int currentComboStep = 0;
     private float attackNormalTime = 0f;
@@ -90,6 +90,32 @@ public class CombatSystem : NetworkBehaviour
 
         UpdateComboTimer();
         ProcessInputBuffer();
+    }
+
+    public override void OnStartClient()
+    {
+        base.OnStartClient();
+                //공격 데이터를 딕셔너리로 변환(빠른 검색)
+        foreach(var attack in availableAttacks)
+        {
+            if(attack != null)
+            {
+                attackDictionary[attack.attackID] = attack;
+            }
+        }
+    }
+
+    public override void OnStartServer()
+    {
+        base.OnStartServer();
+                //공격 데이터를 딕셔너리로 변환(빠른 검색)
+        foreach(var attack in availableAttacks)
+        {
+            if(attack != null)
+            {
+                attackDictionary[attack.attackID] = attack;
+            }
+        }
     }
 
     void HandleInput()
@@ -200,7 +226,7 @@ public class CombatSystem : NetworkBehaviour
         hitEnemies.Clear();
         
         currentAttackID = attack.attackID;
-        currentAttack = attack;
+        //currentAttack = attack;
         isAttacking = true;
         canReceiveInput = false;
         canMoveDuringAttack = attack.canMoveDuringAttack;
@@ -408,7 +434,7 @@ public class CombatSystem : NetworkBehaviour
     void TryChainCombo(AttackInputType inputType)
     {
         //if(!canReceiveInput) return;
-        if(currentAttack == null) return;
+        if(currentAttackID <= -1) return;
 
         //현재 공격에서 연결 가능한 공격 찾기
         //if(currentAttack != null)
@@ -419,9 +445,10 @@ public class CombatSystem : NetworkBehaviour
     [Command]
     void CmdQueueCombo(AttackInputType input)
     {
-        if(currentAttack == null) return;
+        if(currentAttackID <= -1) return;
 
-        AttackData nextAttack = FindChainableAttack(currentAttack, input);
+        AttackData atd = attackDictionary[currentAttackID];
+        AttackData nextAttack = FindChainableAttack(atd, input);
         if(nextAttack == null) return;
 
         queueAttackID = nextAttack.attackID;
@@ -456,14 +483,14 @@ public class CombatSystem : NetworkBehaviour
         return null;
     }
 
-    [Command]
+    [ClientRpc]
     void EndAttack()
     {
         isAttacking = false;
         canMoveDuringAttack = true;//공격 끝나면 무조건 움직일수 있게
         canRotateDuringAttack = true;
         canReceiveInput = false;
-        currentAttack = null;
+        //currentAttack = null;
         currentAttackID = -1;
         queueAttackID = -1;
 
@@ -477,7 +504,7 @@ public class CombatSystem : NetworkBehaviour
         }
     }
 
-    [ClientRpc]
+    //[ClientRpc]
     void StopAnimation()
     {
         if(playableGraph.IsValid())
