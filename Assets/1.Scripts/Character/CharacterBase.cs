@@ -4,17 +4,25 @@ using UnityEngine;
 
 public abstract class CharacterBase : NetworkBehaviour, ICharacter 
 {
-    public string Name {get; set;} = "Unknown";
-    public int Level {get; set;} = 1;
-    public int Experience {get; set;} = 0;
-    public float MaxHP {get; set;} = 100;
-    public float CurHP{get; set;} = 100;
-    //[SyncVar]
-    public float MaxMp{get; set;} = 100;
+    [SyncVar]
+    public string Name = "Unknown";
+    [SyncVar]
+    public int Level = 1;
+    [SyncVar]
+    public int Experience = 0;
+    [SyncVar]
+    public float MaxHP = 100;
+    [SyncVar]
+    public float CurHP= 100;
+    [SyncVar]
+    public float MaxMp = 100;
 
-    public float CurMp{get; set;} = 100;
-    public Status stat{get; set;} = new Status();
-    public bool isDead{get; set;} = false;
+    [SyncVar]
+    public float CurMp= 100;
+    [SyncVar]
+    public Status stat = new Status();
+    [SyncVar]
+    public bool isDead = false;
 
     public int GetLevel() {return Level;}
     public void SetLevel(int Inlevel){Level = Inlevel;}
@@ -37,6 +45,8 @@ public abstract class CharacterBase : NetworkBehaviour, ICharacter
         }
     }
 
+
+    [Server]
     virtual public void TakeDamage(int damage)
     {
         int finalDamage = damage - stat.Defense;
@@ -50,8 +60,6 @@ public abstract class CharacterBase : NetworkBehaviour, ICharacter
         {
             CurHP = 0;
         }
-
-
     }
 
     public bool IsAlive()

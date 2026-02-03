@@ -5,6 +5,8 @@ using Mirror;
 using Unity.AI.Navigation;
 using UnityEngine;
 
+public enum DungeonState{inactive, generatingMain, generatingBranches, cleanup, completed}
+
 public class DungeonGenerator : NetworkBehaviour
 {
     [Header("내비")]
@@ -21,33 +23,34 @@ public class DungeonGenerator : NetworkBehaviour
 
 
     [Header("방갯수")]
-    [Range(2, 100)]public int mainLength = 10;
+    [Range(2, 100)][SerializeField] int mainLength = 10;
 
     [Header("사이드방 갯수(얼마나 깊게 만들건지)")]
-    [Range(0, 50)]public int branchLength = 5;
+    [Range(0, 50)][SerializeField] int branchLength = 5;
 
     [Header("사이드방 갯수(얼마나 채울건지)")]
-    [Range(0, 25)]public int numBranches = 10;
+    [Range(0, 25)][SerializeField] int numBranches = 10;
 
     [Header("문 확률")]
-    [Range(0, 100)]public int doorPercent = 25;
+    [Range(0, 100)][SerializeField] int doorPercent = 25;
 
     [Header("딜레이")]
-    [Range(0, 1f)]public float constructionDelay = 0;
+    [Range(0, 1f)][SerializeField] float constructionDelay = 0;
 
     [Header("타일셋팅")]
     //타일
-    public GameObject[] tilePrefabs;
+    [SerializeField] GameObject[] tilePrefabs;
     //시작 타일
-    public GameObject[] startPrefabs;
-    public GameObject[] exitPrefabs;
-    public GameObject[] blockedPrefabs;
-    public GameObject[] doorPrefabs;
+    [SerializeField] GameObject[] startPrefabs;
+    [SerializeField] GameObject[] exitPrefabs;
+    [SerializeField] GameObject[] blockedPrefabs;
+    [SerializeField] GameObject[] doorPrefabs;
 
     [Header("만든 타일")]
-    public List<Tile> generatedTiles = new List<Tile>();
+    [SerializeField] List<Tile> generatedTiles = new List<Tile>();
 
-    public List<Connector> availableConnectors = new List<Connector>();
+    [SerializeField] List<Connector> availableConnectors = new List<Connector>();
+    private DungeonState dungeonState = DungeonState.inactive;
 
     [Header("몇 번 시도할지")]
     [SerializeField]private int maxAttemps = 15;
@@ -57,31 +60,56 @@ public class DungeonGenerator : NetworkBehaviour
     Transform tileTo;
     Transform tileRoot;
     Transform container;
-
-
-    Coroutine coroutine;
-
+    
+    [SyncVar(hook = nameof(OnChangeseed))]
     int dungeonSeed = 0;
+
+    [SyncVar]
+    bool wasSeeding = false;
+
+    DungeonRNG rng;
     
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-
+        NetworkManager.instance.OnPlayerJoin += MakeDungeonEvent;
     }
 
-    public void MakeDungeon()
-    {        
-        Debug.Log("던전 생성");
-        dungeonSeed = Random.Range(int.MinValue, int.MaxValue);
-        RpcSetDungeonSeed(dungeonSeed);
-    }
-
-    [ClientRpc]
-    void RpcSetDungeonSeed(int seed)
+    void MakeDungeonEvent()
     {
-        dungeonSeed = seed;
-        Random.InitState(dungeonSeed);
+        MakeDungeon();
+    }
+
+    [Server]
+    public void MakeDungeon()
+    {                
+
+        //현재 던전이 안만들어진 상태에서만 생성
+        if(dungeonState != DungeonState.inactive && transform.childCount > 0)
+            return;
+
+
+        if(wasSeeding == false)
+        {
+            dungeonSeed = Random.Range(int.MinValue, int.MaxValue);
+            
+            wasSeeding = true;
+        }
+        Debug.Log("던전 생성");
+    }
+
+    void OnChangeseed(int OldSeed, int NewSeed)
+    {
+        rng = new DungeonRNG(NewSeed);
+        RpcSetDungeonSeed(NewSeed);
+    }
+
+    void RpcSetDungeonSeed(int seed)
+    {        
+        //InitState(seed);
+
+        Debug.Log("시드: "+seed);
         
         StartCoroutine(DungeonBuild());
     }
@@ -103,6 +131,7 @@ public class DungeonGenerator : NetworkBehaviour
         
         DebugRoomLighting(tileRoot, Color.cyan);
         tileTo = tileRoot;
+        dungeonState = DungeonState.generatingMain;
         
         //tileTo.SetParent(container);
 
@@ -129,6 +158,7 @@ public class DungeonGenerator : NetworkBehaviour
         }
 
         //branching
+        dungeonState = DungeonState.generatingBranches;
         for(int b = 0; b < numBranches; b++)
         {
             if(availableConnectors.Count > 0)
@@ -136,7 +166,7 @@ public class DungeonGenerator : NetworkBehaviour
                 goContainer = new GameObject("Branch" + (b + 1).ToString());
                 container = goContainer.transform;
                 container.SetParent(transform);
-                int availIndex = Random.Range(0, availableConnectors.Count);
+                int availIndex = rng.Range(0, availableConnectors.Count);
                 tileRoot = availableConnectors[availIndex].transform.parent.parent;
                 availableConnectors.RemoveAt(availIndex);
                 tileTo = tileRoot;
@@ -156,12 +186,20 @@ public class DungeonGenerator : NetworkBehaviour
             else
                 break;
         }
-        LightsRestoration();
-        CleanupBoxed();
+
         BlockedPassage();
         SpawnDoors();
 
+
+        dungeonState = DungeonState.cleanup;
+        LightsRestoration();
+        CleanupBoxed();
+
         surface.BuildNavMesh();
+        dungeonState = DungeonState.completed;
+
+        yield return null;
+
     }
 
     void SpawnDoors()
@@ -176,7 +214,7 @@ public class DungeonGenerator : NetworkBehaviour
                 if(myConnector.isConnected)
                 {
                     //문 소환할 랜덤 확률
-                    int roll = Random.Range(1, 101);
+                    int roll = rng.Range(1, 101);
                     if(roll <= doorPercent)
                     {
                         Vector3 halfExtents = new Vector3(myConnector.size.x, 1f, myConnector.size.x);
@@ -186,10 +224,14 @@ public class DungeonGenerator : NetworkBehaviour
                         Collider[] hits = Physics.OverlapBox(pos + offset, halfExtents, Quaternion.identity, LayerMask.GetMask("Door"));
                         if(hits.Length == 0)
                         {
-                            int doorIndex = Random.Range(0, doorPrefabs.Length);
-                            GameObject goDoor = Instantiate(doorPrefabs[doorIndex], pos, myConnector.transform.rotation, myConnector.transform) as GameObject;
+                            int doorIndex = rng.Range(0, doorPrefabs.Length);
+                            GameObject goDoor = Instantiate(doorPrefabs[doorIndex], pos, myConnector.transform.rotation) as GameObject;
+                                
                             goDoor.transform.Rotate(-90, 0, 0);
                             goDoor.name = doorPrefabs[doorIndex].name;
+                            
+                            if(goDoor.GetComponent<NetworkIdentity>() && isServer)
+                                NetworkServer.Spawn(goDoor);
                         }
                     }
                 }
@@ -204,7 +246,7 @@ public class DungeonGenerator : NetworkBehaviour
             if(con.isConnected == false)
             {   
                 Vector3 pos = con.transform.position;
-                int wallIndex = Random.Range(0, blockedPrefabs.Length);
+                int wallIndex = rng.Range(0, blockedPrefabs.Length);
 
                 GameObject goWall = Instantiate(blockedPrefabs[wallIndex] , con.transform) as GameObject;
 
@@ -337,7 +379,7 @@ public class DungeonGenerator : NetworkBehaviour
                         else if(availableConnectors.Count > 0)
                         { 
                             //붙일곳중 랜덤
-                            int availIndex = Random.Range(0, availableConnectors.Count);
+                            int availIndex = rng.Range(0, availableConnectors.Count);
                             //시작점은 붙일수 있는곳의 타일
                             tileRoot = availableConnectors[availIndex].transform.parent.parent;
                             //그리고 지움
@@ -360,7 +402,7 @@ public class DungeonGenerator : NetworkBehaviour
                     else if(availableConnectors.Count > 0)
                     {   
                         //랜덤으로 하나나
-                        int availIndex = Random.Range(0, availableConnectors.Count);
+                        int availIndex = rng.Range(0, availableConnectors.Count);
                         tileRoot = availableConnectors[availIndex].transform.parent.parent;
                         availableConnectors.RemoveAt(availIndex);
                         tileFrom = tileRoot;                     
@@ -393,10 +435,10 @@ public class DungeonGenerator : NetworkBehaviour
     {
         Quaternion rotation = Quaternion.Euler(0, 0, 0);
 
-        int index = Random.Range(0, startPrefabs.Length);
+        int index = rng.Range(0, startPrefabs.Length);
         GameObject goTile = Instantiate(startPrefabs[index], Vector3.zero, startPrefabs[index].transform.rotation, container) as GameObject;
         goTile.name = "Start Room";
-        //float yRot = (int)Random.Range(0,4) * 90f;
+        //float yRot = (int)Range(0,4) * 90f;
         //goTile.transform.Rotate(0, yRot, 0);
 
         //add to tilelist
@@ -407,7 +449,7 @@ public class DungeonGenerator : NetworkBehaviour
     Transform CreateTile()
     {
         Quaternion rotation = Quaternion.Euler(0, 0, 0);
-        int index = Random.Range(0, tilePrefabs.Length);
+        int index = rng.Range(0, tilePrefabs.Length);
         GameObject goTile = Instantiate(tilePrefabs[index], Vector3.zero, tilePrefabs[index].transform.rotation, container) as GameObject;
         goTile.name = tilePrefabs[index].name;
 
@@ -444,7 +486,7 @@ public class DungeonGenerator : NetworkBehaviour
 
         if(connectorList.Count > 0)
         {
-            int connectorIndex = Random.Range(0, connectorList.Count);
+            int connectorIndex = rng.Range(0, connectorList.Count);
             connectorList[connectorIndex].isConnected = true;
             if(from == tileFrom)
             {
@@ -466,5 +508,19 @@ public class DungeonGenerator : NetworkBehaviour
     {
         startPos.transform.position = start.transform.position;
         startPos.transform.LookAt(start.GetComponentInChildren<Connector>().transform);
+    }
+}
+public class DungeonRNG
+{
+    private System.Random rng;
+
+    public DungeonRNG(int seed)
+    {
+        rng = new System.Random(seed);
+    }
+
+    public int Range(int min, int max)
+    {
+        return rng.Next(min, max);
     }
 }

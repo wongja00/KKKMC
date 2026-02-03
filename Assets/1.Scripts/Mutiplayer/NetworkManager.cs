@@ -7,6 +7,7 @@ using Unity.Netcode.Transports.UTP;
 using kcp2k;
 using Mirror.FizzySteam;
 using UnityEditor;
+using System;
 
 
 #if UNITY_STANDALONE_WIN || UNITY_STANDALONE_LINUX || UNITY_STANDALONE_OSX
@@ -32,7 +33,9 @@ public class NetworkManager : Mirror.NetworkManager
     public int PlayerNumber;
     public ulong PlayerSteamID;
 
-    async public override void Awake() 
+    public event Action OnPlayerJoin;
+
+    public override void Awake() 
     {
         if(instance == null)
         {
@@ -71,6 +74,7 @@ public class NetworkManager : Mirror.NetworkManager
     {
         base.OnClientConnect();
         Debug.Log("클라이언트 연결됨");
+        OnPlayerJoin?.Invoke();
     }
 
     public override void OnStartServer()
@@ -84,7 +88,8 @@ public class NetworkManager : Mirror.NetworkManager
         
         if(NetworkServer.active)
         {
-            await FirebaseRoomManager.instance.DeleteRoom(FirebaseRoomManager.instance.roomId);
+            if(FirebaseRoomManager.instance != null)
+                await FirebaseRoomManager.instance.DeleteRoom(FirebaseRoomManager.instance.roomId);
         }
 
         Debug.Log("클라이언트 연결 해제됨");

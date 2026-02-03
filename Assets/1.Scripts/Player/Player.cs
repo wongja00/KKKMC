@@ -1,5 +1,7 @@
 using Mirror;
 using UnityEngine;
+using System;
+using Unity.VisualScripting;
 
 public class Player : CharacterBase
 {
@@ -14,6 +16,12 @@ public class Player : CharacterBase
     private MaterialPropertyBlock mpb;
 
     private bool isBuff = false;
+
+    public event Action OnInteract;
+
+    public KeyCode InteractkeyCode = KeyCode.E;
+
+    public LayerMask layer;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -34,6 +42,11 @@ public class Player : CharacterBase
             isBuff = !isBuff;
 
             SetRim(isBuff, Color.blue, 3, 5);
+        }
+
+        if(Input.GetKeyDown(InteractkeyCode))
+        {
+            Interactcmd();
         }
     }
 
@@ -61,5 +74,52 @@ public class Player : CharacterBase
         skinRederer.SetPropertyBlock(mpb);
     }
 
+    public void Interactcmd()
+    {
+        OnInteract?.Invoke();
 
+        Collider[] hits = Physics.OverlapSphere(transform.position, 3f, layer);
+
+        if(hits.Length > 0)
+        {
+            foreach(Collider hit in hits)
+            {
+                NetworkIdentity id = hit.GetComponent<NetworkIdentity>();
+
+                if(id == null) continue;
+
+                Interact(id);
+            }
+        }
+    }
+
+    
+    [Command]
+    public void Interact(NetworkIdentity id)
+    {
+        if(id == null) return;
+        
+        
+            Debug.Log(id.name);
+
+        if(id.GetComponent<Interactable>() != null)
+        {
+            //Destroy(id.gameObject);
+            //NetworkServer.Destroy(id.gameObject);
+            Debug.Log("찾음");
+        }
+        else
+        {
+            Debug.Log("멋찾음");
+
+        }
+
+        id.GetComponent<Interactable>()?.Interact();
+    }
+
+}
+
+public interface Interactable
+{
+    public void Interact();
 }

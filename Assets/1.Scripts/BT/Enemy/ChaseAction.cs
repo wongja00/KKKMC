@@ -71,7 +71,8 @@ public partial class ChaseAction : Action
                 animator.SetFloat("velocityZ", animVelocity.y);
             }
 
-            agent.SetDestination(Target.Value.transform.position);
+            if(agent.isOnNavMesh == true)
+                agent.SetDestination(Target.Value.transform.position);
         }
         else
         {

@@ -86,52 +86,9 @@ public class Enemy : CharacterBase
         //TrackingPlayer();
     }
 
-    private void TrackingPlayer()
-    {
-        player = GetNearestPlayer();
-        
-        if(player == null) return;
-        
-        float distanceToPlayer = Vector3.Distance(transform.position, player.position);
-        if (animator != null)
-        {
-            if (agent.velocity.z < 0)
-            {
-                animVelocity.y = -1;
-            }
-
-            if (distanceToPlayer > 7f)
-            {
-                agent.speed = 5; // 속도 증가
-                
-                //animVelocity.x = 2;
-                animVelocity.y = 2;
-            }
-            else if(!isRun)
-            {
-                agent.speed = 2.5f; // 속도 정상화 (기본값으로 복구)
-                //animVelocity.x = 1;
-                animVelocity.y = 1;
-            }
-            else
-            {
-                isRun = false;
-                agent.SetDestination(player.position);
-            }
-            
-            //animator.SetFloat("velocityX", animVelocity.x);
-            animator.SetFloat("velocityZ", animVelocity.y);
-        }
-    }
-
     public Animator GetAnimator()
     {
         return animator;
-    }
-
-    void SetAnimValocity()
-    {
-
     }
 
     private void LowHP()
@@ -149,6 +106,7 @@ public class Enemy : CharacterBase
         }
     }
 
+    [Server]
     override public void TakeDamage(int damage)
     {
         base.TakeDamage(damage);

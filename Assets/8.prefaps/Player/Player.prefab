@@ -510,7 +510,7 @@ GameObject:
   - component: {fileID: 1645311083552532517}
   m_Layer: 8
   m_Name: ItemColl
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -3662,8 +3662,20 @@ MonoBehaviour:
   syncDirection: 0
   syncMode: 0
   syncInterval: 0
+  Name: Unknown
+  Level: 1
+  Experience: 0
+  MaxHP: 100
+  CurHP: 100
+  MaxMp: 100
+  CurMp: 100
+  isDead: 0
   skinRederer: {fileID: 9218520419043135712}
   skillKey1: 101
+  InteractkeyCode: 101
+  layer:
+    serializedVersion: 2
+    m_Bits: 4294967295
 --- !u!114 &5489407841458146111
 MonoBehaviour:
   m_ObjectHideFlags: 0

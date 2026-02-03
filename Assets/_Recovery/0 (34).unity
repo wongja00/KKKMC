@@ -537,7 +537,7 @@ MonoBehaviour:
   mainLength: 10
   branchLength: 3
   numBranches: 5
-  doorPercent: 100
+  doorPercent: 25
   constructionDelay: 0
   tilePrefabs:
   - {fileID: 906662184356688436, guid: 038058f92e9604d45a50b131e3e0fbd5, type: 3}

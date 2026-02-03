@@ -3868,6 +3868,14 @@ MonoBehaviour:
   syncDirection: 0
   syncMode: 0
   syncInterval: 0
+  Name: Unknown
+  Level: 1
+  Experience: 0
+  MaxHP: 100
+  CurHP: 100
+  MaxMp: 100
+  CurMp: 100
+  isDead: 0
   animator: {fileID: 5843822830080126947}
   detectRange: 30
   stopDistance: 1.5
@@ -3998,6 +4006,7 @@ MonoBehaviour:
   availableAttacks:
   - {fileID: 11400000, guid: a29c0a7801e21d7408a902e79ed03d68, type: 2}
   isAttacking: 0
+  isdead: 0
 --- !u!1001 &6937701613757011566
 PrefabInstance:
   m_ObjectHideFlags: 0
