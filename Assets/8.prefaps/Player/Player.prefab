@@ -3670,6 +3670,8 @@ MonoBehaviour:
   MaxMp: 100
   CurMp: 100
   isDead: 0
+  playerMovement: {fileID: 5489407841458146111}
+  animator: {fileID: 817829206491354978}
   skinRederer: {fileID: 9218520419043135712}
   skillKey1: 101
   InteractkeyCode: 101

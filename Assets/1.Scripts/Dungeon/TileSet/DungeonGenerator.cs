@@ -45,11 +45,14 @@ public class DungeonGenerator : NetworkBehaviour
     [SerializeField] GameObject[] exitPrefabs;
     [SerializeField] GameObject[] blockedPrefabs;
     [SerializeField] GameObject[] doorPrefabs;
+    [SerializeField] GameObject dungeonControllerPrefab;
+    [SerializeField] GameObject barrierObject;
 
     [Header("만든 타일")]
     [SerializeField] List<Tile> generatedTiles = new List<Tile>();
 
     [SerializeField] List<Connector> availableConnectors = new List<Connector>();
+    [SerializeField] List<DungeonController> dungeonControllers = new List<DungeonController>();
     private DungeonState dungeonState = DungeonState.inactive;
 
     [Header("몇 번 시도할지")]
@@ -143,8 +146,14 @@ public class DungeonGenerator : NetworkBehaviour
             DebugRoomLighting(tileTo, Color.blue);
             tileTo.SetParent(container);
             ConnectTiles();
-            CollisionCheck();
-            if(attempt >= maxAttemps) break;
+            while(isCollision()== true && attempt < maxAttemps)
+            {
+                Debug.Log("메인재시도");
+                Coroutine co = StartCoroutine(CollisionCheck());
+
+                yield return co;
+            }
+            attempt = 0;
         }
 
         //get all connectors within container
@@ -179,8 +188,14 @@ public class DungeonGenerator : NetworkBehaviour
                     tileTo = CreateTile();
                     DebugRoomLighting(tileTo, Color.yellow);
                     ConnectTiles();
-                    CollisionCheck();
-                    if(attempt >= maxAttemps) break;
+                    while(isCollision() == true && attempt < maxAttemps)
+                    {
+                        Debug.Log("브렌치재시도");
+                        Coroutine co = StartCoroutine(CollisionCheck());
+
+                        yield return co;
+                    }
+                    attempt = 0;
                 }
             }
             else
@@ -189,12 +204,14 @@ public class DungeonGenerator : NetworkBehaviour
 
         BlockedPassage();
         SpawnDoors();
+        SetDungeonController();
 
 
         dungeonState = DungeonState.cleanup;
         LightsRestoration();
         CleanupBoxed();
 
+        yield return new WaitForSeconds(0.5f);
         surface.BuildNavMesh();
         dungeonState = DungeonState.completed;
 
@@ -297,7 +314,7 @@ public class DungeonGenerator : NetworkBehaviour
         }
     }
 
-    void CollisionCheck()
+    IEnumerator CollisionCheck()
     {
         //마지막으로 새운 타일 기준
         BoxCollider box = tileTo.GetComponent<BoxCollider>();
@@ -308,16 +325,18 @@ public class DungeonGenerator : NetworkBehaviour
             box.isTrigger = true;
         }
 
+        Physics.SyncTransforms();
+
         //로컬기준 중심점
         Vector3 offset = (tileTo.right * box.center.x) + (tileTo.up * box.center.y) + (tileTo.forward * box.center.z);
         //반너비(중심을 기준으로 양옆으로 늘어나기 때문에)
         Vector3 halfExtends = box.bounds.extents;
-        List<Collider> hits = Physics.OverlapBox(tileTo.position + offset, halfExtends, tileTo.rotation, LayerMask.GetMask("Tile")).ToList();
+        //List<Collider> hits = Physics.OverlapBox(tileTo.position + offset, halfExtends, tileTo.rotation, LayerMask.GetMask("Tile")).ToList();
 
-        if(hits.Count > 0)
+        //if(hits.Count > 0)
         {
             //붙일거끼리가 아닐떄
-            if(hits.Exists(x => x.transform != tileFrom && x.transform != tileTo))
+            //if(hits.Exists(x => x.transform != tileFrom && x.transform != tileTo))
             {
                 //붙일것도 아닌거거에 충돌 헀을떄
                 attempt++;
@@ -329,12 +348,12 @@ public class DungeonGenerator : NetworkBehaviour
                     //다시 뗌
                     generatedTiles[toIndex].connector.isConnected = false;
                 }
+                
                 //만든타일에서 없앰
                 generatedTiles.RemoveAt(toIndex);
                 Destroy(tileTo.gameObject);
 
                 //역추적
-                //최대치만큼 시도
                 if(attempt >= maxAttemps)
                 {
                     //붙여야 되는곳
@@ -344,26 +363,26 @@ public class DungeonGenerator : NetworkBehaviour
                     //타일이 루트(시작적)이 아닐떄
                     if(tileFrom != tileRoot)
                     {
-                        //붙여야 되는곳이 있을때
+                        //붙은곳
                         if(myTileFrom.connector != null)
                         {
-                            //붙인거 뗌
+                            //떨어짐
                             myTileFrom.connector.isConnected = false;
                         }
 
-                        //아직 연결안됀 커넥터들 중  부모의부모 즉 타일이 붙여야돼는 곳의 타일이면 지움(왜냐면 붙일수 없는 연결점이기 때문에에)
+                        //백트래킹을 위한 이전 타일 삭제
                         availableConnectors.RemoveAll(x => x.transform.parent.parent == tileFrom);
-                        //타일 없앰
                         generatedTiles.RemoveAt(fromIndex);
                         Destroy(tileFrom.gameObject);
 
-                        //시작점이 아닐떄
+                        //(메인 혹은 브렌치의)시작점이 아닐떄
                         if(myTileFrom.origin != tileRoot)
                         {
                             //불일곳을 이전에 붙인곳으로 대입함
+
                             tileFrom = myTileFrom.origin;
                         }
-                        //메인 루트일이자 붙여진곳이 시작점일때
+                        //메인 루트이자 붙여진곳이 시작점일때
                         else if(container.name.Contains("Main"))
                         {
                             //현재 붙여진 곳이 있을떄
@@ -375,20 +394,16 @@ public class DungeonGenerator : NetworkBehaviour
                                 tileFrom = tileRoot;
                             }
                         }
-                        //붙일곳이 있을때때
+                        //붙일곳이 있을때, 브렌치일때
                         else if(availableConnectors.Count > 0)
                         { 
                             //붙일곳중 랜덤
                             int availIndex = rng.Range(0, availableConnectors.Count);
                             //시작점은 붙일수 있는곳의 타일
                             tileRoot = availableConnectors[availIndex].transform.parent.parent;
-                            //그리고 지움
                             availableConnectors.RemoveAt(availIndex);
-                            //시작점에 붙인거임
                             tileFrom = tileRoot;                      
                         }
-                        //붙일수 있는곳이 없을떄
-                        else return;
                     }
                     else if(container.name.Contains("Main"))
                     {
@@ -398,36 +413,58 @@ public class DungeonGenerator : NetworkBehaviour
                             tileFrom = tileRoot;
                         }
                     }
-                    //연결할수 있는게 있을때때
+                    //연결할수 있는게 있을때
                     else if(availableConnectors.Count > 0)
                     {   
-                        //랜덤으로 하나나
+                        //랜덤으로 하나
                         int availIndex = rng.Range(0, availableConnectors.Count);
                         tileRoot = availableConnectors[availIndex].transform.parent.parent;
                         availableConnectors.RemoveAt(availIndex);
                         tileFrom = tileRoot;                     
                     }
-                    else return;
+                    //else return;
+                    tileTo = tileFrom;
                 }
                 //else return;
                 //재시도(재귀)
-                if(tileFrom != null)
+                else if(tileFrom != null)
                 {
                     //붙일 타일 만듬
                     tileTo = CreateTile();
                     //색바꿈꿈
                     Color retryColor = container.name.Contains("Branch") ? Color.green : Color.yellow;
                     DebugRoomLighting(tileTo, retryColor * 2);
+
                     //연결하고 또 콜라이더 체크
                     ConnectTiles();
-                    CollisionCheck();
+                    //CollisionCheck();
                 }
+
+                yield return new WaitForSeconds(0.1f);
             }
-            else
+            //Debug.Log($"from {tileFrom.gameObject.name} - To {tileTo.gameObject.name}");
+            //else
             {
-                attempt = 0;//타일 붙일때 아무것도 닿은게 없을 때
             }
         }
+
+    }
+
+    bool isCollision()
+    {        
+        Physics.SyncTransforms();
+
+        if(tileTo == null) return false;
+
+        BoxCollider box = tileTo.GetComponent<BoxCollider>();
+
+        if(box == null) return false;
+
+        Vector3 offset = (tileTo.right * box.center.x)+(tileTo.up * box.center.y)+(tileTo.forward * box.center.z);
+
+        Collider[] hits = Physics.OverlapBox(tileTo.transform.position + offset, box.bounds.extents*1.3f, tileTo.rotation, LayerMask.GetMask("Tile"));
+
+        return hits.Any(x => x.transform != tileTo && x.transform != tileFrom);
 
     }
 
@@ -508,6 +545,43 @@ public class DungeonGenerator : NetworkBehaviour
     {
         startPos.transform.position = start.transform.position;
         startPos.transform.LookAt(start.GetComponentInChildren<Connector>().transform);
+    }
+
+    void SetDungeonController()
+    {
+        for(int  i = 0; i < generatedTiles.Count; i++)
+        {
+            if(generatedTiles[i].tile.GetComponent<BoxCollider>() != null)
+            {
+                GameObject conObj = Instantiate(dungeonControllerPrefab, generatedTiles[i].tile.position, generatedTiles[i].tile.rotation);
+                DungeonController con = conObj.GetComponent<DungeonController>();
+
+                BoxCollider srcBox = generatedTiles[i].tile.GetComponent<BoxCollider>();
+                BoxCollider dstBox = con.GetComponent<BoxCollider>();
+                if(srcBox != null && dstBox != null)
+                {
+                    dstBox.center = srcBox.center;
+                    dstBox.size = srcBox.size;
+                }
+
+                if(i == 0)
+                {
+                    con.roomType = RoomType.Start;
+                }
+
+                con.barrierPrefab = barrierObject;
+
+                GameObject sp = new GameObject("SpawnPoint");
+
+                sp.transform.SetParent(con.transform);
+                sp.transform.localPosition = Vector3.zero;
+                con.spawnPoints.Add(sp.transform);
+                
+                NetworkServer.Spawn(conObj);
+                dungeonControllers.Add(con);
+                
+            }
+        }
     }
 }
 public class DungeonRNG

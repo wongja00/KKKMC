@@ -22,6 +22,8 @@ public abstract class CharacterBase : NetworkBehaviour, ICharacter
     [SyncVar]
     public Status stat = new Status();
     [SyncVar]
+    public float speed = 5f;
+    [SyncVar]
     public bool isDead = false;
 
     public int GetLevel() {return Level;}
@@ -45,8 +47,6 @@ public abstract class CharacterBase : NetworkBehaviour, ICharacter
         }
     }
 
-
-    [Server]
     virtual public void TakeDamage(int damage)
     {
         int finalDamage = damage - stat.Defense;
@@ -56,9 +56,10 @@ public abstract class CharacterBase : NetworkBehaviour, ICharacter
 
         CurHP -= finalDamage;
 
-        if(CurHP < 0) 
+        if(CurHP <= 0) 
         {
             CurHP = 0;
+            
         }
     }
 

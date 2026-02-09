@@ -53,8 +53,14 @@ public class EnemyCombatSystem : NetworkBehaviour
 
     void Awake()
     {
-        if(identity.isServer == false) return;
-
+        //if(identity.isServer == false) return;
+        foreach(var attack in availableAttacks)
+        {
+            if(attack != null)
+            {
+                attackDictionary[attack.attackID] = attack;
+            }
+        }
 
     }
 
@@ -64,13 +70,7 @@ public class EnemyCombatSystem : NetworkBehaviour
         //if(identity.isServer == false) return;
         
         //공격 데이터를 딕셔너리로 변환(빠른 검색)
-        foreach(var attack in availableAttacks)
-        {
-            if(attack != null)
-            {
-                attackDictionary[attack.attackID] = attack;
-            }
-        }
+
 
         agent = GetComponent<NavMeshAgent>();
         
@@ -91,7 +91,8 @@ public class EnemyCombatSystem : NetworkBehaviour
     {
         if(isAttacking) return;
         
-        
+        Debug.Log("공격");
+
         //새공격 시작
         AttackData attack = FindAttackBT(inputType);
         if(attack != null)
@@ -291,6 +292,8 @@ public class EnemyCombatSystem : NetworkBehaviour
         currentAttack = null;
         currentAttackID = -1;
         queueAttackID = -1;
+
+        //agent.speed = character.speed;
 
         StopAnimation();
 

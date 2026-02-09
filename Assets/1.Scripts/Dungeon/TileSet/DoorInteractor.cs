@@ -11,34 +11,14 @@ public class DoorInteractor : NetworkBehaviour, Interactable
     [SyncVar(hook =nameof(OpenDoorAnim))]
     public bool isOpen = false;
 
+    [SyncVar]
+    public bool canControl = true;
+
     [SerializeField] KeyCode openDoorKey = KeyCode.E;
-
-
-    void Start()
-    {
-        //myAnim = GetComponent<Animator>();
-    }
-
-    void Update()
-    {
-        if(inZone == true && Input.GetKeyDown(openDoorKey))
-        {
-            //OpenDoor();
-        }
-    }    
-    
-    void OpenDoor()
-    {
-        //if(inZone == true)
-            
-        Debug.Log("열려고 함");
-    }
 
     void OpenDoorAnim(bool oldValue, bool newValue)
     {
          myAnim.SetBool("isOpen", newValue);
-
-         Debug.Log("문");
     }
 
     void OnTriggerEnter(Collider other)
@@ -53,12 +33,11 @@ public class DoorInteractor : NetworkBehaviour, Interactable
             inZone = false;
     }
 
-    //[Command(requiresAuthority = false)]
+    [Command(requiresAuthority = false)]
     virtual public void Interact()
     {
-        
-        Debug.Log("상호작용");
-        OpenDoor();
+        if(canControl == false) return;
+
         isOpen = !isOpen;
     }
 }

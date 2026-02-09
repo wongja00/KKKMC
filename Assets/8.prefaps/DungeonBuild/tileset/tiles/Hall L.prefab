@@ -47,6 +47,7 @@ GameObject:
   - component: {fileID: 5587617101834919118}
   - component: {fileID: 2954333171024436591}
   - component: {fileID: 5993916925278126056}
+  - component: {fileID: -9214169402162337290}
   m_Layer: 17
   m_Name: Hall L
   m_TagString: Untagged
@@ -150,6 +151,27 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: 3661407703532608806, guid: 9368a4f45bedf554cae816a41b2def84, type: 3}
+--- !u!65 &-9214169402162337290
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1594380999107036341}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 11.62, y: 16.16, z: 5.000001}
+  m_Center: {x: -3, y: 0.5000001, z: 2.5000005}
 --- !u!1 &7310241195114784555
 GameObject:
   m_ObjectHideFlags: 0

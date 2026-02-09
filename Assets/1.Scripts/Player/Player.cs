@@ -5,6 +5,8 @@ using Unity.VisualScripting;
 
 public class Player : CharacterBase
 {
+    [SerializeField] PlayerMovement playerMovement;
+    [SerializeField] Animator animator;
     [SerializeField] SkinnedMeshRenderer skinRederer;
 
     [SerializeField] KeyCode skillKey1 = KeyCode.E;
@@ -99,27 +101,43 @@ public class Player : CharacterBase
     {
         if(id == null) return;
         
-        
-            Debug.Log(id.name);
-
         if(id.GetComponent<Interactable>() != null)
         {
-            //Destroy(id.gameObject);
-            //NetworkServer.Destroy(id.gameObject);
-            Debug.Log("찾음");
-        }
-        else
-        {
-            Debug.Log("멋찾음");
-
         }
 
         id.GetComponent<Interactable>()?.Interact();
     }
 
-}
+    [Server]
+    public override void TakeDamage(int damage)
+    {
+        base.TakeDamage(damage);
 
-public interface Interactable
-{
-    public void Interact();
+        Debug.Log($"데미지: {damage}");
+
+        if(CurHP <= 0)
+        {
+            Die();
+        }
+
+    }
+
+    [Server]
+    void Die()
+    {
+        if(isDead) return;
+
+        isDead = true;
+
+        playerMovement.enabled = false;
+
+        DieAnimation();
+    }
+
+    [ClientRpc]
+    void DieAnimation()
+    {
+        animator.SetTrigger("isDead");
+    }
+
 }

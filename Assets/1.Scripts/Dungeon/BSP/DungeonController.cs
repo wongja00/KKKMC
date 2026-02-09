@@ -11,7 +11,7 @@ public class DungeonController : NetworkBehaviour
 {
     public RoomType roomType;
 
-    public Door[] doors;
+    public DoorInteractor[] doors;
     private List<GameObject> spawnEnemies = new List<GameObject>();
     public List<Transform> spawnPoints = new List<Transform>();
     public List<GameObject> barriers = new List<GameObject>();
@@ -33,8 +33,8 @@ public class DungeonController : NetworkBehaviour
 
     void Start()
     {
-        OpenDoors();
-        CreateRoomWall();
+        //OpenDoors();
+        //CreateRoomWall();
         boxCollider.size = new Vector3(boxCollider.size.x - 10, 3, boxCollider.size.z - 10);
 
     }
@@ -49,7 +49,7 @@ public class DungeonController : NetworkBehaviour
         StartCombat();
     }
 
-    //[Command]
+    [Command(requiresAuthority = false)]
     void StartCombat()
     {
         CloseDoors();
@@ -57,9 +57,10 @@ public class DungeonController : NetworkBehaviour
         if(roomType == RoomType.Start || roomType == RoomType.Treasure)
         {
             EndCombat();
-            SpawnStartWeapon();
+            //SpawnStartWeapon();
             return;
         }
+         Debug.Log("전투");
 
         SpawnEnemies();
     }
@@ -67,18 +68,25 @@ public class DungeonController : NetworkBehaviour
     void OpenDoors()
     {
         foreach(var d in doors)
-            d.Open();
-        
-        
-        DisabeBarriers();
+        {
+            if(d.isOpen == false)
+            {
+                d.Interact();
+            }
+        }
     }
 
     void CloseDoors()
     {
         foreach(var d in doors)
-            d.Close();
+        {
+            if(d.isOpen == true)
+            {
+                d.Interact();
+            }
+        }
         
-        ActiveBarriers();
+        //ActiveBarriers();
     }
 
     void EndCombat()
@@ -86,13 +94,14 @@ public class DungeonController : NetworkBehaviour
         OpenDoors();
     }
 
+    //[ClientRpc] 
     void SpawnEnemies()
     {
+            Debug.Log("적생성");
         foreach(var sp in spawnPoints)
         {
             EnemyType type = ChooseEnemyType();
             GameObject enemy = EnemyFactory.Spawn(type, sp.position);
-
             aliveEnemies++;
 
             if(enemy.GetComponent<Enemy>() != null)
@@ -118,9 +127,9 @@ public class DungeonController : NetworkBehaviour
             EndCombat();
     }
 
-    Door[] FindDoorsInRoom()
+    DoorInteractor[] FindDoorsInRoom()
     {
-        List<Door> result = new List<Door>();
+        List<DoorInteractor> result = new List<DoorInteractor>();
 
         Collider[] hits = Physics.OverlapBox(
             transform.position + boxCollider.center,
@@ -130,7 +139,7 @@ public class DungeonController : NetworkBehaviour
 
         foreach(var h in hits)
         {
-            Door d = h.GetComponent<Door>();
+            DoorInteractor d = h.GetComponent<DoorInteractor>();
             if(d != null)
                 result.Add(d);
         }
@@ -162,6 +171,11 @@ public class DungeonController : NetworkBehaviour
         GameObject c = Object.Instantiate(barrierPrefab, eastPos, Quaternion.identity);
         GameObject d = Object.Instantiate(barrierPrefab, westPos, Quaternion.identity);
 
+        NetworkServer.Spawn(a);
+        NetworkServer.Spawn(b);
+        NetworkServer.Spawn(c);
+        NetworkServer.Spawn(d);
+
         a.transform.localScale = new Vector3 (boxCollider.size.x, 5, 0.3f); 
         b.transform.localScale = new Vector3 (boxCollider.size.x, 5, 0.3f); 
         c.transform.localScale = new Vector3 (0.3f, 5, boxCollider.size.z); 
@@ -189,11 +203,5 @@ public class DungeonController : NetworkBehaviour
         {
             bar.SetActive(true);
         }
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
     }
 }

@@ -46,6 +46,7 @@ GameObject:
   - component: {fileID: 2328198121825086723}
   - component: {fileID: 262704194991105968}
   - component: {fileID: 1493396510336048663}
+  - component: {fileID: 2554541940334325845}
   m_Layer: 17
   m_Name: Room Cap.soft
   m_TagString: Untagged
@@ -149,6 +150,27 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: 2345065083497615609, guid: 9368a4f45bedf554cae816a41b2def84, type: 3}
+--- !u!65 &2554541940334325845
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8441014193664424627}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 14.2, y: 15.2, z: 5.1580586}
+  m_Center: {x: 0, y: 0.5000001, z: 2.4209719}
 --- !u!1 &9042612136888159335
 GameObject:
   m_ObjectHideFlags: 0

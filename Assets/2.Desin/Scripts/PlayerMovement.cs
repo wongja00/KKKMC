@@ -136,8 +136,6 @@ public class PlayerMovement : NetworkBehaviour
         //입력시 카메라 기준으로 회전
         if(move.magnitude > 0.01f && !isAiming && combat.canRotateDuringAttack)
         {
-            Debug.Log("이동");
-
             Quaternion targetRotation = Quaternion.LookRotation(move);
             targetRotation = Quaternion.Euler(0, targetRotation.eulerAngles.y, 0);
             //playerCharacter.transform.rotation = Quaternion.Slerp(playerCharacter.transform.rotation, targetRotation, Time.deltaTime * 10);
