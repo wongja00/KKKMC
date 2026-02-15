@@ -20,6 +20,7 @@ public class EnemyFSM : NetworkBehaviour
         if (identity != null && !identity.isServer)
         {
             //behaviorGraphAgent.enabled = false; // BT 통째로 서버 전용
+            
         }
     }
 
@@ -36,6 +37,14 @@ public class EnemyFSM : NetworkBehaviour
     public void SetHP(float hp)
     {
         behaviorGraphAgent.SetVariableValue("curHP", hp);
+    }
+    public void SetAttackDistance(float dist)
+    {
+        if(behaviorGraphAgent != null)
+        {
+            //behaviorGraphAgent.SetVariableValue("patrolPoints", wayPoints.ToList());
+            behaviorGraphAgent.SetVariableValue("attackDistance", dist);
+        }
     }
 
     public void SetUp(Transform target, GameObject[] wayPoints, bool isDugeon = false, bool isServer = false)

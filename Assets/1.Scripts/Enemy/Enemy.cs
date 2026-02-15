@@ -53,7 +53,6 @@ public class Enemy : CharacterBase
     {
         if(isServer)
         {
-            Debug.Log("서버");
         }
         else
         {
@@ -68,6 +67,7 @@ public class Enemy : CharacterBase
             OnDeath += enemyFSM.StopGraph;
             OnDeath += ()=>{enemyCombatSystem.isdead = true;};
             OnDeath += enemyCombatSystem.StopAnimation;
+            enemyCombatSystem.OnAttackDistInfo += enemyFSM.SetAttackDistance;
              
         }
 

@@ -14,8 +14,11 @@ public interface ICharacter
 
 public struct Status
 {
-    public int Strength;
-    public int Defense;
-    public int Agility;
-    public int Intelligence;
+    public int strength;     // 힘
+    public int defense;      // 방어력
+    public int agility;      // 민첩성
+    public int intelligence; // 지능
+    public float attackSpeed; //공속
+    public float critChance; //치확
+    public float critDamage; //치피
 }

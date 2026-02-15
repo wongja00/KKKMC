@@ -15,6 +15,7 @@ public class DungeonGenerator : NetworkBehaviour
     public NetworkStartPosition startPos;
 
     [Header("디버깅 옵션")]
+    public bool useBacktracking = false;
     public bool useBoxcollider;
     public bool useLightForDebug;
     public bool restoreLightsAfterDebug;
@@ -146,9 +147,9 @@ public class DungeonGenerator : NetworkBehaviour
             DebugRoomLighting(tileTo, Color.blue);
             tileTo.SetParent(container);
             ConnectTiles();
-            while(isCollision()== true && attempt < maxAttemps)
+            while(isCollision()== true)
             {
-                Debug.Log("메인재시도");
+                //Debug.Log("메인재시도");
                 Coroutine co = StartCoroutine(CollisionCheck());
 
                 yield return co;
@@ -188,9 +189,9 @@ public class DungeonGenerator : NetworkBehaviour
                     tileTo = CreateTile();
                     DebugRoomLighting(tileTo, Color.yellow);
                     ConnectTiles();
-                    while(isCollision() == true && attempt < maxAttemps)
+                    while(isCollision() == true)
                     {
-                        Debug.Log("브렌치재시도");
+                        //Debug.Log("브렌치재시도");
                         Coroutine co = StartCoroutine(CollisionCheck());
 
                         yield return co;
@@ -316,138 +317,113 @@ public class DungeonGenerator : NetworkBehaviour
 
     IEnumerator CollisionCheck()
     {
-        //마지막으로 새운 타일 기준
-        BoxCollider box = tileTo.GetComponent<BoxCollider>();
+        attempt++;
 
-        if(box == null)
+        //마지막으로 만든 붙여야 되는 타일
+        int toIndex = generatedTiles.FindIndex(x => x.tile == tileTo);
+        if(generatedTiles[toIndex].connector != null)
         {
-            box = tileTo.gameObject.AddComponent<BoxCollider>();
-            box.isTrigger = true;
+            //다시 뗌
+            generatedTiles[toIndex].connector.isConnected = false;
+        }
+        
+        //만든타일에서 없앰
+        generatedTiles.RemoveAt(toIndex);
+        Destroy(tileTo.gameObject);
+
+        //역추적 -백트래킹
+        if(attempt >= maxAttemps && useBacktracking == true)
+        {
+            //붙여야 되는곳
+            int fromIndex = generatedTiles.FindIndex(x => x.tile == tileFrom);
+
+            if(fromIndex == -1)
+            {
+                Debug.Log($"{tileFrom.name}");
+            }
+
+            Tile myTileFrom = generatedTiles[fromIndex];
+            
+            //타일이 루트(시작적)이 아닐떄
+            if(tileFrom != tileRoot)
+            {
+                //붙은곳
+                if(myTileFrom.connector != null)
+                {
+                    //떨어짐
+                    myTileFrom.connector.isConnected = false;
+                }
+
+                //백트래킹을 위한 이전 타일 삭제
+                availableConnectors.RemoveAll(x => x.transform.parent.parent == tileFrom);
+                generatedTiles.RemoveAt(fromIndex);
+                Destroy(tileFrom.gameObject);
+
+                //(메인 혹은 브렌치의)시작점이 아닐떄
+                if(myTileFrom.origin != tileRoot)
+                {
+                    //불일곳을 이전에 붙인곳으로 대입함
+                    tileFrom = myTileFrom.origin;
+                }
+                //메인 루트이자 붙여진곳이 시작점일때
+                else if(container.name.Contains("Main"))
+                {
+                    //현재 붙여진 곳이 있을떄
+                    if(myTileFrom.origin != null)
+                    {
+                        //시작점은 현재 타일의 붙여진곳
+                        tileRoot = myTileFrom.origin;
+                        //마직막으로 붙여진곳은 시작점
+                        tileFrom = tileRoot;
+                    }
+                }
+                //붙일곳이 있을때, 브렌치일때
+                else if(availableConnectors.Count > 0)
+                { 
+                    //붙일곳중 랜덤
+                    int availIndex = rng.Range(0, availableConnectors.Count);
+                    //시작점은 붙일수 있는곳의 타일
+                    tileRoot = availableConnectors[availIndex].transform.parent.parent;
+                    availableConnectors.RemoveAt(availIndex);
+                    tileFrom = tileRoot;                      
+                }
+            }
+            else if(container.name.Contains("Main"))
+            {
+                if(myTileFrom.origin != null)
+                {
+                    tileRoot = myTileFrom.origin;
+                    tileFrom = tileRoot;
+                }
+            }
+            //연결할수 있는게 있을때
+            else if(availableConnectors.Count > 0)
+            {   
+                //랜덤으로 하나
+                int availIndex = rng.Range(0, availableConnectors.Count);
+                tileRoot = availableConnectors[availIndex].transform.parent.parent;
+                availableConnectors.RemoveAt(availIndex);
+                tileFrom = tileRoot;                     
+            }
+            //else return;
+            tileTo = tileFrom;
+        }
+        //else return;
+        //재시도
+        if(tileFrom != null)
+        {
+            //붙일 타일 만듬
+            tileTo = CreateTile();
+            //색바꿈꿈
+            Color retryColor = container.name.Contains("Branch") ? Color.green : Color.yellow;
+            DebugRoomLighting(tileTo, retryColor * 2);
+
+            //연결하고 또 콜라이더 체크
+            ConnectTiles();
+            //CollisionCheck();
         }
 
-        Physics.SyncTransforms();
-
-        //로컬기준 중심점
-        Vector3 offset = (tileTo.right * box.center.x) + (tileTo.up * box.center.y) + (tileTo.forward * box.center.z);
-        //반너비(중심을 기준으로 양옆으로 늘어나기 때문에)
-        Vector3 halfExtends = box.bounds.extents;
-        //List<Collider> hits = Physics.OverlapBox(tileTo.position + offset, halfExtends, tileTo.rotation, LayerMask.GetMask("Tile")).ToList();
-
-        //if(hits.Count > 0)
-        {
-            //붙일거끼리가 아닐떄
-            //if(hits.Exists(x => x.transform != tileFrom && x.transform != tileTo))
-            {
-                //붙일것도 아닌거거에 충돌 헀을떄
-                attempt++;
-
-                //마지막으로 만든 붙여야 되는 타일
-                int toIndex = generatedTiles.FindIndex(x => x.tile == tileTo);
-                if(generatedTiles[toIndex].connector != null)
-                {
-                    //다시 뗌
-                    generatedTiles[toIndex].connector.isConnected = false;
-                }
-                
-                //만든타일에서 없앰
-                generatedTiles.RemoveAt(toIndex);
-                Destroy(tileTo.gameObject);
-
-                //역추적
-                if(attempt >= maxAttemps)
-                {
-                    //붙여야 되는곳
-                    int fromIndex = generatedTiles.FindIndex(x => x.tile == tileFrom);
-                    Tile myTileFrom = generatedTiles[fromIndex];
-                    
-                    //타일이 루트(시작적)이 아닐떄
-                    if(tileFrom != tileRoot)
-                    {
-                        //붙은곳
-                        if(myTileFrom.connector != null)
-                        {
-                            //떨어짐
-                            myTileFrom.connector.isConnected = false;
-                        }
-
-                        //백트래킹을 위한 이전 타일 삭제
-                        availableConnectors.RemoveAll(x => x.transform.parent.parent == tileFrom);
-                        generatedTiles.RemoveAt(fromIndex);
-                        Destroy(tileFrom.gameObject);
-
-                        //(메인 혹은 브렌치의)시작점이 아닐떄
-                        if(myTileFrom.origin != tileRoot)
-                        {
-                            //불일곳을 이전에 붙인곳으로 대입함
-
-                            tileFrom = myTileFrom.origin;
-                        }
-                        //메인 루트이자 붙여진곳이 시작점일때
-                        else if(container.name.Contains("Main"))
-                        {
-                            //현재 붙여진 곳이 있을떄
-                            if(myTileFrom.origin != null)
-                            {
-                                //시작점은 현재 타일의 붙여진곳
-                                tileRoot = myTileFrom.origin;
-                                //마직막으로 붙여진곳은 시작점
-                                tileFrom = tileRoot;
-                            }
-                        }
-                        //붙일곳이 있을때, 브렌치일때
-                        else if(availableConnectors.Count > 0)
-                        { 
-                            //붙일곳중 랜덤
-                            int availIndex = rng.Range(0, availableConnectors.Count);
-                            //시작점은 붙일수 있는곳의 타일
-                            tileRoot = availableConnectors[availIndex].transform.parent.parent;
-                            availableConnectors.RemoveAt(availIndex);
-                            tileFrom = tileRoot;                      
-                        }
-                    }
-                    else if(container.name.Contains("Main"))
-                    {
-                        if(myTileFrom.origin != null)
-                        {
-                            tileRoot = myTileFrom.origin;
-                            tileFrom = tileRoot;
-                        }
-                    }
-                    //연결할수 있는게 있을때
-                    else if(availableConnectors.Count > 0)
-                    {   
-                        //랜덤으로 하나
-                        int availIndex = rng.Range(0, availableConnectors.Count);
-                        tileRoot = availableConnectors[availIndex].transform.parent.parent;
-                        availableConnectors.RemoveAt(availIndex);
-                        tileFrom = tileRoot;                     
-                    }
-                    //else return;
-                    tileTo = tileFrom;
-                }
-                //else return;
-                //재시도(재귀)
-                else if(tileFrom != null)
-                {
-                    //붙일 타일 만듬
-                    tileTo = CreateTile();
-                    //색바꿈꿈
-                    Color retryColor = container.name.Contains("Branch") ? Color.green : Color.yellow;
-                    DebugRoomLighting(tileTo, retryColor * 2);
-
-                    //연결하고 또 콜라이더 체크
-                    ConnectTiles();
-                    //CollisionCheck();
-                }
-
-                yield return new WaitForSeconds(0.1f);
-            }
-            //Debug.Log($"from {tileFrom.gameObject.name} - To {tileTo.gameObject.name}");
-            //else
-            {
-            }
-        }
-
+        yield return new WaitForSeconds(constructionDelay);
     }
 
     bool isCollision()
@@ -462,9 +438,19 @@ public class DungeonGenerator : NetworkBehaviour
 
         Vector3 offset = (tileTo.right * box.center.x)+(tileTo.up * box.center.y)+(tileTo.forward * box.center.z);
 
-        Collider[] hits = Physics.OverlapBox(tileTo.transform.position + offset, box.bounds.extents*1.3f, tileTo.rotation, LayerMask.GetMask("Tile"));
+        Collider[] hits = Physics.OverlapBox(tileTo.transform.position + offset, box.bounds.extents*1.4f, tileTo.rotation, LayerMask.GetMask("Tile"));
 
-        return hits.Any(x => x.transform != tileTo && x.transform != tileFrom);
+        bool isColl = hits.Any(x => x.transform != tileTo && x.transform != tileFrom);
+
+        if(isColl)
+        {
+            foreach(Collider col in hits)
+            {
+                //Debug.Log($"충돌체: {col.gameObject}");
+            }
+        }
+
+        return isColl;
 
     }
 
@@ -485,15 +471,14 @@ public class DungeonGenerator : NetworkBehaviour
 
     Transform CreateTile()
     {
-        Quaternion rotation = Quaternion.Euler(0, 0, 0);
         int index = rng.Range(0, tilePrefabs.Length);
         GameObject goTile = Instantiate(tilePrefabs[index], Vector3.zero, tilePrefabs[index].transform.rotation, container) as GameObject;
         goTile.name = tilePrefabs[index].name;
 
-        Transform origin = generatedTiles.Find(x => x.tile == tileFrom).tile;
+        //Transform origin = generatedTiles.Find(x => x.tile == tileFrom).tile;
 
         //add to tilelist
-        generatedTiles.Add(new Tile(goTile.transform, origin));
+        generatedTiles.Add(new Tile(goTile.transform, tileFrom));
         return goTile.transform;
     }
 

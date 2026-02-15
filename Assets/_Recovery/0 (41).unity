@@ -572,11 +572,11 @@ MonoBehaviour:
   restoreLightsAfterDebug: 0
   toggleMapKey: 109
   startLightColor: {r: 1, g: 1, b: 1, a: 1}
-  mainLength: 41
+  mainLength: 20
   branchLength: 3
-  numBranches: 10
+  numBranches: 3
   doorPercent: 100
-  constructionDelay: 0.167
+  constructionDelay: 1
   tilePrefabs:
   - {fileID: 906662184356688436, guid: 038058f92e9604d45a50b131e3e0fbd5, type: 3}
   - {fileID: 4064804919905144341, guid: 1d03ee03ea0aecc4ea9474a1ad9bbc33, type: 3}
@@ -612,7 +612,7 @@ MonoBehaviour:
   generatedTiles: []
   availableConnectors: []
   dungeonControllers: []
-  maxAttemps: 1
+  maxAttemps: 10
 --- !u!114 &121394218
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8240,6 +8240,7 @@ GameObject:
   - component: {fileID: 1085405396}
   - component: {fileID: 1085405397}
   - component: {fileID: 1085405398}
+  - component: {fileID: 1085405399}
   m_Layer: 0
   m_Name: Network
   m_TagString: Untagged
@@ -8368,6 +8369,51 @@ MonoBehaviour:
   manager: {fileID: 0}
   offsetX: 0
   offsetY: 0
+--- !u!114 &1085405399
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1085405394}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8aab4c8111b7c411b9b92cf3dbc5bd4e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Mirror::Mirror.NetworkManager
+  dontDestroyOnLoad: 1
+  runInBackground: 1
+  headlessStartMode: 0
+  editorAutoStart: 0
+  sendRate: 60
+  offlineScene: 
+  onlineScene: 
+  offlineSceneLoadDelay: 0
+  transport: {fileID: 0}
+  networkAddress: localhost
+  maxConnections: 100
+  disconnectInactiveConnections: 0
+  disconnectInactiveTimeout: 60
+  authenticator: {fileID: 0}
+  playerPrefab: {fileID: 0}
+  autoCreatePlayer: 1
+  playerSpawnMethod: 0
+  spawnPrefabs: []
+  exceptionsDisconnect: 1
+  snapshotSettings:
+    bufferTimeMultiplier: 2
+    bufferLimit: 32
+    catchupNegativeThreshold: -1
+    catchupPositiveThreshold: 1
+    catchupSpeed: 0.019999999552965164
+    slowdownSpeed: 0.03999999910593033
+    driftEmaDuration: 1
+    dynamicAdjustment: 1
+    dynamicAdjustmentTolerance: 1
+    deliveryTimeEmaDuration: 2
+  evaluationMethod: 0
+  evaluationInterval: 3
+  timeInterpolationGui: 0
 --- !u!1 &1085976006
 GameObject:
   m_ObjectHideFlags: 0

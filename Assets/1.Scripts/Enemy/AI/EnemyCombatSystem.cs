@@ -28,6 +28,7 @@ public class EnemyCombatSystem : NetworkBehaviour
     [Header("상태")]
     [SyncVar] private int currentAttackID = -1;
     [SyncVar] private int queueAttackID = -1;
+    [SyncVar] private int bbqueueAttackID = -1;
     private AttackData currentAttack;
     private ComboChain currentCombo;
     private int currentComboStep = 0;
@@ -50,6 +51,7 @@ public class EnemyCombatSystem : NetworkBehaviour
     public event Action<AttackEvent> OnCustomEvent;
 
     public bool isdead = false;
+    public event Action<float> OnAttackDistInfo;
 
     void Awake()
     {
@@ -86,17 +88,38 @@ public class EnemyCombatSystem : NetworkBehaviour
         
     }
 
+    // 공격 랜덤 예약
+    [Server]
+    public void QueueRandomAttack()
+    {
+        int randomId = GetRandomID();
+
+        if (randomId != -1)
+        {
+            bbqueueAttackID = randomId;
+
+            AttackData data = attackDictionary[bbqueueAttackID];
+
+            OnAttackDistInfo?.Invoke(data.distance);
+        }
+    }
+
+
     [Server]
     public void RequestAttack(AttackInputType inputType)
     {
         if(isAttacking) return;
         
-        Debug.Log("공격");
-
         //새공격 시작
         AttackData attack = FindAttackBT(inputType);
         if(attack != null)
         {
+            if(attackDictionary[bbqueueAttackID] != null)
+            {
+                StartAttack(bbqueueAttackID);
+                return;
+            }
+
             StartAttack(attack.attackID);
         }
     }
@@ -185,7 +208,7 @@ public class EnemyCombatSystem : NetworkBehaviour
         //이벤트 처리
         SetDurationTime(attack.attackID);
         float duration = curPlayableDuration;
-        Debug.Log($"시간{duration}");
+        
         yield return new WaitForSeconds(duration);
 
         if(queueAttackID != -1)
@@ -328,6 +351,17 @@ public class EnemyCombatSystem : NetworkBehaviour
         }
 
         return null;
+    }
+
+    public int GetRandomID()
+    {
+        // attackDictionary에 있는 키 중 랜덤으로 리턴
+        if (attackDictionary.Count == 0)
+            return -1;
+
+        List<int> keys = new List<int>(attackDictionary.Keys);
+        int randomIndex = UnityEngine.Random.Range(0, keys.Count);
+        return keys[randomIndex];
     }
 
 }

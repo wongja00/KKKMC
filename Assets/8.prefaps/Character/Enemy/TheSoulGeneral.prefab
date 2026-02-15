@@ -3870,11 +3870,13 @@ MonoBehaviour:
   syncInterval: 0
   Name: Unknown
   Level: 1
-  Experience: 0
+  maxExp: 0
+  curExp: 10
   MaxHP: 100
   CurHP: 100
   MaxMp: 100
   CurMp: 100
+  speed: 5
   isDead: 0
   animator: {fileID: 5843822830080126947}
   detectRange: 30
@@ -3901,7 +3903,7 @@ NavMeshAgent:
   m_AngularSpeed: 240
   m_StoppingDistance: 0
   m_AutoTraverseOffMeshLink: 1
-  m_AutoBraking: 1
+  m_AutoBraking: 0
   m_AutoRepath: 1
   m_Height: 2
   m_BaseOffset: 0

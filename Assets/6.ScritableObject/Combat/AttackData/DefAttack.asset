@@ -17,9 +17,9 @@ MonoBehaviour:
   animationClip: {fileID: 8456185703765157504, guid: d98044a64183bda4990be8eceb00a482, type: 3}
   animationSpeed: 1.58
   hitBoxTimes:
-  - start: 0.167
-    end: 0.309
-  damage: 100
+  - start: 0.623
+    end: 0.833
+  damage: 10
   distance: 10
   knockbackForce: 1
   hitboxOffset: {x: 0, y: 0, z: 0}

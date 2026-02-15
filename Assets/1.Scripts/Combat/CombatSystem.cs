@@ -289,7 +289,7 @@ public class CombatSystem : NetworkBehaviour
         StartCoroutine(ProcessAttackEvents(attack));
         SetDurationTime(attack.attackID);
         float duration = curPlayableDuration;
-        Debug.Log($"시간{duration}");
+        
         yield return new WaitForSeconds(duration);
 
         if(queueAttackID != -1)

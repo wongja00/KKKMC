@@ -14,6 +14,7 @@ public class InteractUIManager : MonoBehaviour
     [SerializeField] Image aimCrosshair;
     [SerializeField] RectTransform aimCrosshairRect;
     [SerializeField] ReloadCoolTImeUI reloadCoolTImeUI;
+    [SerializeField] PlayerHP playerHp;
     [SerializeField] Camera cam;
 
     void Awake()
@@ -98,5 +99,10 @@ public class InteractUIManager : MonoBehaviour
         SetAimCrosshair(true);
         SetAimCrosshairPosition(screenPos);
 
+    }
+
+    public PlayerHP GetHpUI()
+    {
+        return playerHp;
     }
 }

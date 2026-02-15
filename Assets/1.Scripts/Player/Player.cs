@@ -8,6 +8,8 @@ public class Player : CharacterBase
     [SerializeField] PlayerMovement playerMovement;
     [SerializeField] Animator animator;
     [SerializeField] SkinnedMeshRenderer skinRederer;
+    
+    private PlayerHP playerHP;
 
     [SerializeField] KeyCode skillKey1 = KeyCode.E;
     readonly int rimEnable = Shader.PropertyToID("_Enable");
@@ -29,6 +31,9 @@ public class Player : CharacterBase
     void Start()
     {
         if(!isLocalPlayer) return;
+
+        playerHP = InteractUIManager.Instance.GetHpUI();
+        OnHpChanged += Hpchange;
         
         mpb = new MaterialPropertyBlock();
     }
@@ -138,6 +143,11 @@ public class Player : CharacterBase
     void DieAnimation()
     {
         animator.SetTrigger("isDead");
+    }
+
+    void Hpchange()
+    {
+        playerHP.SetHPImage(CurHP, MaxHP);
     }
 
 }
