@@ -12,6 +12,7 @@ public interface ICharacter
     bool IsAlive();
 }
 
+[System.Serializable]
 public struct Status
 {
     public int strength;     // 힘

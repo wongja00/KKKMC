@@ -115,6 +115,8 @@ public abstract class CharacterBase : NetworkBehaviour, ICharacter
                 stat.attackSpeed += Value;
             break;
         }
+
+        Debug.Log($"{buf.ToString()} {Value} 버프 적용");
     }
 
     private void LevelUp()

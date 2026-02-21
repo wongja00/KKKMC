@@ -1,5 +1,53 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &5286099759687158
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1834774670636190751}
+  - component: {fileID: 7345782587532285161}
+  m_Layer: 8
+  m_Name: Rogue
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1834774670636190751
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5286099759687158}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1376832861527793235}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &7345782587532285161
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5286099759687158}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a53b5e6919393bf4daea0d3879f24907, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerBuffSystem
+  syncDirection: 0
+  syncMode: 0
+  syncInterval: 0
+  character: {fileID: 7510349755269515821}
 --- !u!1 &38983663248250798
 GameObject:
   m_ObjectHideFlags: 0
@@ -3645,6 +3693,7 @@ Transform:
   - {fileID: 5033204697270562501}
   - {fileID: 8939163520822635610}
   - {fileID: 3731915035741709163}
+  - {fileID: 1834774670636190751}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 180, z: 0}
 --- !u!114 &7510349755269515821
@@ -3664,13 +3713,16 @@ MonoBehaviour:
   syncInterval: 0
   Name: Unknown
   Level: 1
-  Experience: 0
+  maxExp: 0
+  curExp: 10
   MaxHP: 100
   CurHP: 100
   MaxMp: 100
   CurMp: 100
+  speed: 5
   isDead: 0
   playerMovement: {fileID: 5489407841458146111}
+  combat: {fileID: 7787473704795262931}
   animator: {fileID: 817829206491354978}
   skinRederer: {fileID: 9218520419043135712}
   skillKey1: 101

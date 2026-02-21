@@ -6,6 +6,7 @@ using Unity.VisualScripting;
 public class Player : CharacterBase
 {
     [SerializeField] PlayerMovement playerMovement;
+    [SerializeField] CombatSystem combat;
     [SerializeField] Animator animator;
     [SerializeField] SkinnedMeshRenderer skinRederer;
     
@@ -135,6 +136,10 @@ public class Player : CharacterBase
         isDead = true;
 
         playerMovement.enabled = false;
+
+        combat.EndAttack();
+
+        combat.enabled = false;
 
         DieAnimation();
     }

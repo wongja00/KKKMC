@@ -52,6 +52,7 @@ public class EnemyCombatSystem : NetworkBehaviour
 
     public bool isdead = false;
     public event Action<float> OnAttackDistInfo;
+    public float attackAngle = 0.6f;
 
     void Awake()
     {
@@ -72,7 +73,6 @@ public class EnemyCombatSystem : NetworkBehaviour
         //if(identity.isServer == false) return;
         
         //공격 데이터를 딕셔너리로 변환(빠른 검색)
-
 
         agent = GetComponent<NavMeshAgent>();
         
@@ -265,13 +265,13 @@ public class EnemyCombatSystem : NetworkBehaviour
 
         Vector3 hitboxPos = transform.position + hitboxOrigin.TransformDirection(attack.hitboxOffset);
 
-        Collider[] hits = Physics.OverlapSphere(playerTransform.position, attack.distance, attack.hitLayerMask);
+        Collider[] hits = Physics.OverlapSphere(transform.position, attack.distance, attack.hitLayerMask);
 
         float closest = float.MaxValue;
 
         foreach(var hit in hits)
         {
-            float dist = Vector3.Distance(playerTransform.position, hit.transform.position);
+            float dist = Vector3.Distance(transform.position, hit.transform.position);
 
             if(closest > dist)
                 closest = dist;
@@ -280,9 +280,9 @@ public class EnemyCombatSystem : NetworkBehaviour
         foreach(var hit in hits)
         {
             // 공격대상(hit)이 내 앞에 있을 때만 판정 (playerTransform.forward 기준)
-            Vector3 toTarget = (hit.transform.position - playerTransform.position).normalized;
-            float forwardDot = Vector3.Dot(playerTransform.forward, toTarget);
-            if(forwardDot < 0.3f)
+            Vector3 toTarget = (hit.transform.position - transform.position).normalized;
+            float forwardDot = Vector3.Dot(transform.forward, toTarget);
+            if(forwardDot < attackAngle)
             {
                 continue; // 앞에 있지 않으면 맞지 않음
             }

@@ -384,7 +384,7 @@ public class CombatSystem : NetworkBehaviour
             if(!hitEnemies.Add(target)) continue;
 
             //데미지 처리 
-            target.TakeDamage((int)attack.damage);
+            target.TakeDamage((int)attack.damage + character.stat.strength);
             Debug.Log($"피해자{target.name}, 공격{attack.attackName}");
 
             //넉백
@@ -484,8 +484,11 @@ public class CombatSystem : NetworkBehaviour
     }
 
     [ClientRpc]
-    void EndAttack()
+    public void EndAttack()
     {
+        if(currentAttackCoroutine != null)
+            StopCoroutine(currentAttackCoroutine);
+
         isAttacking = false;
         canMoveDuringAttack = true;//공격 끝나면 무조건 움직일수 있게
         canRotateDuringAttack = true;
@@ -505,7 +508,7 @@ public class CombatSystem : NetworkBehaviour
     }
 
     //[ClientRpc]
-    void StopAnimation()
+    public void StopAnimation()
     {
         if(playableGraph.IsValid())
         {

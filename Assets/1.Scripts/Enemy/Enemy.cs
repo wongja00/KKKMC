@@ -67,11 +67,11 @@ public class Enemy : CharacterBase
             OnDeath += enemyFSM.StopGraph;
             OnDeath += ()=>{enemyCombatSystem.isdead = true;};
             OnDeath += enemyCombatSystem.StopAnimation;
-            enemyCombatSystem.OnAttackDistInfo += enemyFSM.SetAttackDistance;
-             
+            enemyCombatSystem.OnAttackDistInfo += enemyFSM.SetAttackDistance;             
         }
 
         CurHP = MaxHP;
+        OnHpChanged += UpadteHpUI;
         isDead = false;
         isRun = false;
 
@@ -114,6 +114,7 @@ public class Enemy : CharacterBase
         OnTakeDamage?.Invoke();
         
         enemyFSM.SetHP(CurHP);
+        RpcUpadteHpUI();
 
         hpBar.fillAmount = CurHP/MaxHP;
 
@@ -122,6 +123,19 @@ public class Enemy : CharacterBase
             Die();
         }
     }
+
+    [ClientRpc]
+    private void RpcUpadteHpUI()
+    {
+        UpadteHpUI();
+    }
+
+    private void UpadteHpUI()
+    {
+        hpBar.fillAmount = CurHP/MaxHP;
+    }
+
+
 
 
     public void SetIsDead(bool IsDead)

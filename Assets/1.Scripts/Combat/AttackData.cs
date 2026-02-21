@@ -41,6 +41,9 @@ public class AttackData : ScriptableObject
     public bool canMoveDuringAttack = false;
     public bool canRotateDuringAttack = false;
     public float movementSpeedMultiplier = 0.5f;
+    
+    [Header("전진 이동")]
+    public float forwardMovementOnAttack = 0f;
 
     [Header("콤보 연결")]
     public List<int> canChainTo = new List<int>();//연결 가능한 공격ID들

@@ -3760,6 +3760,7 @@ GameObject:
   - component: {fileID: 3477292191222101171}
   - component: {fileID: 1155768735229393497}
   - component: {fileID: 5031148008645423482}
+  - component: {fileID: 4925968568450814439}
   m_Layer: 16
   m_Name: TheSoulGeneral
   m_TagString: Untagged
@@ -3797,7 +3798,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7f6f3bf89aa97405989c802ba270f815, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  syncDirection: 1
+  syncDirection: 0
   syncMode: 0
   syncInterval: 0
   clientAuthority: 0
@@ -3814,7 +3815,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8ff3ba0becae47b8b9381191598957c8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  syncDirection: 1
+  syncDirection: 0
   syncMode: 0
   syncInterval: 0
   target: {fileID: 3076798985034487008}
@@ -3876,6 +3877,14 @@ MonoBehaviour:
   CurHP: 100
   MaxMp: 100
   CurMp: 100
+  stat:
+    strength: 0
+    defense: 0
+    agility: 0
+    intelligence: 0
+    attackSpeed: 0
+    critChance: 0
+    critDamage: 0
   speed: 5
   isDead: 0
   animator: {fileID: 5843822830080126947}
@@ -4009,6 +4018,30 @@ MonoBehaviour:
   - {fileID: 11400000, guid: a29c0a7801e21d7408a902e79ed03d68, type: 2}
   isAttacking: 0
   isdead: 0
+  attackAngle: 0.6
+--- !u!136 &4925968568450814439
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9195384841540127689}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.17635894
+  m_Height: 1.6975658
+  m_Direction: 1
+  m_Center: {x: 0, y: 0.8673232, z: -0.029421931}
 --- !u!1001 &6937701613757011566
 PrefabInstance:
   m_ObjectHideFlags: 0

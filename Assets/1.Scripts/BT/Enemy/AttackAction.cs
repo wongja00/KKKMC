@@ -22,22 +22,21 @@ public partial class AttackAction : Action
 
     protected override Status OnUpdate()
     {
+        if(Combat.Value.GetIsAttack() == true)
+        {
+            return Status.Running;
+        }
+
         if(Combat.Value.GetIsAttack() == false && enemy.CurHP > 0)
         {
             Combat.Value.RequestAttack(AttackInputType.Light);
-
         }
-        if(Combat.Value.GetIsAttack() == true)
-        {
-            
-        }
-
         if(enemy.CurHP <= 0)
         {
             return Status.Failure;
         }
         
-        return Status.Running;
+        return Status.Success;
     }
 
     protected override void OnEnd()

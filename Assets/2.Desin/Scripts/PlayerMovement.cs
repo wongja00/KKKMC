@@ -149,10 +149,9 @@ public class PlayerMovement : NetworkBehaviour
             animator.SetFloat("velocityZ", animVelocity.y);
         }
 
-        if(combat.canMoveDuringAttack || !combat.isAttacking)
+        if((combat.canMoveDuringAttack || !combat.isAttacking) && controller.enabled == true)
         {
             controller.Move(move * (currentSpeed - airDrag) * Time.deltaTime);
-
         }
 
         //점프
@@ -162,7 +161,8 @@ public class PlayerMovement : NetworkBehaviour
         }
 
         velocity.y -= gravity * Time.deltaTime;
-        controller.Move(velocity *Time.deltaTime);
+        if(controller.enabled == true)
+            controller.Move(velocity *Time.deltaTime);
 
         Vector3 finalMove = move * (currentSpeed - airDrag);
         //CmdMove(finalMove, velocity, playerCharacter.transform.rotation, animVelocity);

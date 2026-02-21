@@ -14,6 +14,8 @@ GameObject:
   - component: {fileID: 6019593787821519879}
   - component: {fileID: 1652364696326463145}
   - component: {fileID: 6331867392646846184}
+  - component: {fileID: 4370418233566142142}
+  - component: {fileID: 5753216157550089630}
   m_Layer: 0
   m_Name: DoorWay
   m_TagString: Untagged
@@ -156,3 +158,36 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1.9962769, y: 0.40000004, z: 0.799399}
   m_Center: {x: 0, y: -2.2742567e-14, z: 3.6003666}
+--- !u!208 &4370418233566142142
+NavMeshObstacle:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9037384842569545}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Shape: 1
+  m_Extents: {x: 2, y: 0.2, z: 2}
+  m_MoveThreshold: 0.1
+  m_Carve: 0
+  m_CarveOnlyStationary: 1
+  m_Center: {x: 0, y: 0, z: 2}
+  m_TimeToStationary: 0.5
+--- !u!114 &5753216157550089630
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9037384842569545}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9b91ecbcc199f4492b9a91e820070131, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Mirror::Mirror.NetworkIdentity
+  sceneId: 0
+  _assetId: 1102228073
+  serverOnly: 0
+  visibility: 0
+  hasSpawned: 0

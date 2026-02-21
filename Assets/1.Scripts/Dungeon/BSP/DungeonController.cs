@@ -1,12 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
-using WebSocketSharp;
 using Mirror;
-using Unity.VisualScripting;
-using UnityEngine.ProBuilder;
-using UnityEngine.ProBuilder.Shapes;
-using UnityEngine.ProBuilder.MeshOperations;
-
 public class DungeonController : NetworkBehaviour
 {
     public RoomType roomType;
@@ -19,9 +13,13 @@ public class DungeonController : NetworkBehaviour
     public Room area;
 
     private int aliveEnemies = 0;
+
+    [SyncVar]
     private bool activated = false;
 
     private BoxCollider boxCollider;
+
+    public event System.Action OnEndCombat;
     
 
     void Awake()
@@ -35,21 +33,30 @@ public class DungeonController : NetworkBehaviour
     {
         //OpenDoors();
         //CreateRoomWall();
-        boxCollider.size = new Vector3(boxCollider.size.x - 10, 3, boxCollider.size.z - 10);
+        boxCollider.size = new Vector3(boxCollider.size.x - 1, 3, boxCollider.size.z - 1);
 
     }
 
     void OnTriggerEnter(Collider other)
-    {
+    {        
         if(activated) return;
+        
         if(!other.CompareTag("Player")) return;
+        
+        OnEnterCombat();
+    }
 
+    [Command(requiresAuthority = false)]
+    private void OnEnterCombat()
+    {
         activated = true;
 
         StartCombat();
     }
 
-    [Command(requiresAuthority = false)]
+    
+
+    [Server]
     void StartCombat()
     {
         CloseDoors();
@@ -92,12 +99,14 @@ public class DungeonController : NetworkBehaviour
     void EndCombat()
     {
         OpenDoors();
+
+        if(roomType == RoomType.Combat || roomType == RoomType.Boss|| roomType == RoomType.MiniBoss)
+            OnEndCombat?.Invoke();
     }
 
     //[ClientRpc] 
     void SpawnEnemies()
     {
-            Debug.Log("적생성");
         foreach(var sp in spawnPoints)
         {
             EnemyType type = ChooseEnemyType();
@@ -124,7 +133,23 @@ public class DungeonController : NetworkBehaviour
     {
         aliveEnemies--;
         if(aliveEnemies <= 0)
+        {
             EndCombat();
+            BuffUIOn();
+            CmdBuffUI();
+        }
+    }
+
+    
+    [ClientRpc]
+    void CmdBuffUI()
+    {
+        BuffUIOn();
+    }
+    
+    void BuffUIOn()
+    {
+        BuffManager.Instance.SetBuffUI(true);
     }
 
     DoorInteractor[] FindDoorsInRoom()
