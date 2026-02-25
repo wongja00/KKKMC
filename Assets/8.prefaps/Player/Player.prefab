@@ -47,7 +47,6 @@ MonoBehaviour:
   syncDirection: 0
   syncMode: 0
   syncInterval: 0
-  character: {fileID: 7510349755269515821}
 --- !u!1 &38983663248250798
 GameObject:
   m_ObjectHideFlags: 0
@@ -1061,7 +1060,7 @@ MonoBehaviour:
   playerBody: {fileID: 1376832861527793235}
   playerCamera: {fileID: 0}
   cameraTarget: {fileID: 7105917861300505805}
-  menuKey: 27
+  menuKey: 9
 --- !u!1 &1638839707027962009
 GameObject:
   m_ObjectHideFlags: 0
@@ -3719,13 +3718,22 @@ MonoBehaviour:
   CurHP: 100
   MaxMp: 100
   CurMp: 100
+  stat:
+    strength: 0
+    defense: 0
+    agility: 0
+    intelligence: 0
+    attackSpeed: 0
+    critChance: 0
+    critDamage: 0
   speed: 5
   isDead: 0
   playerMovement: {fileID: 5489407841458146111}
   combat: {fileID: 7787473704795262931}
+  buffSystem: {fileID: 7345782587532285161}
   animator: {fileID: 817829206491354978}
   skinRederer: {fileID: 9218520419043135712}
-  skillKey1: 101
+  skillKey1: 49
   InteractkeyCode: 101
   layer:
     serializedVersion: 2

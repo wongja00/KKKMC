@@ -16,6 +16,9 @@ public class InteractUIManager : MonoBehaviour
     [SerializeField] ReloadCoolTImeUI reloadCoolTImeUI;
     [SerializeField] PlayerHP playerHp;
     [SerializeField] Camera cam;
+    public StatusUI statusUI;
+    public BuffUI buffUI;
+    public RoundUI roundUI;
 
     void Awake()
     {

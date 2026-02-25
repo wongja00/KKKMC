@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BuffDataObject
   buffID: 1
   buffName: "\uC2DC\uC791\uBC84\uD504(\uBC29\uC5B4)"
-  buffDesc: "\uBC29\uC5B4\uB825 \uAC15\uD654\n\uB2E8\uB2E8\uD574\uC9C4\uB2F7!!!"
+  buffDesc: "\uBC29\uC5B4\uB825({Value}) \uAC15\uD654\n\uB2E8\uB2E8\uD574\uC9C4\uB2F7!!!"
   buffType: 6
   buffWeight: 10
   buffTime: 9999

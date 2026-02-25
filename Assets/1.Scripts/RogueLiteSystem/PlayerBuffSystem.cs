@@ -1,21 +1,16 @@
+using System;
 using Mirror;
 using UnityEngine;
 
 public class PlayerBuffSystem : NetworkBehaviour
 {
-    [SerializeField] private CharacterBase character;
-
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+    //[SerializeField] private CharacterBase character;
+    
+    [SyncVar(hook = nameof(InvokeSelectBuffCount))]
+    private int selectableBuffCount = 0;
+    
+    public event Action<int> OnSelectBuff;
+    public event Action<BuffType, float> OnApplyBuff;
 
     [Command]
     public void CharacterStatUp(int id)
@@ -24,12 +19,30 @@ public class PlayerBuffSystem : NetworkBehaviour
 
         if(buf == null)
         {
-            Debug.Log("버프 없당 으헤헤");
+            Debug.Log("버프없");
             return;
         }
 
-        character.ApplyBuff(buf.buffType, buf.buffWeight);
+        Debug.Log("버프");
+        
+        OnApplyBuff?.Invoke(buf.buffType, buf.buffWeight);
     }
 
-    
+    [Server]
+    public void IncreaseSelectBuffCount()
+    {
+        selectableBuffCount++;
+    }
+
+    [Server]
+    public void DecreaseSelectBuffCount()
+    {
+        selectableBuffCount = Mathf.Max(0, selectableBuffCount - 1);
+        
+    }
+
+    public void InvokeSelectBuffCount(int old, int newValue)
+    {
+        OnSelectBuff?.Invoke(newValue);
+    }
 }

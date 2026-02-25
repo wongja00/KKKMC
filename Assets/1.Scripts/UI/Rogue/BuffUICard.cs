@@ -21,6 +21,8 @@ public class BuffUICard : MonoBehaviour
         cardID = ID;
         BuffDataObject buf = BuffManager.Instance.buffDataDic[ID];
 
+        buf.buffDesc = buf.buffDesc.Replace("{Value}", buf.buffWeight.ToString());
+
         bufName.text = buf.buffName;
         desc.text = buf.buffDesc;
         buffType = buf.buffType;

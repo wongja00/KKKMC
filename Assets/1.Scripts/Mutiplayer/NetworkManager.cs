@@ -2,12 +2,10 @@ using UnityEngine;
 using System.Threading.Tasks;
 using Mirror;
 using Unity.Services.Authentication;
-using Unity.Services.Core;
-using Unity.Netcode.Transports.UTP;
-using kcp2k;
 using Mirror.FizzySteam;
-using UnityEditor;
 using System;
+using Unity.Netcode.Components;
+
 
 
 #if UNITY_STANDALONE_WIN || UNITY_STANDALONE_LINUX || UNITY_STANDALONE_OSX
@@ -65,9 +63,35 @@ public class NetworkManager : Mirror.NetworkManager
 
     public override void OnServerAddPlayer(NetworkConnectionToClient conn)
     {
+        base.OnServerAddPlayer(conn);
+
         //플레이어 스폰
-        GameObject player = Instantiate(origiPlayerPrefab);
-        NetworkServer.AddPlayerForConnection(conn, player);
+        //GameObject player = Instantiate(origiPlayerPrefab);
+        //NetworkServer.AddPlayerForConnection(conn, player);
+    }
+    public override void OnServerSceneChanged(string sceneName)
+    {
+        base.OnServerSceneChanged(sceneName);
+
+        if(sceneName.Contains("Dungeon"))
+        {
+            Debug.Log("던전씬 도착 완료");
+
+            SetupPlayer();
+
+            FindAnyObjectByType<DungeonGenerator>().MakeDungeon();
+        }
+    }
+
+    void SetupPlayer()
+    {
+        foreach(NetworkConnectionToClient conn in NetworkServer.connections.Values)
+        {
+            if(conn.identity != null)
+            {
+                //conn.identity.GetComponent<NetworkTransform>().Teleport(new Vector3(0,0,0),);
+            }
+        }
     }
 
     public override void OnClientConnect()

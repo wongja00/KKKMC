@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BuffDataObject
   buffID: 2
   buffName: "\uCCB4\uB825\uBC84\uD504"
-  buffDesc: "\uCCB4!!!!\uB825!!!!!\uC774!!!!\uC62C!!!\uB77C!!!!\uAC04!!!!\uB2E4!!!!!!"
+  buffDesc: "\uCCB4!!!!\uB825!!!!!({Value})\uC774!!!!\uC62C!!!\uB77C!!!!\uAC04!!!!\uB2E4!!!!!!"
   buffType: 5
   buffWeight: 100
   buffTime: 9999

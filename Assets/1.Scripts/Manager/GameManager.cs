@@ -13,6 +13,9 @@ public class GameManager : MonoBehaviour
 
     void Awake()
     {
+        Application.runInBackground = true;
+        Application.targetFrameRate = 60; // 원하는 FPS
+        
         EnemyFactory.Init(new Dictionary<EnemyType, GameObject>
         {
             {EnemyType.Melee, meleeEnemyPrefab},

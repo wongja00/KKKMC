@@ -11,7 +11,7 @@ public abstract class CharacterBase : NetworkBehaviour, ICharacter
     [SyncVar]
     public int Level = 1;
     [SyncVar]
-    public int maxExp = 0;
+    public int maxExp = 100;
     [SyncVar]
     public int curExp = 10;
 
@@ -33,6 +33,8 @@ public abstract class CharacterBase : NetworkBehaviour, ICharacter
 
     public event Action OnHpChanged;
     public event Action OnStatChanged;
+    public event Action OnGetBuffServer;
+    public event Action OnGetBuff;
 
     public CharacterBase()
     {
@@ -84,22 +86,24 @@ public abstract class CharacterBase : NetworkBehaviour, ICharacter
     [Server]
     public void ApplyBuff(BuffType buf, float Value)
     {
-        
+        Status updateStat = stat;
+
+
         switch(buf)
         {
             case BuffType.None:
             break;
             case BuffType.Agility:
-                stat.agility += (int)Value;
+                updateStat.agility += (int)Value;
             break;
             case BuffType.Strength:
-                stat.strength += (int)Value;
+                updateStat.strength += (int)Value;
             break;
             case BuffType.Defense:
-                stat.defense += (int)Value;
+                updateStat.defense += (int)Value;
             break;
             case BuffType.CritChance:
-                stat.critChance += Value;
+                updateStat.critChance += Value;
             break;
             case BuffType.Health:
                 MaxHP += Value;
@@ -109,14 +113,24 @@ public abstract class CharacterBase : NetworkBehaviour, ICharacter
                 speed += Value;
             break;
             case BuffType.CritDamage:
-                stat.critDamage += Value;
+                updateStat.critDamage += Value;
             break;
             case BuffType.AttackSpeed:
-                stat.attackSpeed += Value;
+                updateStat.attackSpeed += Value;
             break;
         }
+        stat = updateStat;
 
+        RpcOnBuff(connectionToClient, buf, Value);
+        OnGetBuffServer?.Invoke();
+    }
+
+    [TargetRpc]
+    void RpcOnBuff(NetworkConnection network,BuffType buf, float Value)
+    {
         Debug.Log($"{buf.ToString()} {Value} 버프 적용");
+
+        OnGetBuff?.Invoke();
     }
 
     private void LevelUp()
@@ -135,6 +149,7 @@ public abstract class CharacterBase : NetworkBehaviour, ICharacter
     public void OnStatChange(Status oldValue, Status newValue)
     {
         OnStatChanged?.Invoke();
+        Debug.Log($"스탯변화");
     }
 
     public bool IsAlive()

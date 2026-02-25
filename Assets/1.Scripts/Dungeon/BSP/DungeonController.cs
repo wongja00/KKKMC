@@ -135,21 +135,25 @@ public class DungeonController : NetworkBehaviour
         if(aliveEnemies <= 0)
         {
             EndCombat();
-            BuffUIOn();
-            CmdBuffUI();
+            BuffIncrease();
+            //CmdBuffUI();
         }
     }
 
     
-    [ClientRpc]
+    [Server]
     void CmdBuffUI()
     {
-        BuffUIOn();
+        //BuffIncrease();
     }
     
-    void BuffUIOn()
+    [Server]
+    void BuffIncrease()
     {
-        BuffManager.Instance.SetBuffUI(true);
+        foreach(Transform user in PlayerRegistry.Players)
+        {
+            user.GetComponentInChildren<PlayerBuffSystem>().IncreaseSelectBuffCount();
+        }
     }
 
     DoorInteractor[] FindDoorsInRoom()

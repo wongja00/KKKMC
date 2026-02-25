@@ -18,7 +18,8 @@ public class MouseLook : NetworkBehaviour
     [SerializeField]
     private Transform cameraTarget;
 
-    [SerializeField] private KeyCode menuKey = KeyCode.Escape;
+    [SerializeField] private KeyCode menuKey = KeyCode.Tab;
+    
     bool isMenu = false;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created

@@ -24,7 +24,7 @@ public class FirebaseRoomManager : MonoBehaviour
     [SerializeField] private Button hostButton; 
     [SerializeField] private Button refreshButton; 
     [SerializeField] private TMP_InputField roomNameText;
-    private int maxPlayer;
+    private int maxPlayer = 4;
     public string roomId = "";
     public string joinCode = "";
     Dictionary<string, string> roomDic = new Dictionary<string, string>();
@@ -112,7 +112,7 @@ public class FirebaseRoomManager : MonoBehaviour
          }
 
 
-        maxPlayer = 20;
+        maxPlayer = 4;
 
         if(roomId == "")
             roomId = Guid.NewGuid().ToString();
@@ -157,6 +157,7 @@ public class FirebaseRoomManager : MonoBehaviour
             CSteamID steamID = new CSteamID(ulong.Parse(roomJoinCode));
             int avatar = SteamFriends.GetLargeFriendAvatar(steamID);
 
+            //스팀 프사
             if(avatar != -1)
             {
                 uint width, height;

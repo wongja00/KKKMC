@@ -7,12 +7,16 @@ public class Player : CharacterBase
 {
     [SerializeField] PlayerMovement playerMovement;
     [SerializeField] CombatSystem combat;
+    [SerializeField] PlayerBuffSystem buffSystem;
     [SerializeField] Animator animator;
     [SerializeField] SkinnedMeshRenderer skinRederer;
     
+    //[Header("UI")]
     private PlayerHP playerHP;
+    private BuffUI buffUI;
+    private StatusUI statusUI;
 
-    [SerializeField] KeyCode skillKey1 = KeyCode.E;
+    [SerializeField] KeyCode skillKey1 = KeyCode.Alpha1;
     readonly int rimEnable = Shader.PropertyToID("_Enable");
     readonly int rimColor = Shader.PropertyToID("_RimColor");
     readonly int rimIntensity = Shader.PropertyToID("_RimIntensity");
@@ -34,9 +38,27 @@ public class Player : CharacterBase
         if(!isLocalPlayer) return;
 
         playerHP = InteractUIManager.Instance.GetHpUI();
+        buffUI = InteractUIManager.Instance.buffUI;
+        statusUI = InteractUIManager.Instance.statusUI;
+
         OnHpChanged += Hpchange;
+        OnGetBuff += buffUI.AddBuffCount;
+        OnStatChanged += OnStatChangeUI;
+
+        buffSystem.OnSelectBuff += buffUI.SetBuffSelectCount;
+        OnGetBuffServer += buffSystem.DecreaseSelectBuffCount;
         
         mpb = new MaterialPropertyBlock();
+        
+        OnApplyBuff();
+        SetStatUI();
+    }
+
+    public override void OnStartServer()
+    {
+        base.OnStartServer();
+
+        buffSystem.OnApplyBuff += ApplyBuff;
     }
 
     // Update is called once per frame
@@ -56,6 +78,50 @@ public class Player : CharacterBase
         {
             Interactcmd();
         }
+    }
+
+    void SetStatUI()
+    {
+        // Status 구조체의 각 멤버를 StatusUI에 카드로 추가
+        statusUI.statDic.Clear();
+
+        statusUI.AddCards("레벨", Level);
+        statusUI.AddCards("현재 경험치", curExp);
+        statusUI.AddCards("최대 경험치", maxExp);
+        statusUI.AddCards("현재 체력", (int)CurHP);
+        statusUI.AddCards("최대 체력", (int)CurHP);
+        statusUI.AddCards("속도", (int)speed);
+
+        statusUI.AddCards("힘", stat.strength);
+        statusUI.AddCards("민첩", stat.agility);
+        statusUI.AddCards("지능", stat.intelligence);
+        statusUI.AddCards("방어력", stat.defense);
+        statusUI.AddCards("치명타 확률(%)", (int)(stat.critChance*100));
+        statusUI.AddCards("치명타 데미지(%)", (int)(stat.critDamage*100));
+        statusUI.AddCards("공격 속도", (int)stat.attackSpeed);
+        
+        statusUI.DisableOriginCard();
+    }
+
+    void OnStatChangeUI()
+    {
+        statusUI.statDic["힘"].SetValue(stat.strength);
+        statusUI.statDic["민첩"].SetValue(stat.agility);
+        statusUI.statDic["지능"].SetValue(stat.intelligence);
+        statusUI.statDic["방어력"].SetValue(stat.defense);
+        statusUI.statDic["치명타 확률(%)"].SetValue( (int)(stat.critChance*100));
+        statusUI.statDic["치명타 데미지(%)"].SetValue((int)(stat.critDamage*100));
+        statusUI.statDic["공격 속도"].SetValue((int)stat.attackSpeed);
+    }
+
+    void UpdateStatusUI(String statName, int Value)
+    {
+        statusUI.statDic[statName].SetValue(Value);
+    }
+
+    [Command]
+    void OnApplyBuff()
+    {
     }
 
     void OnEnable()
@@ -153,6 +219,9 @@ public class Player : CharacterBase
     void Hpchange()
     {
         playerHP.SetHPImage(CurHP, MaxHP);
+
+        statusUI.statDic["현재 체력"].SetValue((int)CurHP);
+        statusUI.statDic["최대 체력"].SetValue((int)MaxHP);
     }
 
 }

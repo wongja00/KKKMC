@@ -9,8 +9,8 @@ public class RoundManager : NetworkBehaviour
     
     [SerializeField]
     private DungeonGenerator dungeonGenerator;
+    private RoundUI roundUI;
 
-    private int curRound = 0;
     private int maxRoom = 0;
 
     //[SyncVar]
@@ -22,6 +22,8 @@ public class RoundManager : NetworkBehaviour
         {
             Instance = this;
         }
+
+        roundUI = InteractUIManager.Instance.roundUI;
     }
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -36,10 +38,10 @@ public class RoundManager : NetworkBehaviour
         
     }
 
+    [ClientRpc]
     public void StartRound()
     {
-        curRound++;
-        
+        roundUI.AddRoundCount();
     }
 
     public void EndRound()
@@ -128,9 +130,11 @@ public class RoundManager : NetworkBehaviour
         dungeonGenerator.wasSeeding = false;
 
         
-        yield return new WaitForSeconds(3f);
+        yield return new WaitForSeconds(2f);
                 
         StartCoroutine(MakeDugeon());
+
+        StartRound();
         yield return null;
     }
 }
