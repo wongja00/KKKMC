@@ -3761,6 +3761,8 @@ GameObject:
   - component: {fileID: 1155768735229393497}
   - component: {fileID: 5031148008645423482}
   - component: {fileID: 4925968568450814439}
+  - component: {fileID: 8563814373581709079}
+  - component: {fileID: 8430444843888778113}
   m_Layer: 16
   m_Name: TheSoulGeneral
   m_TagString: Untagged
@@ -3887,6 +3889,8 @@ MonoBehaviour:
     critDamage: 0
   speed: 5
   isDead: 0
+  isHitStun: 0
+  stunDuration: 1
   animator: {fileID: 5843822830080126947}
   detectRange: 30
   stopDistance: 1.5
@@ -3937,6 +3941,7 @@ MonoBehaviour:
   - rid: 2417628716476662040
   - rid: 2417628732088385696
   - rid: 2417628762314899697
+  - rid: 55291222924198155
   m_OriginalGraph: {fileID: 0}
   m_IsInitialised: 0
   m_IsStarted: 0
@@ -3944,6 +3949,14 @@ MonoBehaviour:
   references:
     version: 2
     RefIds:
+    - rid: 55291222924198155
+      type: {class: 'BlackboardVariable`1[[Enemy, Assembly-CSharp]]', ns: Unity.Behavior, asm: Unity.Behavior}
+      data:
+        GUID:
+          m_Value0: 5558656641483422290
+          m_Value1: 17749645132175564815
+        Name: AgentCharacter
+        m_Value: {fileID: 7223181532108767671}
     - rid: 2417628713732538606
       type: {class: 'BlackboardVariable`1[[UnityEngine.GameObject, UnityEngine.CoreModule]]', ns: Unity.Behavior, asm: Unity.Behavior}
       data:
@@ -4042,6 +4055,63 @@ CapsuleCollider:
   m_Height: 1.6975658
   m_Direction: 1
   m_Center: {x: 0, y: 0.8673232, z: -0.029421931}
+--- !u!114 &8563814373581709079
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9195384841540127689}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d967244a24f27a544a6e841031cfd279, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HitFlash
+  characterMat: {fileID: 0}
+  character: {fileID: 7223181532108767671}
+  flashDuration: 0.25
+  flashColor: {r: 1, g: 1, b: 1, a: 1}
+  colorProperty: _HitColor
+--- !u!114 &8430444843888778113
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9195384841540127689}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 526964c87b51ef04d86b401d793c1aef, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::KnockBack
+  syncDirection: 0
+  syncMode: 0
+  syncInterval: 0
+  knockBackCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: -2.9984474
+      outSlope: -2.9984474
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0.063376516
+    - serializedVersion: 3
+      time: 0.9928289
+      value: 0.010051824
+      inSlope: -0.22654416
+      outSlope: -0.22654416
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.17445233
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  characterBase: {fileID: 7223181532108767671}
 --- !u!1001 &6937701613757011566
 PrefabInstance:
   m_ObjectHideFlags: 0

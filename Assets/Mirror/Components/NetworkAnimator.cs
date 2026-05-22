@@ -91,7 +91,7 @@ namespace Mirror
         // fix https://github.com/MirrorNetworking/Mirror/issues/2810
         // both Awake and Enable need to initialize arrays.
         // in case users call SetActive(false) -> SetActive(true).
-        void Awake() => Initialize();
+        virtual protected void Awake() => Initialize();
         void OnEnable() => Initialize();
 
         public virtual void Reset()

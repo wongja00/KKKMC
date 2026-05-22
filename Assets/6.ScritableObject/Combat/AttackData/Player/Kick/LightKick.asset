@@ -10,17 +10,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 616745b868352004db1fd060ffdb4459, type: 3}
-  m_Name: DefAttack
+  m_Name: LightKick
   m_EditorClassIdentifier: Assembly-CSharp::AttackData
   attackName: Attack
   attackID: 0
-  animationClip: {fileID: 8456185703765157504, guid: d98044a64183bda4990be8eceb00a482, type: 3}
-  animationSpeed: 1.58
+  animationClip: {fileID: 426716804575868071, guid: b3146b291aa8c8b43a9c3c6181528153, type: 3}
+  animationSpeed: 1
   hitBoxTimes:
-  - start: 0.623
-    end: 0.833
+  - start: 0.34
+    end: 0.461
   damage: 10
-  distance: 10
+  distance: 2
   knockbackForce: 1
   hitboxOffset: {x: 0, y: 0, z: 0}
   hitboxSize: {x: 1, y: 1, z: 1}
@@ -33,4 +33,9 @@ MonoBehaviour:
   canMoveDuringAttack: 0
   canRotateDuringAttack: 0
   movementSpeedMultiplier: 0.5
-  canChainTo: 02000000
+  forwardMovementOnAttack: 1
+  canChainTo: 
+  effectPrefabs:
+  - prefab: {fileID: 7482112100206156711, guid: 9384e107965461047a8449131033b7c8, type: 3}
+    part: 3
+    effectName: KickEff

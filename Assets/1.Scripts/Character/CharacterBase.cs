@@ -30,11 +30,19 @@ public abstract class CharacterBase : NetworkBehaviour, ICharacter
     public float speed = 5f;
     [SyncVar]
     public bool isDead = false;
+    [SyncVar]
+    public bool isHitStun= false;
+    [SyncVar]
+    public float stunDuration= 1f;
 
     public event Action OnHpChanged;
+    public event Action OnHpDecrease;
     public event Action OnStatChanged;
     public event Action OnGetBuffServer;
     public event Action OnGetBuff;
+    public event Action<Vector3, float, float> OnKnockback;
+
+    public event Action<float> OnStun;
 
     public CharacterBase()
     {
@@ -71,8 +79,10 @@ public abstract class CharacterBase : NetworkBehaviour, ICharacter
     {
         int finalDamage = damage - stat.defense;
 
+        isHitStun = true;
+
         //최소 뎀
-        if(finalDamage < 1) finalDamage = 1;
+        if (finalDamage < 1) finalDamage = 1;
 
         CurHP -= finalDamage;
 
@@ -84,10 +94,31 @@ public abstract class CharacterBase : NetworkBehaviour, ICharacter
     }
 
     [Server]
+    virtual public void HitStun(float duration)
+    {
+        //if(isHitStun) return;
+
+        stunDuration = duration;
+        OnStun?.Invoke(stunDuration);
+
+        Debug.Log(stunDuration + "초 스턴");
+    }
+
+    [Server]
+    virtual public void CmdKnockback(Vector3 attackPos, float distance, float duration)
+    {
+        OnKnockback?.Invoke(attackPos, distance, duration);
+    }
+
+    virtual public void Die()
+    {
+
+    }
+
+    [Server]
     public void ApplyBuff(BuffType buf, float Value)
     {
         Status updateStat = stat;
-
 
         switch(buf)
         {
@@ -121,12 +152,12 @@ public abstract class CharacterBase : NetworkBehaviour, ICharacter
         }
         stat = updateStat;
 
-        RpcOnBuff(connectionToClient, buf, Value);
+        TargetRpcOnBuff(connectionToClient, buf, Value);
         OnGetBuffServer?.Invoke();
     }
 
     [TargetRpc]
-    void RpcOnBuff(NetworkConnection network,BuffType buf, float Value)
+    void TargetRpcOnBuff(NetworkConnection network,BuffType buf, float Value)
     {
         Debug.Log($"{buf.ToString()} {Value} 버프 적용");
 
@@ -143,6 +174,11 @@ public abstract class CharacterBase : NetworkBehaviour, ICharacter
 
     public void OnHpChange(float oldValue, float newValue)
     {
+        if(newValue < oldValue)
+        {
+        }
+
+            OnHpDecrease?.Invoke();
         OnHpChanged?.Invoke();
     }
 

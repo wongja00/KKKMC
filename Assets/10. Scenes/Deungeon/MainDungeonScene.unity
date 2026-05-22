@@ -798,9 +798,9 @@ MonoBehaviour:
   restoreLightsAfterDebug: 0
   toggleMapKey: 109
   startLightColor: {r: 1, g: 1, b: 1, a: 1}
-  mainLength: 3
-  branchLength: 1
-  numBranches: 1
+  mainLength: 8
+  branchLength: 3
+  numBranches: 3
   doorPercent: 100
   constructionDelay: 0.038
   roomPrefabs:
@@ -2504,7 +2504,7 @@ MonoBehaviour:
       serializedVersion: 2
       m_Bits: 131073
     IgnoreTag: 
-    CameraRadius: 0.2
+    CameraRadius: 0.001
     DampingIntoCollision: 0
     DampingFromCollision: 0.5
 --- !u!114 &332198260
@@ -9063,7 +9063,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1085405394}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 695f63b91251685489f7d6f076134747, type: 3}
   m_Name: 
@@ -9071,7 +9071,7 @@ MonoBehaviour:
   dontDestroyOnLoad: 1
   runInBackground: 1
   headlessStartMode: 0
-  editorAutoStart: 0
+  editorAutoStart: 1
   sendRate: 60
   offlineScene: 
   onlineScene: 
@@ -9082,7 +9082,7 @@ MonoBehaviour:
   disconnectInactiveConnections: 0
   disconnectInactiveTimeout: 60
   authenticator: {fileID: 0}
-  playerPrefab: {fileID: 4641755532622999874, guid: e4c60ba1742245243936798b1c22fce6, type: 3}
+  playerPrefab: {fileID: 0}
   autoCreatePlayer: 1
   playerSpawnMethod: 0
   spawnPrefabs:
@@ -9119,12 +9119,15 @@ MonoBehaviour:
   evaluationInterval: 3
   timeInterpolationGui: 0
   isSteam: 0
-  origiPlayerPrefab: {fileID: 4641755532622999874, guid: e4c60ba1742245243936798b1c22fce6, type: 3}
+  steamMatchMaker: {fileID: 0}
+  playerInfos: []
   fizzySteamworks: {fileID: 0}
   dungeonGenerator: {fileID: 0}
   ConnectionID: 0
   PlayerNumber: 0
   PlayerSteamID: 0
+  characterChoiceUI: {fileID: 0}
+  curCharacterID: -1
 --- !u!114 &1085405397
 MonoBehaviour:
   m_ObjectHideFlags: 0

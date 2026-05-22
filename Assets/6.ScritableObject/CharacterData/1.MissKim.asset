@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 304c961735a08df4a98f9aff864c0e36, type: 3}
+  m_Name: 1.MissKim
+  m_EditorClassIdentifier: Assembly-CSharp::CharacterInfo
+  ID: 1
+  status:
+    strength: 1
+    defense: 1
+    agility: 1
+    intelligence: 1
+    attackSpeed: 1
+    critChance: 1
+    critDamage: 1
+  thumnail: {fileID: 21300000, guid: 55dca9accb674134d982dc9d69c3f144, type: 3}
+  characterName: "\uBBF8\uC2A4\uD0B4"
+  desc: "\uBBF8\uC2A4\uD0B4\uC774\uB2E4."
+  prefab: {fileID: 9178547669144678576, guid: f9d9862429ed3124090705acbb04c5a5, type: 3}

@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 304c961735a08df4a98f9aff864c0e36, type: 3}
+  m_Name: "21.\uB0A8\uC591"
+  m_EditorClassIdentifier: Assembly-CSharp::CharacterInfo
+  ID: 21
+  status:
+    strength: 9
+    defense: 17
+    agility: 12
+    intelligence: 16
+    attackSpeed: 1.47
+    critChance: 0.69
+    critDamage: 1.65
+  thumnail: {fileID: 21300000, guid: 236a123a10fa71e4ca9d02120b284b45, type: 3}
+  characterName: "\uB0A8\uC591"
+  desc: "\uB0A8\uC591\uC774\uB2E4. \uAC1C\uCA4C\uB294 \uBB34\uC218\uC2E4\uB825\uC744
+    \uC9C0\uB2C8\uACE0 \uC788\uB2E4."
+  prefab: {fileID: 5497248699276762136, guid: d928ac71604c28a43b6aeba9691a46e3, type: 3}

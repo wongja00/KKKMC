@@ -41,6 +41,8 @@ public class PlayerBuffSystem : NetworkBehaviour
         
     }
 
+    public int GetselectableBuffCount(){return selectableBuffCount;}
+
     public void InvokeSelectBuffCount(int old, int newValue)
     {
         OnSelectBuff?.Invoke(newValue);

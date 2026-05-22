@@ -67,6 +67,7 @@ public class RoundManager : NetworkBehaviour
             if(curRoom >= maxRoom)
             {
                 StartCoroutine(ClearAndMakeDungeon());
+                curRoom = 0;
             }
         }
     }

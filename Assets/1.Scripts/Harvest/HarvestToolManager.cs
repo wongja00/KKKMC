@@ -15,13 +15,13 @@ public class HarvestToolManager : MonoBehaviour
         if(instance == null)
         {
             instance = this;
-        }
 
-        foreach(HarvestToolDataContainer container in containers)
-        {
-            foreach(HarvestToolData data in container.datas)
+            foreach(HarvestToolDataContainer container in containers)
             {
-                harvestToolDic.Add(data.toolID, data);
+                foreach(HarvestToolData data in container.datas)
+                {
+                    harvestToolDic.TryAdd(data.toolID, data);
+                }
             }
         }
 

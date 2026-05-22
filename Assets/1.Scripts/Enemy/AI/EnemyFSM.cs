@@ -32,6 +32,8 @@ public class EnemyFSM : NetworkBehaviour
     public void StopGraph()
     {
         behaviorGraphAgent.enabled = false;
+
+        
     }
 
     public void SetHP(float hp)

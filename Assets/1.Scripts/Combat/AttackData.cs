@@ -48,6 +48,9 @@ public class AttackData : ScriptableObject
     [Header("콤보 연결")]
     public List<int> canChainTo = new List<int>();//연결 가능한 공격ID들
 
+    [Header("이펙트들")]
+    public List<CharacterEffect> effectPrefabs = new List<CharacterEffect>();//이펙트들
+
 }
 
 
@@ -55,7 +58,7 @@ public class AttackData : ScriptableObject
 public class AttackEvent
 {
     public string eventName;
-    public float triggerTime; // 애니메이션 시작 후 몇 초에 발생
+    [Range(0f, 1f)] public float triggerTime; // 애니메이션 시작 후 몇 초에 발생(0~1정규화하는게 좋을듯)
     public AttackEventType eventType;
     public Vector3 position;
     public Vector3 rotation;
@@ -71,6 +74,14 @@ public class HitBoxWindow
 {
     [Range(0f, 1f)] public float start = 0.1f;
     [Range(0f, 1f)] public float end = 0.2f;
+}
+
+[Serializable]
+public class CharacterEffect
+{
+    public GameObject prefab;
+    public EffectSocketPart part;
+    public string effectName;
 }
 
 public enum AttackEventType

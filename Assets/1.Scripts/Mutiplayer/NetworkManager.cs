@@ -5,6 +5,8 @@ using Unity.Services.Authentication;
 using Mirror.FizzySteam;
 using System;
 using Unity.Netcode.Components;
+using System.Collections.Generic;
+
 
 
 
@@ -17,8 +19,13 @@ public class NetworkManager : Mirror.NetworkManager
 {
     [Header("스팀 할겨?")]
     public bool isSteam = false;
-    [Header("플레이어 프리팹")]
-    [SerializeField] private GameObject origiPlayerPrefab;
+
+    [Header("스팀 매치메이킹")]
+    public SteamMatchMaking steamMatchMaker;
+    
+    [Header("플레이어 프리팹 리스트")]
+    [SerializeField] private CharacterInfo[] playerInfos;
+    private Dictionary<int, GameObject> playerPrefabDic = new Dictionary<int, GameObject>();
 
     public static NetworkManager instance;
     private bool isInitialized = false;
@@ -33,28 +40,52 @@ public class NetworkManager : Mirror.NetworkManager
 
     public event Action OnPlayerJoin;
 
+    [Header("캐릭터선택창")]
+    [SerializeField] private GameObject characterChoiceUI;
+    
+    //클라이언트 캐릭터 ID
+    [SerializeField]private int curCharacterID = -1;
+    public event Action<int> OnClientSceneChangedEvent;
+    public event Action<string> OnServerSceneChangedEvent;
+
+    public Dictionary<NetworkConnectionToClient, int> playersID = new Dictionary<NetworkConnectionToClient, int>();
+
     public override void Awake() 
     {
         if(instance == null)
         {
             instance = this;
         }
+        else
+        {
+            //Destroy(this.gameObject);
+        }
 
-    #if UNITY_STANDALONE_WIN || UNITY_STANDALONE_LINUX || UNITY_STANDALONE_OSX
-    if(fizzySteamworks == null)
-    {
-        fizzySteamworks = GetComponent<FizzySteamworks>();
-    }
+        foreach(CharacterInfo info in playerInfos)
+        {
+            playerPrefabDic.Add(info.ID, info.prefab);
+        }
 
-    if(!SteamManager.Initialized)
-    {
-        Debug.Log("[네트워크 매니저]: 스팀이 초기화 돼지 않음");
-    }
-    else
-    {
-        Debug.Log($"[네트워크 매니저]: 스팀이 초기화 완료 스팀아디: {SteamUser.GetSteamID()}");
-    }
-    #endif
+        if(playerInfos.Length > 0)
+        {
+            characterChoiceUI.GetComponent<PlayerChoiceUI>().SetCards(playerInfos);
+        }
+
+        #if UNITY_STANDALONE_WIN || UNITY_STANDALONE_LINUX || UNITY_STANDALONE_OSX
+        if(fizzySteamworks == null)
+        {
+            fizzySteamworks = GetComponent<FizzySteamworks>();
+        }
+
+        if(!SteamManager.Initialized)
+        {
+            Debug.Log("[네트워크 매니저]: 스팀이 초기화 돼지 않음");
+        }
+        else
+        {
+            Debug.Log($"[네트워크 매니저]: 스팀이 초기화 완료 스팀아디: {SteamUser.GetSteamID()}");
+        }
+        #endif
 
         
         // 씬이 넘어가도 객체가 파괴되지 않도록 함
@@ -65,39 +96,26 @@ public class NetworkManager : Mirror.NetworkManager
     {
         base.OnServerAddPlayer(conn);
 
-        //플레이어 스폰
-        //GameObject player = Instantiate(origiPlayerPrefab);
-        //NetworkServer.AddPlayerForConnection(conn, player);
+
     }
-    public override void OnServerSceneChanged(string sceneName)
+
+    public override void OnStartClient()
     {
-        base.OnServerSceneChanged(sceneName);
+        base.OnStartClient();
 
-        if(sceneName.Contains("Dungeon"))
-        {
-            Debug.Log("던전씬 도착 완료");
-
-            SetupPlayer();
-
-            FindAnyObjectByType<DungeonGenerator>().MakeDungeon();
-        }
+        if(characterChoiceUI != null) characterChoiceUI.SetActive(true);
     }
 
-    void SetupPlayer()
+    public override void OnServerConnect(NetworkConnectionToClient conn)
     {
-        foreach(NetworkConnectionToClient conn in NetworkServer.connections.Values)
-        {
-            if(conn.identity != null)
-            {
-                //conn.identity.GetComponent<NetworkTransform>().Teleport(new Vector3(0,0,0),);
-            }
-        }
-    }
+        playersID.Add(conn, -1);
 
+    }
+    
     public override void OnClientConnect()
     {
         base.OnClientConnect();
-        Debug.Log("클라이언트 연결됨");
+        
         OnPlayerJoin?.Invoke();
     }
 
@@ -105,6 +123,117 @@ public class NetworkManager : Mirror.NetworkManager
     {
         base.OnStartServer();
     }
+
+    public override void OnClientChangeScene(string newSceneName, SceneOperation sceneOperation, bool customHandling)
+    {
+        base.OnClientChangeScene(newSceneName, sceneOperation, customHandling);
+
+    }
+
+    public override void OnServerSceneChanged(string newSceneName)
+    {
+        base.OnServerSceneChanged(newSceneName);
+
+        GeneratedDungeon(newSceneName);
+    }
+
+    private void GeneratedDungeon(string sceneName)
+    {
+        if(sceneName.Contains("Dungeon"))
+        {
+            Debug.Log("던전씬 도착 완료");
+
+            SetupPlayer();
+
+            FindAnyObjectByType<DungeonGenerator>().MakeDungeon();
+
+
+        }
+    }
+
+    public override void OnServerReady(NetworkConnectionToClient conn)
+    {
+        base.OnServerReady(conn);
+
+
+        // 캐릭터 ID가 저장되어 있는지 확인 (딕셔너리 사용)
+        if (playersID.TryGetValue(conn, out int selectedID))
+        {
+            // 이미 플레이어 객체가 붙어있는지 확인 (중복 에러 방지)
+            if (conn.identity == null)
+            {
+                CharacterSpawn(selectedID, conn);
+            }
+            else
+            {
+                NetworkServer.Destroy(conn.identity.gameObject);
+                CharacterReplace(selectedID, conn);
+                
+            }
+        }
+    }
+
+
+
+    void SetupPlayer()
+    {
+        foreach(NetworkConnectionToClient conn in NetworkServer.connections.Values)
+        {
+            if(conn.identity != null)
+            {
+            }
+        }
+    }
+
+    public void CharacterSpawn(int ID, NetworkConnectionToClient conn)
+    {
+        if(playerPrefabDic.TryGetValue(ID, out GameObject value))
+        {
+            GameObject player = Instantiate(playerPrefabDic[ID].gameObject);
+            //player.GetComponent<NetworkTransform>().Teleport(Vector3.zero, Quaternion.identity, Vector3.one);
+
+            NetworkServer.AddPlayerForConnection(conn, player);
+        }
+        else
+        {
+            GameObject player = Instantiate(playerPrefab);
+            //player.GetComponent<NetworkTransform>().Teleport(Vector3.zero, Quaternion.identity, Vector3.one);
+            
+
+            NetworkServer.AddPlayerForConnection(conn, player);
+
+            Debug.Log("캐릭 생성");
+        }
+    }
+
+    public void CharacterReplace(int ID, NetworkConnectionToClient conn)
+    {
+        GameObject player = Instantiate(playerPrefabDic[ID].gameObject);
+
+        ReplacePlayerOptions options = new ReplacePlayerOptions();
+        
+
+        NetworkServer.ReplacePlayerForConnection(conn, player, options);
+        player.transform.Translate(new Vector3(0,2,0));
+
+        playersID[conn] = ID;
+    }
+    
+    public void SetCurCharacterID(int ID)
+    {
+        curCharacterID = ID;
+    }
+
+    public int GetCurCharacterName()
+    {
+        return curCharacterID;
+    }
+
+    public void CloseChoiceUI()
+    {
+        characterChoiceUI.SetActive(false);
+    }
+
 
     async public override void OnClientDisconnect()
     {

@@ -1,12 +1,12 @@
-using UnityEngine;
+using Mirror;
+using RPGCharacterAnims.Actions;
+using System;
 using System.Collections;
 using System.Collections.Generic;
-using System;
-using UnityEditor;
-using UnityEngine.Playables;
-using UnityEngine.Animations;
-using Mirror;
+using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.Animations;
+using UnityEngine.Playables;
 
 public class EnemyCombatSystem : NetworkBehaviour
 {
@@ -64,6 +64,8 @@ public class EnemyCombatSystem : NetworkBehaviour
                 attackDictionary[attack.attackID] = attack;
             }
         }
+
+        character.OnStun += GetStun;
 
     }
 
@@ -188,7 +190,7 @@ public class EnemyCombatSystem : NetworkBehaviour
 
         playableOutput = AnimationPlayableOutput.Create(playableGraph, "Anim", animator);
         playableOutput.SetSourcePlayable(curPlayable);
-
+   
         playableGraph.Play();
     }
 
@@ -363,5 +365,47 @@ public class EnemyCombatSystem : NetworkBehaviour
         int randomIndex = UnityEngine.Random.Range(0, keys.Count);
         return keys[randomIndex];
     }
+
+    [Server]
+    public void GetStun(float duration)
+    {
+        if(isAttacking)
+        {
+            //StopCoroutine(currentAttackCoroutine);
+            //StopCoroutine(currentDamageCoroutine);
+            //EndAttack();
+        }
+
+        StartCoroutine(GetStunAnim(duration));
+
+    }
+
+    [Server]
+    IEnumerator GetStunAnim(float duration)
+    {
+        if(animator != null)
+        {
+            SetStunAnim(0);
+        }
+
+        yield return new WaitForSeconds(duration);
+
+        if(animator != null)
+        {
+            SetStunAnim(currentAttack.animationSpeed);
+        }
+
+        character.isHitStun = false;
+    }
+
+    [ClientRpc]
+    public void SetStunAnim(float speed)
+    {
+        animator.speed = speed > 0 ? 1 : 0;
+
+        if(curPlayable.IsValid())
+            curPlayable.SetSpeed(speed);
+    }
+
 
 }

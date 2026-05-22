@@ -6,6 +6,7 @@ using UnityEditor;
 using UnityEngine.Playables;
 using UnityEngine.Animations;
 using Mirror;
+using System.Linq;
 
 public class CombatSystem : NetworkBehaviour
 {
@@ -19,6 +20,7 @@ public class CombatSystem : NetworkBehaviour
     public AnimationClipPlayable curPlayable;
     public CharacterBase character;
     public Transform hitboxOrigin; //히트박스 기준점
+    public CharacterEffectHandler characterEffectHandler;
 
     [Header("콤보 데이터")]
     public List<AttackData> availableAttacks = new List<AttackData>();
@@ -61,10 +63,19 @@ public class CombatSystem : NetworkBehaviour
     private HashSet<CharacterBase> hitEnemies = new HashSet<CharacterBase>();
     
     public event Action<AttackEvent> OnCustomEvent;
+    public event Action<GameObject, EffectSocketPart, string> OnEffectFind;
+
+    float atkDistance = 0;
+
+    void Awake()
+    {
+        
+    }
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        if(animator == null) animator = transform.parent.GetComponentInChildren<PlayerModel>().animator;
         if(!isLocalPlayer) return;
 
         //공격 데이터를 딕셔너리로 변환(빠른 검색)
@@ -73,6 +84,13 @@ public class CombatSystem : NetworkBehaviour
             if(attack != null)
             {
                 attackDictionary[attack.attackID] = attack;
+                
+                foreach(CharacterEffect effect in attack.effectPrefabs)
+                {
+                    if(effect.prefab == null) continue;
+
+                    OnEffectFind?.Invoke(effect.prefab, effect.part, effect.effectName);
+                }
             }
         }
     }
@@ -282,6 +300,9 @@ public class CombatSystem : NetworkBehaviour
         //입력 가능 시간 시작
         canReceiveInput = true;
 
+        //적방향으로 회전
+        RotateEnemyDirection(attack.attackID);
+
         //판정 시작
         currentDamageCoroutine = StartCoroutine(DamageWindowCoroutine(attack.attackID));
 
@@ -317,6 +338,7 @@ public class CombatSystem : NetworkBehaviour
     IEnumerator DamageWindowCoroutine(int attackID)
     {
         float elapsed = 0f;
+        double lastNormalTime = 0f;
 
         AttackData attack = attackDictionary[attackID];
 
@@ -328,7 +350,7 @@ public class CombatSystem : NetworkBehaviour
             {
                 var window = attack.hitBoxTimes[i];
 
-                if(normalTime >= window.start && window.end >= normalTime)
+                if(normalTime >= window.start && window.end >= lastNormalTime)
                 {
                     if(firedHitWindows.Contains(i)) continue;
 
@@ -337,6 +359,7 @@ public class CombatSystem : NetworkBehaviour
                 }
             }
             
+            lastNormalTime = normalTime;
             elapsed += Time.deltaTime;
             yield return null;
         }
@@ -346,7 +369,10 @@ public class CombatSystem : NetworkBehaviour
     void OnDrawGizmos()
     {
         foreach(CharacterBase en in hitEnemies)
-            Gizmos.DrawLine(transform.position, en.transform.position);       
+            Gizmos.DrawLine(transform.position, en.transform.position);    
+
+        if(isAttacking)
+            Gizmos.DrawWireSphere(playerTransform.position, atkDistance);   
     }
 
     [Server]
@@ -354,28 +380,20 @@ public class CombatSystem : NetworkBehaviour
     {
         AttackData attack = attackDictionary[attackID];
 
-        Vector3 hitboxPos = transform.position + hitboxOrigin.TransformDirection(attack.hitboxOffset);
-
         Collider[] hits = Physics.OverlapSphere(playerTransform.position, attack.distance, attack.hitLayerMask);
 
-        float closest = float.MaxValue;
-
         foreach(var hit in hits)
         {
-            float dist = Vector3.Distance(playerTransform.position, hit.transform.position);
-
-            if(closest > dist)
-                closest = dist;
-        }
-
-        foreach(var hit in hits)
-        {
+            if (hit.transform == transform.parent)
+            {
+                continue;
+            }
             // 공격대상(hit)이 내 앞에 있을 때만 판정 (playerTransform.forward 기준)
             Vector3 toTarget = (hit.transform.position - playerTransform.position).normalized;
             float forwardDot = Vector3.Dot(playerTransform.forward, toTarget);
             if(forwardDot < 0.3f)
             {
-                continue; // 앞에 있지 않으면 맞지 않음
+                //continue; // 앞에 있지 않으면 맞지 않음
             }
             CharacterBase target = hit.GetComponentInParent<CharacterBase>();
 
@@ -385,6 +403,16 @@ public class CombatSystem : NetworkBehaviour
 
             //데미지 처리 
             target.TakeDamage((int)attack.damage + character.stat.strength);
+
+            foreach(CharacterEffect effect in attack.effectPrefabs)
+            {
+                characterEffectHandler.EffectPlay(effect.part, effect.effectName);
+                Debug.Log($"이펙트 재생: {effect.effectName} on {target.name} at {effect.part}");
+            }
+
+            target.HitStun(0.25f);
+            target.CmdKnockback(playerTransform.position, 0.5f, 0.3f);
+
             Debug.Log($"피해자{target.name}, 공격{attack.attackName}");
 
             //넉백
@@ -396,6 +424,70 @@ public class CombatSystem : NetworkBehaviour
             }
 
             OnHitEnemy();
+        }
+    }
+
+    void RotateEnemyDirection(int attackID)
+    {
+        AttackData attack = attackDictionary[attackID];
+
+        Vector3 hitboxPos = transform.position + hitboxOrigin.TransformDirection(attack.hitboxOffset);
+
+        Collider[] hits = Physics.OverlapSphere(playerTransform.position, attack.distance, attack.hitLayerMask);
+        atkDistance = attack.distance;
+
+        float closest = float.MaxValue;
+        
+        Vector3 closestPoint = Vector3.one;
+        GameObject tar1 = null;
+
+        float stepDist = attack.forwardMovementOnAttack;
+
+        foreach(var hit in hits)
+        {
+            if (hit.transform == transform.parent)
+            {
+                continue;
+            }
+
+            float dist = Vector3.Distance(playerTransform.position, hit.transform.position);
+
+            if(closest > dist)
+            {
+                closest = dist;
+                closestPoint = hit.transform.position;
+                tar1 = hit.transform.gameObject;
+            }
+        }
+
+        if(hits.Length > 0 && closestPoint != transform.parent.position && tar1 != null)
+        {
+            Vector3 lookPoint = closestPoint - transform.position;
+            playerMovement.RotateToAttack(lookPoint);
+
+            float closedist = Vector3.Distance(playerTransform.position, closestPoint);
+
+            stepDist = Mathf.Clamp(closedist - attack.distance, 0, attack.forwardMovementOnAttack);
+        }
+
+        tar1 = null;
+        closest = 0;
+        closestPoint = Vector3.zero;
+        StepFowardToEnemy(stepDist);
+
+        
+    }
+
+    //적을 향해 전진(캐릭터 기준 어차피 회전하니까)스텝(적과의 거리가 일정할떄만)
+    void StepFowardToEnemy(float dist)
+    {
+        // 플레이어의 forward 방향을 기준으로 dist만큼 위치를 이동
+        if (playerMovement != null && playerTransform != null)
+        {
+            Vector3 forward = playerTransform.forward;
+            Vector3 move = playerTransform.position + forward.normalized * dist;
+
+            playerMovement.StepToAttack(move);
         }
     }
 

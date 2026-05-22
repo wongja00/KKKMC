@@ -112,7 +112,7 @@ public class HandHeld : NetworkBehaviour
 
     void ShowCurItem()
     {
-        if(!isLocalPlayer) return;
+        if(!isLocalPlayer || rightHandIK == null || leftHandIK == null) return;
 
         if(curObjectItem != null)
         {

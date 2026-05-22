@@ -33,8 +33,23 @@ public class Player : CharacterBase
     public LayerMask layer;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+
+    void Awake()
     {
+
+    }
+    void Start()
+    {        
+        if(animator == null)
+        {
+            animator = GetComponentInChildren<PlayerModel>().animator;
+        }
+
+        if(skinRederer == null)
+        {
+            skinRederer = GetComponentInChildren<PlayerModel>().meshRenderer;
+        }
+        
         if(!isLocalPlayer) return;
 
         playerHP = InteractUIManager.Instance.GetHpUI();
@@ -58,8 +73,17 @@ public class Player : CharacterBase
     {
         base.OnStartServer();
 
-        buffSystem.OnApplyBuff += ApplyBuff;
+        buffSystem.OnApplyBuff += (BuffType type, float value)=>{if(buffSystem.GetselectableBuffCount() > 0)ApplyBuff(type, value);};
     }
+
+    public override void OnStartClient()
+    {
+        base.OnStartClient();
+
+        //NetworkManager.instance.OnClientSceneChangedEvent += CmdReplaceCharacter;
+    }
+
+    
 
     // Update is called once per frame
     void Update()
@@ -224,4 +248,24 @@ public class Player : CharacterBase
         statusUI.statDic["최대 체력"].SetValue((int)MaxHP);
     }
 
+
+    [Command]
+    public void CmdReplaceCharacter(int ID)
+    {
+        
+        NetworkManager.instance.CharacterReplace(ID, connectionToClient);
+        TargetCloseChoiceUI(connectionToClient);
+        TargetSetCurCharacterID(connectionToClient, ID);
+    } 
+    [TargetRpc]
+    void TargetCloseChoiceUI(NetworkConnection network)
+    {
+        NetworkManager.instance.CloseChoiceUI();
+    }
+    
+    [TargetRpc]
+    void TargetSetCurCharacterID(NetworkConnectionToClient conn, int ID)
+    {
+        NetworkManager.instance.SetCurCharacterID(ID);
+    }
 }

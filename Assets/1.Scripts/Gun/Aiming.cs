@@ -17,9 +17,19 @@ public class Aiming : NetworkBehaviour
     [SerializeField] private LayerMask aimLayerMask;
     public GunBase curGun;
 
+    void Awake()
+    {
+
+    }
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        if(animator == null)
+        {
+            animator = transform.parent.GetComponentInChildren<PlayerModel>().animator;
+        }
+        
         if(!isLocalPlayer) return;
 
         mainCamera = Camera.main;
@@ -35,6 +45,8 @@ public class Aiming : NetworkBehaviour
 
     public void AimingGun()
     {
+        if(handRig == null) return;
+
         Ray camRay = mainCamera.ScreenPointToRay(new Vector2(Screen.width / 2f, Screen.height / 2f));
 
         RaycastHit hit;

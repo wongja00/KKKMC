@@ -55,9 +55,17 @@ public class PlayerMovement : NetworkBehaviour
 
     bool isGrounded;
 
+    void Awake()
+    {
+        
+    }
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        if(animator == null) animator = GetComponentInChildren<PlayerModel>().animator;
+        if(playerCharacter == null) playerCharacter = animator.transform.gameObject;
+
         if(!isLocalPlayer)
         {
             controller.enabled = false;
@@ -143,7 +151,7 @@ public class PlayerMovement : NetworkBehaviour
         }
 
         // 속도에 따라 animator에 Speed 변수 변경
-        if (animator != null)
+        if (animator != null && animator.enabled)
         {
             animator.SetFloat("velocityX", animVelocity.x);
             animator.SetFloat("velocityZ", animVelocity.y);
@@ -182,15 +190,63 @@ public class PlayerMovement : NetworkBehaviour
     }
 
     //즉시 회전하는 함수
-    void RotateToAttack(Vector3 move)
+    [ClientRpc]
+    public void RotateToAttack(Vector3 move)
     {
-        if(move.magnitude > 0.01f && !isAiming)
+        //if(move.magnitude > 0.01f && !isAiming)
         {
-            Quaternion targetRotation = Quaternion.LookRotation(move);
+            // Unity는 언리얼처럼 SafeNormal 함수는 없고, normalized 프로퍼티가 자동으로 정규화된 벡터를 리턴해줌.
+            // 만약 move.magnitude가 아주 작으면(거의 0이면) LookRotation에서 에러가 날 수 있으니,
+            // 아래처럼 0 벡터 체크 후 사용하는 것이 언리얼의 SafeNormal과 비슷한 방식임.
+            Quaternion targetRotation;
+            if (move.sqrMagnitude > 0.0001f)
+                targetRotation = Quaternion.LookRotation(move.normalized);
+            else
+                targetRotation = playerCharacter.transform.rotation;
+                
             targetRotation = Quaternion.Euler(0, targetRotation.eulerAngles.y, 0);
             playerCharacter.transform.rotation = targetRotation;
         }
     }
+        //앞으로 감
+    [ClientRpc]
+    public void StepToAttack(Vector3 move)
+    {
+        if(controller != null && controller.enabled)
+            StartCoroutine(StepRoutine(move, 0.3f));
+    }
+    IEnumerator StepRoutine(Vector3 move, float duration)
+    {
+        Vector3 startPos = transform.position;
+        Vector3 targetPos = move;
+        Vector3 lastPos = startPos;
+        float elapsed = 0f;
+
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            float t = Mathf.Clamp01(elapsed / duration);
+            
+            // 이동 곡선 적용 (선택하신 Ease-Out 공식)
+            float curveT = Mathf.Sin(t * Mathf.PI * 0.5f); 
+
+            // 1. 현재 프레임에서 도달해야 할 '절대 좌표' 계산
+            Vector3 currentTargetPos = Vector3.Lerp(startPos, targetPos, curveT);
+
+            // 2. '이번 프레임에 움직여야 할 거리(변위)' 계산
+            Vector3 delta = currentTargetPos - lastPos;
+
+            // 3. 변위만큼 이동 시키기
+            controller.Move(delta);
+
+            // 4. 현재 위치를 다음 프레임의 lastPos로 업데이트
+            lastPos = currentTargetPos;
+
+            yield return null;
+        }
+    }
+
+    
 
     void RotateBodyAiming()
     {        

@@ -15,11 +15,11 @@ MonoBehaviour:
   attackName: Sword
   attackID: 3
   animationClip: {fileID: 7400000, guid: dce280ced5e006c4cb0eb0fab2f51b75, type: 3}
-  animationSpeed: 1
+  animationSpeed: 0.26
   hitBoxTimes:
   - start: 0.48
     end: 0.588
-  damage: 10.1
+  damage: 1
   distance: 2
   knockbackForce: 1
   hitboxOffset: {x: 0, y: 0, z: 0}
@@ -33,4 +33,5 @@ MonoBehaviour:
   canMoveDuringAttack: 0
   canRotateDuringAttack: 0
   movementSpeedMultiplier: 0.5
+  forwardMovementOnAttack: 0
   canChainTo: 02000000

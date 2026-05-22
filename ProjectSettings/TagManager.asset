@@ -10,6 +10,7 @@ TagManager:
   - UI
   - SceneCamera
   - Enemy
+  - Event
   layers:
   - Default
   - TransparentFX
@@ -30,8 +31,8 @@ TagManager:
   - Chracter
   - Tile
   - Door
-  - 
-  - 
+  - Deco
+  - Event
   - 
   - 
   - 
