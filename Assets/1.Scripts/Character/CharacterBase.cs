@@ -62,7 +62,7 @@ public abstract class CharacterBase : NetworkBehaviour, ICharacter
 
     public void Attack(ICharacter target)
     {
-        target.TakeDamage(stat.strength);        
+        target.TakeDamage(stat.strength);  
     }
     public void GainExperience(int amount)
     {
@@ -86,7 +86,9 @@ public abstract class CharacterBase : NetworkBehaviour, ICharacter
 
         CurHP -= finalDamage;
 
-        if(CurHP <= 0) 
+        DamageTextManager.Instance.ShowDamageText(transform.position + (Vector3.up * 2), finalDamage);
+
+        if (CurHP <= 0) 
         {
             CurHP = 0;
             
@@ -160,6 +162,7 @@ public abstract class CharacterBase : NetworkBehaviour, ICharacter
     void TargetRpcOnBuff(NetworkConnection network,BuffType buf, float Value)
     {
         Debug.Log($"{buf.ToString()} {Value} 버프 적용");
+        ChatManager.Instance.AddSystemMessage($"{Name}님이 {buf.ToString()} {Value} 버프를 획득했습니다!");
 
         OnGetBuff?.Invoke();
     }
@@ -186,6 +189,12 @@ public abstract class CharacterBase : NetworkBehaviour, ICharacter
     {
         OnStatChanged?.Invoke();
         Debug.Log($"스탯변화");
+    }
+
+    [Server]
+    public void StatChange(Status newValue)
+    {
+        this.stat = newValue;
     }
 
     public bool IsAlive()

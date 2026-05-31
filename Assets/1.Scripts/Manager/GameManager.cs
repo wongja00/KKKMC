@@ -3,9 +3,12 @@ using System.Collections.Generic;
 
 public class GameManager : MonoBehaviour
 {
-    public GameObject meleeEnemyPrefab;
-    public GameObject rangedEnemyPrefab;
-    public GameObject eliteEnemyPrefab;
+        public static GameManager Instance { get; private set; }
+
+    [SerializeField] List<GameObject> meleeEnemyList;
+    [SerializeField] List<GameObject> rangedEnemyList;
+    [SerializeField] List<GameObject> bossEnemyList;
+    [SerializeField] List<GameObject> eliteEnemyList;
 
     public List<GameObject> assultRifles = new(); 
     public List<GameObject> pistlos = new(); 
@@ -13,14 +16,27 @@ public class GameManager : MonoBehaviour
 
     void Awake()
     {
+        DontDestroyOnLoad(this.gameObject);
+        if(Instance != null)
+        {
+            Destroy(this.gameObject);
+            return;
+        }
+        else
+        {
+            Instance = this;
+        }
+
         Application.runInBackground = true;
         Application.targetFrameRate = 60; // 원하는 FPS
+
         
-        EnemyFactory.Init(new Dictionary<EnemyType, GameObject>
+        EnemyFactory.Init(new Dictionary<EnemyType, List<GameObject>>
         {
-            {EnemyType.Melee, meleeEnemyPrefab},
-            {EnemyType.Ranged, rangedEnemyPrefab},
-            {EnemyType.Elite, eliteEnemyPrefab}
+            {EnemyType.Melee, meleeEnemyList},
+            {EnemyType.Ranged, rangedEnemyList},
+            {EnemyType.Elite, eliteEnemyList},
+            {EnemyType.Boss, bossEnemyList}
         });
 
         if(assultRifles.Count > 0)

@@ -40,33 +40,7 @@ public class Player : CharacterBase
     }
     void Start()
     {        
-        if(animator == null)
-        {
-            animator = GetComponentInChildren<PlayerModel>().animator;
-        }
-
-        if(skinRederer == null)
-        {
-            skinRederer = GetComponentInChildren<PlayerModel>().meshRenderer;
-        }
-        
-        if(!isLocalPlayer) return;
-
-        playerHP = InteractUIManager.Instance.GetHpUI();
-        buffUI = InteractUIManager.Instance.buffUI;
-        statusUI = InteractUIManager.Instance.statusUI;
-
-        OnHpChanged += Hpchange;
-        OnGetBuff += buffUI.AddBuffCount;
-        OnStatChanged += OnStatChangeUI;
-
-        buffSystem.OnSelectBuff += buffUI.SetBuffSelectCount;
-        OnGetBuffServer += buffSystem.DecreaseSelectBuffCount;
-        
-        mpb = new MaterialPropertyBlock();
-        
-        OnApplyBuff();
-        SetStatUI();
+        CharacterStartInit();
     }
 
     public override void OnStartServer()
@@ -104,8 +78,42 @@ public class Player : CharacterBase
         }
     }
 
-    void SetStatUI()
+    public void CharacterStartInit()
     {
+        if (animator == null)
+        {
+            animator = GetComponentInChildren<PlayerModel>().animator;
+        }
+
+        if (skinRederer == null)
+        {
+            skinRederer = GetComponentInChildren<PlayerModel>().meshRenderer;
+        }
+
+        if (!isLocalPlayer) return;
+
+        playerHP = InteractUIManager.Instance.GetHpUI();
+        buffUI = InteractUIManager.Instance.buffUI;
+        statusUI = InteractUIManager.Instance.statusUI;
+
+        OnHpChanged += Hpchange;
+        OnGetBuff += buffUI.AddBuffCount;
+        OnStatChanged += OnStatChangeUI;
+
+        buffSystem.OnSelectBuff += buffUI.SetBuffSelectCount;
+        OnGetBuffServer += buffSystem.DecreaseSelectBuffCount;
+
+        mpb = new MaterialPropertyBlock();
+
+        OnApplyBuff();
+        SetStatUI();
+        OnStatChangeUI();
+    }
+
+    public void SetStatUI()
+    {
+        if(statusUI == null) return;
+
         // Status 구조체의 각 멤버를 StatusUI에 카드로 추가
         statusUI.statDic.Clear();
 
@@ -127,8 +135,10 @@ public class Player : CharacterBase
         statusUI.DisableOriginCard();
     }
 
-    void OnStatChangeUI()
+    public void OnStatChangeUI()
     {
+        if(statusUI == null) return;
+
         statusUI.statDic["힘"].SetValue(stat.strength);
         statusUI.statDic["민첩"].SetValue(stat.agility);
         statusUI.statDic["지능"].SetValue(stat.intelligence);
@@ -136,6 +146,8 @@ public class Player : CharacterBase
         statusUI.statDic["치명타 확률(%)"].SetValue( (int)(stat.critChance*100));
         statusUI.statDic["치명타 데미지(%)"].SetValue((int)(stat.critDamage*100));
         statusUI.statDic["공격 속도"].SetValue((int)stat.attackSpeed);
+
+        Debug.Log("UI 업데이트");
     }
 
     void UpdateStatusUI(String statName, int Value)

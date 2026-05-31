@@ -67,9 +67,28 @@ public class DungeonController : NetworkBehaviour
             //SpawnStartWeapon();
             return;
         }
-         Debug.Log("전투");
 
-        SpawnEnemies();
+        
+        switch(roomType)
+        {
+            case RoomType.Combat:
+                SpawnEnemies();
+                Debug.Log("일반 전투");
+                break;
+            case RoomType.Elite:
+                SpawnEnemies();
+                Debug.Log("엘리트 전투");
+                break;
+            case RoomType.MiniBoss:
+                SpawnEnemies();
+                Debug.Log("미니보스 전투");
+                break;
+            case RoomType.Boss:
+                SpawnEnemies();
+                Debug.Log("보스 전투");
+                break;
+        }
+
     }
 
     void OpenDoors()
@@ -100,7 +119,7 @@ public class DungeonController : NetworkBehaviour
     {
         OpenDoors();
 
-        if(roomType == RoomType.Combat || roomType == RoomType.Boss|| roomType == RoomType.MiniBoss)
+        if(roomType == RoomType.Combat || roomType == RoomType.Boss|| roomType == RoomType.MiniBoss || roomType == RoomType.Elite)
             OnEndCombat?.Invoke();
     }
 
@@ -123,10 +142,19 @@ public class DungeonController : NetworkBehaviour
 
     EnemyType ChooseEnemyType()
     {
-        float r = Random.value;
-        if(r < 0.6f) return EnemyType.Melee;
-        if(r < 0.9f) return EnemyType.Ranged;
-        return EnemyType.Elite;
+        switch(roomType)
+        {
+            case RoomType.Combat:
+                return EnemyType.Melee;
+            case RoomType.Elite:
+                return EnemyType.Elite;
+            case RoomType.MiniBoss:
+                return EnemyType.Ranged;
+            case RoomType.Boss:
+                return EnemyType.Boss;
+            default:
+                return EnemyType.Melee;
+        }
     }
 
     void OnEnemyDead()
@@ -138,6 +166,13 @@ public class DungeonController : NetworkBehaviour
             BuffIncrease();
             //CmdBuffUI();
         }
+    }
+
+    public void SetRoomBoss()
+    {
+        roomType = RoomType.Boss;
+
+
     }
 
     
@@ -233,4 +268,6 @@ public class DungeonController : NetworkBehaviour
             bar.SetActive(true);
         }
     }
+
+
 }

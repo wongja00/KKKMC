@@ -6,6 +6,8 @@ using Mirror.FizzySteam;
 using System;
 using Unity.Netcode.Components;
 using System.Collections.Generic;
+using Mirror.Examples.MultipleMatch;
+
 
 
 
@@ -190,6 +192,20 @@ public class NetworkManager : Mirror.NetworkManager
         if(playerPrefabDic.TryGetValue(ID, out GameObject value))
         {
             GameObject player = Instantiate(playerPrefabDic[ID].gameObject);
+            Status status = new Status();
+
+            for (int i = 0; i < playerInfos.Length; i++)
+            {
+                if (playerInfos[i].ID == ID)
+                {
+                    status = playerInfos[i].status;
+                    break;
+                }
+            };
+            player.GetComponent<Player>().StatChange(status);
+            player.GetComponent<Player>().CharacterStartInit();
+            player.GetComponent<Player>().SetStatUI();
+            player.GetComponent<Player>().OnStatChangeUI();
             //player.GetComponent<NetworkTransform>().Teleport(Vector3.zero, Quaternion.identity, Vector3.one);
 
             NetworkServer.AddPlayerForConnection(conn, player);
@@ -197,8 +213,22 @@ public class NetworkManager : Mirror.NetworkManager
         else
         {
             GameObject player = Instantiate(playerPrefab);
+            Status status = new Status();
+
+            for (int i = 0; i < playerInfos.Length; i++)
+            {
+                if (playerInfos[i].ID == ID)
+                {
+                    status = playerInfos[i].status;
+                    break;
+                }
+            };
+            player.GetComponent<Player>().StatChange(status);
+            player.GetComponent<Player>().CharacterStartInit();
+            player.GetComponent<Player>().SetStatUI();
+            player.GetComponent<Player>().OnStatChangeUI();
             //player.GetComponent<NetworkTransform>().Teleport(Vector3.zero, Quaternion.identity, Vector3.one);
-            
+
 
             NetworkServer.AddPlayerForConnection(conn, player);
 
@@ -210,10 +240,28 @@ public class NetworkManager : Mirror.NetworkManager
     {
         GameObject player = Instantiate(playerPrefabDic[ID].gameObject);
 
+        Status status = new Status();
+
+        for (int i = 0; i< playerInfos.Length; i++)
+        {
+            if(playerInfos[i].ID == ID)
+            {
+                status = playerInfos[i].status;
+                break;
+            }
+        };
+
         ReplacePlayerOptions options = new ReplacePlayerOptions();
         
-
         NetworkServer.ReplacePlayerForConnection(conn, player, options);
+
+        player.GetComponent<Player>().StatChange(status);
+        player.GetComponent<Player>().CharacterStartInit();
+        player.GetComponent<Player>().SetStatUI();
+        player.GetComponent<Player>().OnStatChangeUI();
+
+        Debug.Log("캐릭 교체");
+
         player.transform.Translate(new Vector3(0,2,0));
 
         playersID[conn] = ID;

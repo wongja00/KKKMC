@@ -3,6 +3,7 @@ using System;
 using Unity.Cinemachine;
 using UnityEngine.UI;
 using TMPro;
+using UnityEngine.SceneManagement;
 
 
 public class InteractUIManager : MonoBehaviour
@@ -16,9 +17,13 @@ public class InteractUIManager : MonoBehaviour
     [SerializeField] ReloadCoolTImeUI reloadCoolTImeUI;
     [SerializeField] PlayerHP playerHp;
     [SerializeField] Camera cam;
+    [SerializeField] Transform buffUIPanel;
+    [SerializeField] Transform buffUIParent;
+    [SerializeField] Transform dialoguePanel;
     public StatusUI statusUI;
     public BuffUI buffUI;
     public RoundUI roundUI;
+    public ChatUI chatUI;
 
     void Awake()
     {
@@ -26,6 +31,39 @@ public class InteractUIManager : MonoBehaviour
         {
             Instance = this;
         }
+
+        if (chatUI == null)
+        {
+            chatUI = GameObject.Find("ChatUI").GetComponent<ChatUI>();
+        }
+
+        SceneManager.sceneLoaded += FindUIDatas;
+    }
+
+    void FindUIDatas(Scene scene, LoadSceneMode mode)
+    {
+        if(playerHp == null)
+        {
+            playerHp = GameObject.Find("PlayerHP").GetComponent<PlayerHP>();
+        }
+        if(buffUIPanel == null)
+        {
+            buffUIPanel = GameObject.Find("BuffSelector").transform;
+            buffUIParent = buffUIPanel.Find("BuffSelector");
+        }
+        if(dialoguePanel == null)
+        {
+            dialoguePanel = FindAnyObjectByType<Dialogue>().transform.Find("DialoguePanel");
+        }
+
+        if(chatUI == null)
+        {
+            chatUI = GameObject.Find("ChatUI").GetComponent<ChatUI>();
+        }
+    }
+     void OnEnable()
+    {
+        SceneManager.sceneLoaded += FindUIDatas;
     }
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -104,8 +142,23 @@ public class InteractUIManager : MonoBehaviour
 
     }
 
+    public Transform GetBuffUIPanel()
+    {         return buffUIPanel;
+    }
+
+    public Transform GetBuffUIParent()
+    {
+        return buffUIParent;
+    }
+
+
     public PlayerHP GetHpUI()
     {
         return playerHp;
+    }
+
+    public Transform GetDialoguePanel()
+    {
+        return dialoguePanel;
     }
 }

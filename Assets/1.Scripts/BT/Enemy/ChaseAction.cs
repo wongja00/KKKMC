@@ -14,6 +14,7 @@ public partial class ChaseAction : Action
     [SerializeReference] public BlackboardVariable<GameObject> Target;
 
     private NavMeshAgent agent;
+    private CharacterBase character;
     private Animator animator;
     private NetworkIdentity identity;
     private Vector2 animVelocity;
@@ -25,6 +26,7 @@ public partial class ChaseAction : Action
             agent = Self.Value.GetComponent<NavMeshAgent>();
             identity = Self.Value.GetComponent<NetworkIdentity>();
             animator = Self.Value.GetComponent<Enemy>().GetAnimator();
+            character = Self.Value.GetComponent<CharacterBase>();
         }
         
         //if(identity != null && identity.isServer == false) return Status.Success; //서버가 아니면(클라면) 스킵
@@ -38,6 +40,14 @@ public partial class ChaseAction : Action
 
         if (agent != null && Target.Value != null && Self.Value.activeSelf == true)
         {
+            if(character.isHitStun)
+            {
+                agent.speed = 0;
+                animVelocity.y = 0;
+                animator.SetFloat("velocityZ", animVelocity.y);
+                return Status.Running;
+            }
+
             float distanceToPlayer = Vector3.Distance(Self.Value.transform.position, Target.Value.transform.position);
 
             if (animator != null)

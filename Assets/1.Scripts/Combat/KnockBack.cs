@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections;
 using Mirror;
+
 public class KnockBack : NetworkBehaviour
 {
     [SerializeField] private AnimationCurve knockBackCurve;

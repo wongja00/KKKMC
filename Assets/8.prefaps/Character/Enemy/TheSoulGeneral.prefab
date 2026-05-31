@@ -3871,7 +3871,7 @@ MonoBehaviour:
   syncDirection: 0
   syncMode: 0
   syncInterval: 0
-  Name: Unknown
+  Name: General
   Level: 1
   maxExp: 0
   curExp: 10

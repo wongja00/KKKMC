@@ -14,14 +14,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CharacterInfo
   ID: 1
   status:
-    strength: 1
-    defense: 1
-    agility: 1
-    intelligence: 1
-    attackSpeed: 1
-    critChance: 1
-    critDamage: 1
+    strength: 10
+    defense: 5
+    agility: 3
+    intelligence: 5
+    attackSpeed: 1.2
+    critChance: 2
+    critDamage: 2
   thumnail: {fileID: 21300000, guid: 55dca9accb674134d982dc9d69c3f144, type: 3}
   characterName: "\uBBF8\uC2A4\uD0B4"
-  desc: "\uBBF8\uC2A4\uD0B4\uC774\uB2E4."
+  desc: "\uBBF8\uC2A4\uD0B4\uC774\uB2E4.\n\uAE30\uBCF8\uC801\uC778 \uC2A4\uD0EF\uC774
+    \uB192\uACE0 \uADFC\uC811 \uC804\uD22C\uC758 \uADC0\uC7AC\uB2E4."
   prefab: {fileID: 9178547669144678576, guid: f9d9862429ed3124090705acbb04c5a5, type: 3}

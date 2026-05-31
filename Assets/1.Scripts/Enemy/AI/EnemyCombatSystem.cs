@@ -297,6 +297,7 @@ public class EnemyCombatSystem : NetworkBehaviour
             //데미지 처리 
             target.TakeDamage((int)attack.damage);
             Debug.Log($"피해자{target.name}, 공격{attack.attackName}");
+            ChatManager.Instance.AddSystemMessage($"피해자{target.name}, 공격{attack.attackName}, 데미지 {(int)attack.damage + character.stat.strength}");
 
             //넉백
             Rigidbody rb = hit.GetComponent<Rigidbody>();
@@ -390,7 +391,7 @@ public class EnemyCombatSystem : NetworkBehaviour
 
         yield return new WaitForSeconds(duration);
 
-        if(animator != null)
+        if(animator != null && currentAttack != null)
         {
             SetStunAnim(currentAttack.animationSpeed);
         }
@@ -401,7 +402,7 @@ public class EnemyCombatSystem : NetworkBehaviour
     [ClientRpc]
     public void SetStunAnim(float speed)
     {
-        animator.speed = speed > 0 ? 1 : 0;
+        //animator.speed = speed > 0 ? 1 : 0;
 
         if(curPlayable.IsValid())
             curPlayable.SetSpeed(speed);

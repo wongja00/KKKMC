@@ -1336,10 +1336,8 @@ MonoBehaviour:
   handHeld: {fileID: 3577323286213123549}
   character: {fileID: 7472361970271636457}
   hitboxOrigin: {fileID: 8784782795886745639}
-  availableAttacks:
-  - {fileID: 11400000, guid: eebc8839cdfd4a840b001a03f0aaae68, type: 2}
-  - {fileID: 11400000, guid: a349ccba83bceca4fbfc05e6e163dcaf, type: 2}
-  - {fileID: 11400000, guid: 0889c4816501465458cbe43d01aa4ab1, type: 2}
+  characterEffectHandler: {fileID: 0}
+  availableAttacks: []
   availableCombos:
   - {fileID: 11400000, guid: 87251d4e27fd47a489a2020e8dacac23, type: 2}
   isAttacking: 0
@@ -4803,6 +4801,8 @@ MonoBehaviour:
     critDamage: 0
   speed: 5
   isDead: 0
+  isHitStun: 0
+  stunDuration: 1
   playerMovement: {fileID: 6028982336696060969}
   combat: {fileID: 1920987297659954096}
   buffSystem: {fileID: 6989957872292839164}

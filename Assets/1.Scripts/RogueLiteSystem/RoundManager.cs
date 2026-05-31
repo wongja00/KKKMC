@@ -23,12 +23,12 @@ public class RoundManager : NetworkBehaviour
             Instance = this;
         }
 
-        roundUI = InteractUIManager.Instance.roundUI;
     }
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        roundUI = InteractUIManager.Instance.roundUI;
         
     }
 

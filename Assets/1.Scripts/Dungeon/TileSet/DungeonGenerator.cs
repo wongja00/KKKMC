@@ -610,11 +610,12 @@ public class DungeonGenerator : NetworkBehaviour
 
         GameObject goTile = Instantiate(tile, Vector3.zero, tile.transform.rotation, container) as GameObject;
         goTile.name = tile.name;
+        Tile myTile = new Tile(goTile.transform, tileFrom);
 
         //Transform origin = generatedTiles.Find(x => x.tile == tileFrom).tile;
 
         //add to tilelist
-        generatedTiles.Add(new Tile(goTile.transform, tileFrom));
+        generatedTiles.Add(myTile);
         return goTile.transform;
     }
 
@@ -670,7 +671,11 @@ public class DungeonGenerator : NetworkBehaviour
 
     void SetDungeonController()
     {
-        for(int  i = 0; i < generatedTiles.Count; i++)
+        bool haveBoss = false;
+
+        List<Tile> roomTiles = generatedTiles.FindAll(x => hallwayPrefabs.Any(prefab => prefab.name == x.tile.name) == false);
+
+        for (int  i = 0; i < generatedTiles.Count; i++)
         {
             if(hallwayPrefabs.Any(x => x.name ==generatedTiles[i].tile.name))
             {
@@ -694,6 +699,13 @@ public class DungeonGenerator : NetworkBehaviour
                 if(i == 0)
                 {
                     con.roomType = RoomType.Start;
+                }
+
+                if(haveBoss == false && generatedTiles[i] == roomTiles.Last())
+                {
+                    con.SetRoomBoss();
+                    haveBoss = true;
+                    generatedTiles[i].tile.GetComponent<RoomLight>().ChangeLightColor(Color.red);
                 }
 
                 con.barrierPrefab = barrierObject;

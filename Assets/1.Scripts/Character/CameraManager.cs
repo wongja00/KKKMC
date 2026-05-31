@@ -11,6 +11,8 @@ public class CameraManager : MonoBehaviour
     void Awake()
     {
         Instance = this;
+
+        playerCamera = GameObject.FindWithTag("SceneCamera").GetComponent<CinemachineCamera>();
     }
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created

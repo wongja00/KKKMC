@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using Mirror;
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
-    public enum BuffType
+public enum BuffType
     {
         None,
         Speed,
@@ -36,10 +37,30 @@ public class BuffManager : MonoBehaviour
         if(Instance == null)
             Instance = this;
 
-        foreach(BuffDataObject data in buffDataObjects)
+    }
+
+    private void Start()
+    {
+        SceneManager.sceneLoaded += GetUIOnSceneLoad;
+
+        buffCardParent = InteractUIManager.Instance.GetBuffUIParent();
+        buffUI = InteractUIManager.Instance.GetBuffUIPanel();
+
+
+        foreach (BuffDataObject data in buffDataObjects)
         {
             buffDataDic.Add(data.buffID, data);
         }
+
+        SetBuffCards();
+
+        SetBuffUI(false);
+    }
+
+    void GetUIOnSceneLoad(Scene scene, LoadSceneMode mode)
+    {
+        buffCardParent = InteractUIManager.Instance.GetBuffUIParent();
+        buffUI = InteractUIManager.Instance.GetBuffUIPanel();
 
         SetBuffCards();
 
@@ -54,7 +75,6 @@ public class BuffManager : MonoBehaviour
             card.SetBuffCard(data.buffID);
         }
 
-        cardPrefab.gameObject.SetActive(false);
     }
 
     void Update()

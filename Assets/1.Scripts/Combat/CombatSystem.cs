@@ -414,6 +414,7 @@ public class CombatSystem : NetworkBehaviour
             target.CmdKnockback(playerTransform.position, 0.5f, 0.3f);
 
             Debug.Log($"피해자{target.name}, 공격{attack.attackName}");
+            ChatManager.Instance.AddSystemMessage($"피해자{target.name}, 공격{attack.attackName}, 데미지 {(int)attack.damage + character.stat.strength} ");
 
             //넉백
             Rigidbody rb = hit.GetComponent<Rigidbody>();

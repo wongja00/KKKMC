@@ -296,11 +296,11 @@ public class GunBase : NetworkBehaviour, Item, Equable
     [Command]
     private void CmdShoot()
     {
-        RpcPlayFireSound();
+        RpcPlayGunFireSound();
     }
 
     [ClientRpc(includeOwner = false)]
-    void RpcPlayFireSound()
+    void RpcPlayGunFireSound()
     {
         PlayShootSoundLocal();
     }

@@ -24,6 +24,18 @@ public class StoryManager : MonoBehaviour
             Instance = this;
         }
 
+
+    }
+
+    void Start()
+    {
+        dialoguePanel = InteractUIManager.Instance.GetDialoguePanel().gameObject;
+        scriptHandler = GetComponent<StoryScriptHandler>();
+
+        if (dialogue == null)
+        {
+            dialogue = dialoguePanel.transform.parent.GetComponent<Dialogue>();
+        }
     }
 
     private void Update()
