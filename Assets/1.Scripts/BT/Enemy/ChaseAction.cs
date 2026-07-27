@@ -45,6 +45,36 @@ public partial class ChaseAction : Action
                 agent.speed = 0;
                 animVelocity.y = 0;
                 animator.SetFloat("velocityZ", animVelocity.y);
+                character.isMove = false;
+                return Status.Running;
+            }
+
+            if(character.isFeard)
+            {
+                Vector3 dir =
+                (character.transform.position
+                - Target.Value.transform.position).normalized;
+
+                Vector3 fleeDestination = character.transform.position + dir * 10f; // 10m 뒤로 도망
+
+                agent.speed = character.speed * 0.5f; // 도망 속도
+
+                if(agent.isOnNavMesh == true)
+                    agent.SetDestination(fleeDestination);
+
+                animVelocity.y = 2; // 도망 애니메이션
+
+                if (agent.speed > 0)
+                {
+                    character.SetIsMove(true);
+                }
+                else
+                {
+                    character.SetIsMove(false);
+                }
+
+                animator.SetFloat("velocityZ", animVelocity.y);
+
                 return Status.Running;
             }
 
@@ -59,14 +89,14 @@ public partial class ChaseAction : Action
 
                 if (distanceToPlayer > 5f)
                 {
-                    agent.speed = 3; // 속도 증가
+                    agent.speed = character.speed; // 속도 증가
                     
                     //animVelocity.x = 2;
                     animVelocity.y = 2;
                 }
                 else if(distanceToPlayer <= 5f)
                 {
-                    agent.speed = 1.5f; // 속도 감소
+                    agent.speed = character.speed > 0 ? character.speed / 2f : 0; // 속도 감소
                     
                     //animVelocity.x = 2;
                     animVelocity.y = 1;
@@ -75,6 +105,15 @@ public partial class ChaseAction : Action
                 {
                     animVelocity.y = 0;
                     return Status.Success;//도착
+                }
+
+                if(agent.speed > 0)
+                {
+                    character.SetIsMove(true);
+                }
+                else
+                {
+                    character.SetIsMove(false);
                 }
 
                 //animator.SetFloat("velocityX", animVelocity.x);
@@ -86,7 +125,8 @@ public partial class ChaseAction : Action
         }
         else
         {
-             return Status.Failure;
+            character.SetIsMove(false);
+            return Status.Failure;
         }
 
         return Status.Running;

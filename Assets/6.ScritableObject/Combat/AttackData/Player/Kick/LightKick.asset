@@ -39,3 +39,4 @@ MonoBehaviour:
   - prefab: {fileID: 7482112100206156711, guid: 9384e107965461047a8449131033b7c8, type: 3}
     part: 3
     effectName: KickEff
+  statusEffects: []

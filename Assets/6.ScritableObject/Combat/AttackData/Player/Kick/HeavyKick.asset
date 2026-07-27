@@ -36,3 +36,4 @@ MonoBehaviour:
   forwardMovementOnAttack: 0
   canChainTo: 
   effectPrefabs: []
+  statusEffects: []

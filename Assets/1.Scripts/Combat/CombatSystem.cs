@@ -27,6 +27,7 @@ public class CombatSystem : NetworkBehaviour
     public List<ComboChain> availableCombos = new List<ComboChain>();
 
     [Header("상태")]
+    [SerializeField] StatusEffectManager statusEffectManager;
     [SyncVar] private int currentAttackID = -1;
     [SyncVar] private int queueAttackID = -1;
     //private AttackData currentAttack;
@@ -34,7 +35,7 @@ public class CombatSystem : NetworkBehaviour
     private int currentComboStep = 0;
     private float attackNormalTime = 0f;
     
-    [SyncVar] public bool isAttacking = false;
+    [SyncVar(hook = nameof(OnChangeIsAttacking))] public bool isAttacking = false;
 
     [SerializeField]
     [SyncVar]private bool canReceiveInput = false;
@@ -67,6 +68,9 @@ public class CombatSystem : NetworkBehaviour
 
     float atkDistance = 0;
 
+    //현재 줄수있는 이펙트
+    public StatusEffectBase curStatusEffect;
+    public int curStatusEffectIndex = 0;
     void Awake()
     {
         
@@ -108,6 +112,68 @@ public class CombatSystem : NetworkBehaviour
 
         UpdateComboTimer();
         ProcessInputBuffer();
+        /*
+ 출: 1
+ 독: 2
+화상: 3
+감전: 4
+공포:5
+냉기: 6
+패혈증:7
+빙결:8
+열파쇄:9  
+강제동조: 10
+ */
+        if (Input.GetKeyDown(KeyCode.Alpha1))
+        {
+            curStatusEffect = new BleedEffect(5, 0.1f, 10);
+            curStatusEffectIndex = 1;
+        }
+        if (Input.GetKeyDown(KeyCode.Alpha2))
+        {
+            curStatusEffect = new PoisonEffect(10, 10, 5);
+            curStatusEffectIndex = 2;
+        }
+        if (Input.GetKeyDown(KeyCode.Alpha3))
+        {
+            curStatusEffect = new BurnEffect(10, 10, 5);
+            curStatusEffectIndex = 3;
+        }
+        if (Input.GetKeyDown(KeyCode.Alpha4))
+        {
+            curStatusEffect = new ElectricEffect(10, 0.1f);
+            curStatusEffectIndex = 4;
+        }
+        if (Input.GetKeyDown(KeyCode.Alpha5))
+        {
+            curStatusEffect = new FearEffect(10);
+            curStatusEffectIndex = 5;
+        }
+        if (Input.GetKeyDown(KeyCode.Alpha6))
+        {
+            curStatusEffect = new FreezeEffect(10);
+            curStatusEffectIndex = 6;
+        }
+        if (Input.GetKeyDown(KeyCode.Alpha7))
+        {
+            curStatusEffect = new SepsisEffect(10, 0.1f);
+            curStatusEffectIndex = 7;
+        }
+        if (Input.GetKeyDown(KeyCode.Alpha8))
+        {
+            curStatusEffect = new IceShackleEffect();
+            curStatusEffectIndex = 8;
+        }
+        if (Input.GetKeyDown(KeyCode.Alpha9))
+        {
+            curStatusEffect = new ThermoFractureEffect(10, 70);
+            curStatusEffectIndex = 9;
+        }
+        if (Input.GetKeyDown(KeyCode.Alpha0))
+        {
+            curStatusEffect = new ForcedSyncEffect();
+            curStatusEffectIndex = 10;
+        }
     }
 
     public override void OnStartClient()
@@ -275,7 +341,7 @@ public class CombatSystem : NetworkBehaviour
         playableGraph.SetTimeUpdateMode(DirectorUpdateMode.GameTime);
 
         curPlayable = AnimationClipPlayable.Create(playableGraph, attack.animationClip);
-        curPlayable.SetSpeed(attack.animationSpeed);
+        curPlayable.SetSpeed(attack.animationSpeed * character.stat.attackSpeed);
         //curPlayableDuration = attack.animationClip.length / attack.animationSpeed;
 
         playableOutput = AnimationPlayableOutput.Create(playableGraph, "Anim", animator);
@@ -288,7 +354,7 @@ public class CombatSystem : NetworkBehaviour
     void SetDurationTime(int attackID)
     {
         AttackData attack = attackDictionary[attackID]; 
-        curPlayableDuration = attack.animationClip.length / attack.animationSpeed;
+        curPlayableDuration = attack.animationClip.length / attack.animationSpeed / character.stat.attackSpeed;
     }
 
     [Server]
@@ -404,7 +470,21 @@ public class CombatSystem : NetworkBehaviour
             //데미지 처리 
             target.TakeDamage((int)attack.damage + character.stat.strength);
 
-            foreach(CharacterEffect effect in attack.effectPrefabs)
+            for(int i = 0; i < attack.statusEffects.Count; i++)
+            {
+                StatusEffectBase effect = attack.statusEffects[i];
+                if(effect == null) continue;
+                target.AddStatusEffect(effect);
+            }
+
+            target.AddStatusEffect(curStatusEffect);
+
+            StatusEffectHandler effHandle = StatusEffectPoolManager.Instance.GetStatusEffectHandler(curStatusEffectIndex);
+            effHandle.gameObject.transform.SetParent(target.transform);
+            effHandle.gameObject.transform.localPosition = Vector3.zero;
+            effHandle.PlayStatusEffectVFX();
+
+            foreach (CharacterEffect effect in attack.effectPrefabs)
             {
                 characterEffectHandler.EffectPlay(effect.part, effect.effectName);
                 Debug.Log($"이펙트 재생: {effect.effectName} on {target.name} at {effect.part}");
@@ -639,5 +719,18 @@ public class CombatSystem : NetworkBehaviour
         return null;
     }
 
+    void OnChangeIsAttacking(bool oldValue, bool newValue)
+    {
+        character.isAttacking = newValue;
+
+        if(newValue)
+        {
+            //공격 시작
+        }
+        else
+        {
+            //공격 종료
+        }
+    }
 
 }

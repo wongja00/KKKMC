@@ -50,6 +50,9 @@ public class AttackData : ScriptableObject
 
     [Header("이펙트들")]
     public List<CharacterEffect> effectPrefabs = new List<CharacterEffect>();//이펙트들
+    
+    [Header("상태이상효과들")]
+    public List<StatusEffectBase> statusEffects = new List<StatusEffectBase>();//상태이상효과들
 
 }
 

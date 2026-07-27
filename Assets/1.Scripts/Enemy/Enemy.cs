@@ -38,8 +38,14 @@ public class Enemy : CharacterBase
     Image hpBar;
 
 
-    void Awake()
+     public override void Awake()
     {
+        base.Awake();
+
+        characterTeam = Team.Enemy;
+
+        EnemyRegistry.Register(this.transform);
+
         agent = GetComponent<NavMeshAgent>();
         agent.stoppingDistance = stopDistance;
 
@@ -79,9 +85,11 @@ public class Enemy : CharacterBase
     }
 
     // Update is called once per frame
-    void Update()
+    public override void Update()
     {
         if(isDead || agent == null || !agent.enabled || !agent.isOnNavMesh) return;
+
+        base.Update();
 
         //TrackingPlayer();
     }
@@ -150,15 +158,22 @@ public class Enemy : CharacterBase
         }
     }
 
-    public void Die()
+    public override void Die()
     {
         if(isDead) return;
+        base.Die();
+
         isDead = true;
 
         animator.SetBool("isDead", true);
         Debug.Log("사망");
         OnDeath?.Invoke();
         agent.enabled = false;
+
+        if(characterTeam == Team.Enemy)
+        {
+            EnemyRegistry.Unregister(this.transform);
+        }
 
         StartCoroutine(DisappearAfterDie());
     }

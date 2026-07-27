@@ -34,7 +34,8 @@ public class EnemyCombatSystem : NetworkBehaviour
     private int currentComboStep = 0;
     private float attackNormalTime = 0f;
     
-    [SyncVar] public bool isAttacking = false;
+
+    [SyncVar(hook = nameof(OnAttackingChange))] public bool isAttacking = false;
 
     [Range(0,1)]
     private float curPlayableDuration = 1;
@@ -185,7 +186,7 @@ public class EnemyCombatSystem : NetworkBehaviour
         playableGraph.SetTimeUpdateMode(DirectorUpdateMode.GameTime);
 
         curPlayable = AnimationClipPlayable.Create(playableGraph, attack.animationClip);
-        curPlayable.SetSpeed(attack.animationSpeed);
+        curPlayable.SetSpeed(attack.animationSpeed * (character.stat.attackSpeed));
         //curPlayableDuration = attack.animationClip.length / attack.animationSpeed;
 
         playableOutput = AnimationPlayableOutput.Create(playableGraph, "Anim", animator);
@@ -198,7 +199,7 @@ public class EnemyCombatSystem : NetworkBehaviour
     void SetDurationTime(int attackID)
     {
         AttackData attack = attackDictionary[attackID]; 
-        curPlayableDuration = attack.animationClip.length / attack.animationSpeed;
+        curPlayableDuration = attack.animationClip.length / attack.animationSpeed / character.stat.attackSpeed;
     }
 
     [Server]
@@ -408,5 +409,8 @@ public class EnemyCombatSystem : NetworkBehaviour
             curPlayable.SetSpeed(speed);
     }
 
-
+    public void OnAttackingChange(bool oldValue, bool newValue)
+    {
+        character.isAttacking = newValue;
+    }
 }

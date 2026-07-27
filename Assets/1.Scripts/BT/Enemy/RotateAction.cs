@@ -21,6 +21,9 @@ public partial class RotateAction : Action
 
     protected override Status OnUpdate()
     {
+        if (Target.Value == null) return Status.Failure;
+
+
         Vector3 targetPosition = Target.Value.transform.position;
         Vector3 selfPosition = Self.Value.transform.position;
         targetPosition.y = selfPosition.y;

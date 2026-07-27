@@ -11,6 +11,7 @@ TagManager:
   - SceneCamera
   - Enemy
   - Event
+  - DeadEnd
   layers:
   - Default
   - TransparentFX
@@ -33,8 +34,8 @@ TagManager:
   - Door
   - Deco
   - Event
-  - 
-  - 
+  - StatusEffect(Fear)
+  - Roads
   - 
   - 
   - 

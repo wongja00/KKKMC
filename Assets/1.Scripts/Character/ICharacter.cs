@@ -15,6 +15,17 @@ public interface ICharacter
 [System.Serializable]
 public struct Status
 {
+    Status(Status other)
+    {
+        this.strength = other.strength;
+        this.defense = other.defense;
+        this.agility = other.agility;
+        this.intelligence = other.intelligence;
+        this.attackSpeed = other.attackSpeed;
+        this.critChance = other.critChance;
+        this.critDamage = other.critDamage;
+    }
+
     public int strength;     // 힘
     public int defense;      // 방어력
     public int agility;      // 민첩성

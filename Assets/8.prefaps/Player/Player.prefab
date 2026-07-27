@@ -3716,6 +3716,7 @@ GameObject:
   - component: {fileID: 4948274575251071209}
   - component: {fileID: 8394944378077094957}
   - component: {fileID: 7341416357015312892}
+  - component: {fileID: 7589976689268715128}
   m_Layer: 8
   m_Name: Player
   m_TagString: Player
@@ -3787,6 +3788,7 @@ MonoBehaviour:
   isDead: 0
   isHitStun: 0
   stunDuration: 1
+  statusEffectManager: {fileID: 7589976689268715128}
   playerMovement: {fileID: 5489407841458146111}
   combat: {fileID: 7787473704795262931}
   buffSystem: {fileID: 7345782587532285161}
@@ -3997,6 +3999,22 @@ MonoBehaviour:
   flashDuration: 0.25
   flashColor: {r: 1, g: 1, b: 1, a: 1}
   colorProperty: _HitColor
+--- !u!114 &7589976689268715128
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4641755532622999874}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 418767d923e90404ebfe7a57de510b66, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::StatusEffectManager
+  syncDirection: 0
+  syncMode: 0
+  syncInterval: 0
+  character: {fileID: 7510349755269515821}
 --- !u!1 &4652135957547338077
 GameObject:
   m_ObjectHideFlags: 0
@@ -6286,6 +6304,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 0889c4816501465458cbe43d01aa4ab1, type: 2}
   availableCombos:
   - {fileID: 11400000, guid: 87251d4e27fd47a489a2020e8dacac23, type: 2}
+  statusEffectManager: {fileID: 0}
   isAttacking: 0
   canReceiveInput: 0
   canMoveDuringAttack: 1

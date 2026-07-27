@@ -958,6 +958,7 @@ GameObject:
   - component: {fileID: 3625937383772408361}
   - component: {fileID: 4385320720614337342}
   - component: {fileID: 9142935419490465262}
+  - component: {fileID: 3204148594289003037}
   m_Layer: 8
   m_Name: Player.Lee
   m_TagString: Player
@@ -1026,10 +1027,17 @@ MonoBehaviour:
     attackSpeed: 0
     critChance: 0
     critDamage: 0
-  speed: 5
+  speed: 8
   isDead: 0
   isHitStun: 0
   stunDuration: 1
+  isMove: 0
+  isAttacking: 0
+  isFeard: 0
+  statusEffectManager: {fileID: 3204148594289003037}
+  curDistance: 0
+  prePos: {x: 0, y: 0, z: 0}
+  activeDeBuffs: []
   playerMovement: {fileID: 7698598765417593602}
   combat: {fileID: 6667869369392434598}
   buffSystem: {fileID: 3755721136520847241}
@@ -1057,6 +1065,7 @@ MonoBehaviour:
   syncInterval: 0
   controller: {fileID: 6181275225712769541}
   playerCharacter: {fileID: 4601261543658627630}
+  player: {fileID: 0}
   playerCamera: {fileID: 0}
   animator: {fileID: 6430538100787241998}
   dashKey: 304
@@ -1240,6 +1249,22 @@ MonoBehaviour:
   flashDuration: 0.25
   flashColor: {r: 1, g: 1, b: 1, a: 1}
   colorProperty: _HitColor
+--- !u!114 &3204148594289003037
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3276143145094190095}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 418767d923e90404ebfe7a57de510b66, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::StatusEffectManager
+  syncDirection: 0
+  syncMode: 0
+  syncInterval: 0
+  character: {fileID: 1941328034930560818}
 --- !u!1 &3373000140251731132
 GameObject:
   m_ObjectHideFlags: 0
@@ -1883,6 +1908,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 47a4de58e230c884d8a27bf8823714e3, type: 2}
   - {fileID: 11400000, guid: 9422f47782775854abf2229b5a977e60, type: 2}
   availableCombos: []
+  statusEffectManager: {fileID: 0}
   isAttacking: 0
   canReceiveInput: 0
   canMoveDuringAttack: 1

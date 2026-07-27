@@ -352,12 +352,14 @@ MonoBehaviour:
   handHeld: {fileID: 3577323286213123549}
   character: {fileID: 7472361970271636457}
   hitboxOrigin: {fileID: 8784782795886745639}
+  characterEffectHandler: {fileID: 0}
   availableAttacks:
   - {fileID: 11400000, guid: eebc8839cdfd4a840b001a03f0aaae68, type: 2}
   - {fileID: 11400000, guid: a349ccba83bceca4fbfc05e6e163dcaf, type: 2}
   - {fileID: 11400000, guid: 0889c4816501465458cbe43d01aa4ab1, type: 2}
   availableCombos:
   - {fileID: 11400000, guid: 87251d4e27fd47a489a2020e8dacac23, type: 2}
+  statusEffectManager: {fileID: 0}
   isAttacking: 0
   canReceiveInput: 0
   canMoveDuringAttack: 1
@@ -781,6 +783,7 @@ GameObject:
   - component: {fileID: 3101878745340947442}
   - component: {fileID: 7585258210906149052}
   - component: {fileID: 3344920142107768925}
+  - component: {fileID: 8997321469394852426}
   m_Layer: 8
   m_Name: PlayerBase
   m_TagString: Player
@@ -847,10 +850,17 @@ MonoBehaviour:
     attackSpeed: 0
     critChance: 0
     critDamage: 0
-  speed: 5
+  speed: 8
   isDead: 0
   isHitStun: 0
   stunDuration: 1
+  isMove: 0
+  isAttacking: 0
+  isFeard: 0
+  statusEffectManager: {fileID: 8997321469394852426}
+  curDistance: 0
+  prePos: {x: 0, y: 0, z: 0}
+  activeDeBuffs: []
   playerMovement: {fileID: 6028982336696060969}
   combat: {fileID: 1920987297659954096}
   buffSystem: {fileID: 6989957872292839164}
@@ -878,6 +888,7 @@ MonoBehaviour:
   syncInterval: 0
   controller: {fileID: 8781635117285461197}
   playerCharacter: {fileID: 0}
+  player: {fileID: 0}
   playerCamera: {fileID: 0}
   animator: {fileID: 0}
   dashKey: 304
@@ -1061,3 +1072,19 @@ MonoBehaviour:
   flashDuration: 0.25
   flashColor: {r: 1, g: 1, b: 1, a: 1}
   colorProperty: _HitColor
+--- !u!114 &8997321469394852426
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9178547669144678576}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 418767d923e90404ebfe7a57de510b66, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::StatusEffectManager
+  syncDirection: 0
+  syncMode: 0
+  syncInterval: 0
+  character: {fileID: 7472361970271636457}

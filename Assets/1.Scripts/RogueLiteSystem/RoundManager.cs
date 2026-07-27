@@ -9,6 +9,9 @@ public class RoundManager : NetworkBehaviour
     
     [SerializeField]
     private DungeonGenerator dungeonGenerator;
+    [SerializeField]
+    private CityGridGenerator cityGridGenerator;
+    
     private RoundUI roundUI;
 
     private int maxRoom = 0;

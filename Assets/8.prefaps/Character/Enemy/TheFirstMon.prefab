@@ -327,6 +327,7 @@ GameObject:
   - component: {fileID: 7188237390720690172}
   - component: {fileID: 9178551937845075707}
   - component: {fileID: 8818862842749874340}
+  - component: {fileID: 6904608793343788770}
   m_Layer: 16
   m_Name: TheFirstMon
   m_TagString: Untagged
@@ -455,6 +456,14 @@ MonoBehaviour:
   isDead: 0
   isHitStun: 0
   stunDuration: 1
+  isMove: 0
+  isAttacking: 0
+  isFeard: 0
+  statusEffectManager: {fileID: 6904608793343788770}
+  curDistance: 0
+  prePos: {x: 0, y: 0, z: 0}
+  activeDeBuffs: []
+  characterTeam: 0
   animator: {fileID: 8429151296562207368}
   detectRange: 30
   stopDistance: 1.5
@@ -473,7 +482,7 @@ NavMeshAgent:
   m_GameObject: {fileID: 615403580860115500}
   m_Enabled: 1
   m_AgentTypeID: 0
-  m_Radius: 1
+  m_Radius: 0.5
   m_Speed: 3.5
   m_Acceleration: 8
   avoidancePriority: 50
@@ -676,6 +685,22 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   characterBase: {fileID: 4106748641508445066}
+--- !u!114 &6904608793343788770
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 615403580860115500}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 418767d923e90404ebfe7a57de510b66, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::StatusEffectManager
+  syncDirection: 0
+  syncMode: 0
+  syncInterval: 0
+  character: {fileID: 4106748641508445066}
 --- !u!1 &818918918513140320
 GameObject:
   m_ObjectHideFlags: 0

@@ -15,6 +15,7 @@ public class PlayerMovement : NetworkBehaviour
 {
     public CharacterController controller;
     public GameObject playerCharacter;
+    public CharacterBase player;
 
 
     [SerializeField]
@@ -65,12 +66,13 @@ public class PlayerMovement : NetworkBehaviour
     {
         if(animator == null) animator = GetComponentInChildren<PlayerModel>().animator;
         if(playerCharacter == null) playerCharacter = animator.transform.gameObject;
+        if(player == null) player = GetComponent<CharacterBase>();
 
-        if(!isLocalPlayer)
+        if (!isLocalPlayer)
         {
             controller.enabled = false;
         }
-        originSpeed = speed;
+        originSpeed = player.speed;
         velocity = Vector3.zero;
 
         playerCamera = CameraManager.Instance.GetPlayerCemera();
@@ -172,8 +174,23 @@ public class PlayerMovement : NetworkBehaviour
         if(controller.enabled == true)
             controller.Move(velocity *Time.deltaTime);
 
-        Vector3 finalMove = move * (currentSpeed - airDrag);
+        if(x != 0 || z != 0)
+        {
+            IsMoveing(true);
+        }
+        else
+        {
+            IsMoveing(false);
+        }
+
+        //Vector3 finalMove = move * (currentSpeed - airDrag);
         //CmdMove(finalMove, velocity, playerCharacter.transform.rotation, animVelocity);
+    }
+
+    [Command]
+    void IsMoveing(bool move)
+    {
+        player.isMove = move;
     }
 
     [Command]

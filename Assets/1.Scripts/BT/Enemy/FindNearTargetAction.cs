@@ -11,14 +11,23 @@ public partial class FindNearTargetAction : Action
     [SerializeReference] public BlackboardVariable<GameObject> Self;
     [SerializeReference] public BlackboardVariable<GameObject> NearTarget;
 
+    CharacterBase characterBase;
     protected override Status OnStart()
     {
+        characterBase = Self.Value.GetComponent<CharacterBase>();
+
         return Status.Running;
     }
 
     protected override Status OnUpdate()
     {
+        if(GetNearestPlayer() == null)
+            return Status.Failure;
+
+
+
         NearTarget.Value = GetNearestPlayer().gameObject;
+
         return Status.Success;
     }
 
@@ -32,6 +41,28 @@ public partial class FindNearTargetAction : Action
         float minDist = float.MaxValue;
 
         var players = PlayerRegistry.Players;
+
+        switch(characterBase.characterTeam)
+        {
+            case Team.Player:
+                players = EnemyRegistry.Enemies;
+
+
+                break;
+
+            case Team.Enemy:
+
+
+
+                break;
+
+            default:
+
+
+                break;
+        }
+
+
         if(players.Count == 0) return null;
 
         foreach (var p in players)

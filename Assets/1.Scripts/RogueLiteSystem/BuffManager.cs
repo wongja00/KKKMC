@@ -18,6 +18,29 @@ public enum BuffType
         CritDamage,
     }
 
+[Serializable]
+public struct BuffInstance
+{
+    public int ID;
+    public BuffBase Data;
+    public GameObject Owner;
+    public int Stack;
+    public float Duration;
+    public BuffType Type;
+    public float Value;
+}
+
+[Serializable]
+public struct BuffSyncData
+{
+    public int ID;
+    public int BuffID;
+    public float RemainingTime;
+    public int Stack;
+    public BuffType Type;
+    public float Value;
+}
+
 public class BuffManager : MonoBehaviour
 {
     public static BuffManager Instance;
@@ -32,6 +55,7 @@ public class BuffManager : MonoBehaviour
     public Dictionary<int, BuffDataObject> buffDataDic = new Dictionary<int, BuffDataObject>();
     public event Action OnApplyBuff;
 
+    List<BuffBase> activeBuffs = new List<BuffBase>();
     void Awake()
     {
         if(Instance == null)
@@ -57,6 +81,13 @@ public class BuffManager : MonoBehaviour
         SetBuffUI(false);
     }
 
+    void HandleEvent(CombatEventType type, CombatEventData data)
+    {
+        foreach(BuffBase buff in activeBuffs)
+        {
+            buff.OnEvent(type, data);
+        }
+    }
     void GetUIOnSceneLoad(Scene scene, LoadSceneMode mode)
     {
         buffCardParent = InteractUIManager.Instance.GetBuffUIParent();

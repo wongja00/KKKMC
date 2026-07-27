@@ -189,9 +189,17 @@ public class NetworkManager : Mirror.NetworkManager
 
     public void CharacterSpawn(int ID, NetworkConnectionToClient conn)
     {
+        NetworkStartPosition pos = GameObject.FindAnyObjectByType<NetworkStartPosition>();
+        
         if(playerPrefabDic.TryGetValue(ID, out GameObject value))
         {
             GameObject player = Instantiate(playerPrefabDic[ID].gameObject);
+
+            if(pos != null)
+            {
+                player.transform.position = pos.transform.position;
+            }
+
             Status status = new Status();
 
             for (int i = 0; i < playerInfos.Length; i++)
@@ -213,6 +221,10 @@ public class NetworkManager : Mirror.NetworkManager
         else
         {
             GameObject player = Instantiate(playerPrefab);
+            if (pos != null)
+            {
+                player.transform.position = pos.transform.position;
+            }
             Status status = new Status();
 
             for (int i = 0; i < playerInfos.Length; i++)

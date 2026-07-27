@@ -38,29 +38,36 @@ public class InteractUIManager : MonoBehaviour
         }
 
         SceneManager.sceneLoaded += FindUIDatas;
+        FindUI();
     }
 
     void FindUIDatas(Scene scene, LoadSceneMode mode)
     {
-        if(playerHp == null)
+        FindUI();
+    }
+
+    void FindUI()
+    {
+        if (playerHp == null)
         {
             playerHp = GameObject.Find("PlayerHP").GetComponent<PlayerHP>();
         }
-        if(buffUIPanel == null)
+        if (buffUIPanel == null)
         {
             buffUIPanel = GameObject.Find("BuffSelector").transform;
             buffUIParent = buffUIPanel.Find("BuffSelector");
         }
-        if(dialoguePanel == null)
+        if (dialoguePanel == null)
         {
             dialoguePanel = FindAnyObjectByType<Dialogue>().transform.Find("DialoguePanel");
         }
 
-        if(chatUI == null)
+        if (chatUI == null)
         {
             chatUI = GameObject.Find("ChatUI").GetComponent<ChatUI>();
         }
     }
+
      void OnEnable()
     {
         SceneManager.sceneLoaded += FindUIDatas;

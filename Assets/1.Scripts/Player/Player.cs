@@ -36,11 +36,12 @@ public class Player : CharacterBase
 
     void Awake()
     {
-
+        characterTeam = Team.Player;
     }
     void Start()
     {        
         CharacterStartInit();
+
     }
 
     public override void OnStartServer()
